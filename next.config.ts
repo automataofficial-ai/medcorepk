@@ -1,3 +1,4 @@
+// Next.js configuration for MedCore
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
