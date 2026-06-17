@@ -10,21 +10,47 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Deploy to VPS
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build and Deploy to VPS
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
+          port: 22
           script: |
+            # Create deployment directory if it doesn't exist
+            mkdir -p /opt/medcore
             cd /opt/medcore
-            git pull origin main
-            docker build -t medcore .
+
+            # Clone or pull the repository
+            if [ -d ".git" ]; then
+              git pull origin main
+            else
+              git clone https://github.com/${{ github.repository }}.git .
+              git checkout main
+            fi
+
+            # Build Docker image
+            docker build -t medcore:latest .
+
+            # Stop and remove old container
             docker stop medcore 2>/dev/null || true
             docker rm medcore 2>/dev/null || true
+
+            # Run new container
             docker run -d \
               --name medcore \
               --restart unless-stopped \
               -p 3001:3001 \
-              medcore
-            echo "MedCore deployed successfully"
+              medcore:latest
+
+            # Verify deployment
+            sleep 5
+            if curl -f http://localhost:3001 > /dev/null; then
+              echo "✅ MedCore deployed successfully"
+            else
+              echo "⚠️ Warning: Service may not be responding"
+            fi
