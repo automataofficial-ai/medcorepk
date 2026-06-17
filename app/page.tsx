@@ -131,36 +131,9 @@ export default function HomePage() {
         }}
       />
 
-      {/* ──────────────────────── NAV ──────────────────────────── */}
-      <nav className="relative z-10 flex items-center justify-between px-6 md:px-12 py-6">
-        <div className="flex items-center gap-3">
-          <div
-            className="w-10 h-10 rounded-xl flex items-center justify-center text-white font-black text-lg animate-glow"
-            style={{ background: "linear-gradient(135deg, #2563EB, #7C3AED)" }}
-          >
-            M
-          </div>
-          <span className="text-white font-bold text-xl tracking-tight">
-            Med<span className="text-blue-400">Core</span>
-          </span>
-          <span className="hidden sm:inline ml-2 text-xs px-2 py-0.5 rounded-full bg-blue-500/10 border border-blue-500/25 text-blue-400 font-medium">
-            BETA
-          </span>
-        </div>
-
-        <div className="flex items-center gap-4">
-          <Link
-            href="/login"
-            className="btn-glow px-6 py-2.5 rounded-full text-sm font-semibold text-white transition-all duration-200 hover:scale-105"
-            style={{ background: "linear-gradient(135deg, #2563EB, #7C3AED)", boxShadow: "0 0 20px rgba(99,102,241,0.4)" }}
-          >
-            Login
-          </Link>
-        </div>
-      </nav>
 
       {/* ──────────────────── HERO ──────────────────────────────── */}
-      <section className="relative z-10 flex flex-col items-center text-center px-6 pt-20 pb-32">
+      <section className="relative z-10 flex flex-col items-center text-center px-6 pt-12 pb-32">
 
         {/* Badge */}
         <div
