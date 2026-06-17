@@ -1,4 +1,4 @@
-// Next.js configuration for MedCore
+// Next.js configuration for MedCore - deploy test 2
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
