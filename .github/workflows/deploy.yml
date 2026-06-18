@@ -33,8 +33,8 @@ jobs:
               git checkout main
             fi
 
-            # Build Docker image
-            docker build -t medcore:latest .
+            # Build Docker image (force rebuild without cache)
+            docker build --no-cache -t medcore:latest .
 
             # Stop and remove old container
             docker stop medcore 2>/dev/null || true
