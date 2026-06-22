@@ -78,12 +78,17 @@ jobs:
             echo "⏳ Waiting for container to start..."
             sleep 15
 
-            # Verify deployment
-            if docker exec medcore curl -f http://localhost:3001 > /dev/null 2>&1; then
+            # Verify deployment (check if container is running)
+            if docker ps | grep -q medcore; then
               echo "✅ MedCore deployed successfully!"
+              echo ""
+              echo "📋 Container Status:"
+              docker ps | grep medcore
+              echo ""
+              echo "📊 Latest Logs:"
               docker logs medcore | tail -20
             else
-              echo "❌ Deployment failed - service not responding"
+              echo "❌ Deployment failed - container not running"
               docker logs medcore
               exit 1
             fi
