@@ -21,36 +21,55 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
           port: 22
           script: |
+            set -e  # Exit on any error
+
+            echo "🚀 Starting MedCore deployment..."
+
             # Create deployment directory if it doesn't exist
             mkdir -p /opt/medcore
             cd /opt/medcore
 
             # Clone or pull the repository
             if [ -d ".git" ]; then
+              echo "📥 Pulling latest code..."
               git pull origin main
             else
+              echo "📥 Cloning repository..."
               git clone https://github.com/${{ github.repository }}.git .
               git checkout main
             fi
 
             # Build Docker image (force rebuild without cache)
-            docker build --no-cache -t medcore:latest .
+            echo "🔨 Building Docker image..."
+            docker build --no-cache --pull -t medcore:latest .
 
-            # Stop and remove old container
-            docker stop medcore 2>/dev/null || true
-            docker rm medcore 2>/dev/null || true
+            # Force remove old containers (handle multiple attempts)
+            echo "🧹 Cleaning up old containers..."
+            docker ps -a | grep -i medcore | awk '{print $1}' | xargs -r docker rm -f || true
+            docker container prune -f --filter "label!=keep" || true
 
             # Run new container
+            echo "🚀 Starting new container..."
             docker run -d \
               --name medcore \
               --restart unless-stopped \
               -p 3001:3001 \
+              --health-cmd="curl -f http://localhost:3001 || exit 1" \
+              --health-interval=10s \
+              --health-timeout=5s \
+              --health-retries=3 \
               medcore:latest
 
+            # Wait for container to be ready
+            echo "⏳ Waiting for container to start..."
+            sleep 15
+
             # Verify deployment
-            sleep 5
-            if curl -f http://localhost:3001 > /dev/null; then
-              echo "✅ MedCore deployed successfully"
+            if docker exec medcore curl -f http://localhost:3001 > /dev/null 2>&1; then
+              echo "✅ MedCore deployed successfully!"
+              docker logs medcore | tail -20
             else
-              echo "⚠️ Warning: Service may not be responding"
+              echo "❌ Deployment failed - service not responding"
+              docker logs medcore
+              exit 1
             fi
