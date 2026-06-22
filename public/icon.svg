@@ -1,0 +1,12 @@
+<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background circle -->
+  <circle cx="100" cy="100" r="100" fill="#0052CC"/>
+
+  <!-- Outer circle border -->
+  <circle cx="100" cy="100" r="90" fill="none" stroke="white" stroke-width="6"/>
+  <circle cx="100" cy="100" r="82" fill="none" stroke="white" stroke-width="3" opacity="0.7"/>
+
+  <!-- ECG/Heartbeat line -->
+  <polyline points="30,100 55,100 68,65 85,135 100,100 115,100 135,50 155,135 170,100 195,100"
+            fill="none" stroke="white" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

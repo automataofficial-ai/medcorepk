@@ -316,8 +316,7 @@ export default function HomePage() {
       <footer className="relative z-10 border-t border-slate-800/60 py-8 px-6">
         <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-slate-500">
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-lg flex items-center justify-center text-white text-xs font-black"
-              style={{ background: "linear-gradient(135deg, #2563EB, #7C3AED)" }}>M</div>
+            <img src="/icon.svg" alt="MedCore" className="h-6 w-6" />
             <span>MedCore © 2026</span>
           </div>
           <p>Built for FCPS candidates across Pakistan</p>

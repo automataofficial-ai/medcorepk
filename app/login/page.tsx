@@ -50,12 +50,8 @@ export default function LoginPage() {
       <div className="relative z-10 w-full max-w-md px-4">
         {/* Logo */}
         <div className="text-center mb-8" style={{ animation: "fade-in 0.5s ease forwards" }}>
-          <Link href="/" className="inline-flex items-center gap-3 mb-6">
-            <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-white font-black text-xl"
-              style={{ background: "linear-gradient(135deg, #2563EB, #7C3AED)" }}>M</div>
-            <span className="text-white font-bold text-2xl tracking-tight">
-              Med<span className="text-blue-400">Core</span>
-            </span>
+          <Link href="/" className="inline-flex justify-center mb-6 hover:opacity-80 transition-opacity duration-300">
+            <img src="/icon.svg" alt="MedCore Icon" className="h-16 w-16" />
           </Link>
           <h1 className="text-2xl font-bold text-white mb-1">Welcome back</h1>
           <p className="text-slate-400 text-sm">Sign in to continue your FCPS preparation</p>

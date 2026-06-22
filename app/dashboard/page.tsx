@@ -43,15 +43,24 @@ function StatCard({ icon, label, value, sub, color }: {
   icon: string; label: string; value: string | number; sub?: string; color: string;
 }) {
   return (
-    <div className="glass rounded-2xl p-5 flex items-center gap-4">
-      <div className="w-12 h-12 rounded-xl flex items-center justify-center text-xl flex-shrink-0"
-        style={{ background: `${color}20`, border: `1px solid ${color}30` }}>
+    <div className="rounded-2xl p-6 flex items-start gap-4 transition-all duration-300 hover:scale-105 cursor-pointer"
+      style={{
+        background: `linear-gradient(135deg, ${color}15, ${color}08)`,
+        border: `1.5px solid ${color}30`,
+        boxShadow: `0 8px 16px rgba(0, 0, 0, 0.2), inset 0 1px 0px rgba(255,255,255,0.08)`
+      }}>
+      <div className="w-14 h-14 rounded-xl flex items-center justify-center text-2xl flex-shrink-0"
+        style={{
+          background: `${color}20`,
+          border: `1.5px solid ${color}40`,
+          boxShadow: `0 4px 12px ${color}20`
+        }}>
         {icon}
       </div>
-      <div className="min-w-0">
-        <p className="text-xs text-slate-500 uppercase tracking-wide">{label}</p>
-        <p className="text-2xl font-bold text-white">{value}</p>
-        {sub && <p className="text-xs text-slate-400 truncate">{sub}</p>}
+      <div className="min-w-0 flex-1">
+        <p className="text-xs text-slate-400 uppercase tracking-widest font-semibold">{label}</p>
+        <p className="text-3xl font-black text-white mt-1">{value}</p>
+        {sub && <p className="text-xs text-slate-500 mt-1 truncate">{sub}</p>}
       </div>
     </div>
   );
@@ -75,23 +84,47 @@ function ChartTip({ active, payload, label }: {
 /* ── Navbar ── */
 function Navbar({ name, onLogout }: { name: string; onLogout: () => void }) {
   return (
-    <nav className="sticky top-0 z-50 border-b border-slate-800/60 px-6 py-4 flex items-center justify-between"
-      style={{ background: "rgba(5,11,24,0.9)", backdropFilter: "blur(16px)" }}>
-      <Link href="/" className="flex items-center gap-2">
-        <div className="w-8 h-8 rounded-lg flex items-center justify-center text-white font-black text-sm"
-          style={{ background: "linear-gradient(135deg, #2563EB, #7C3AED)" }}>M</div>
-        <span className="text-white font-bold">Med<span className="text-blue-400">Core</span></span>
+    <nav className="sticky top-0 z-50 px-8 py-5 flex items-center justify-between"
+      style={{
+        background: "linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 27, 75, 0.6))",
+        backdropFilter: "blur(20px)",
+        borderBottom: "1px solid rgba(99, 102, 241, 0.2)",
+        boxShadow: "0 4px 20px rgba(0, 0, 0, 0.3)"
+      }}>
+      {/* Left side - Logo/Title */}
+      <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity duration-300">
+        <img src="/icon.svg" alt="MedCore" className="h-10 w-10" />
+        <span className="text-white font-bold text-lg hidden sm:inline">MedCore</span>
       </Link>
-      <div className="flex items-center gap-4">
-        <div className="hidden sm:flex items-center gap-2 text-sm text-slate-400">
-          <div className="w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-bold"
+
+      {/* Right side - User info and Logout */}
+      <div className="flex items-center gap-6">
+        <div className="hidden sm:flex items-center gap-3 px-4 py-2.5 rounded-2xl"
+          style={{ background: "rgba(99, 102, 241, 0.08)", border: "1px solid rgba(99, 102, 241, 0.2)" }}>
+          <div className="w-9 h-9 rounded-full flex items-center justify-center text-white text-sm font-bold"
             style={{ background: "linear-gradient(135deg, #2563EB, #7C3AED)" }}>
             {name.charAt(0)}
           </div>
-          <span>{name}</span>
+          <div className="flex flex-col">
+            <span className="text-sm font-semibold text-white">{name}</span>
+            <span className="text-xs text-slate-400">Candidate</span>
+          </div>
         </div>
         <button onClick={onLogout}
-          className="text-xs text-slate-500 hover:text-slate-300 transition-colors px-3 py-1.5 rounded-lg border border-slate-800 hover:border-slate-600">
+          className="px-5 py-2.5 text-sm font-semibold rounded-xl transition-all duration-300 border"
+          style={{
+            background: "rgba(239, 68, 68, 0.1)",
+            borderColor: "rgba(239, 68, 68, 0.3)",
+            color: "#FECACA"
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = "rgba(239, 68, 68, 0.2)";
+            e.currentTarget.style.borderColor = "rgba(239, 68, 68, 0.5)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = "rgba(239, 68, 68, 0.1)";
+            e.currentTarget.style.borderColor = "rgba(239, 68, 68, 0.3)";
+          }}>
           Logout
         </button>
       </div>
@@ -184,27 +217,34 @@ export default function DashboardPage() {
     <div className="min-h-screen page-enter" style={{ background: "#050B18" }}>
       <Navbar name={user.name} onLogout={logout} />
 
-      <div className="max-w-7xl mx-auto px-4 py-8 space-y-8">
+      <div className="max-w-7xl mx-auto px-6 py-12 space-y-8">
 
         {/* ── welcome banner ── */}
-        <div className="flex items-center justify-between flex-wrap gap-4">
+        <div className="flex items-center justify-between flex-wrap gap-6 mb-2">
           <div>
-            <h1 className="text-2xl font-bold text-white">
-              Welcome back, <span className="gradient-text">{user.name.split(" ")[0]}</span> 👋
+            <h1 className="text-4xl font-black text-white mb-2">
+              Welcome back, <span style={{ backgroundImage: "linear-gradient(135deg, #60A5FA, #A78BFA)", backgroundClip: "text", WebkitBackgroundClip: "text", color: "transparent" }}>{user.name.split(" ")[0]}</span>
             </h1>
-            <p className="text-slate-400 text-sm mt-1">
+            <p className="text-slate-400 text-base">
               {completedCount === 0
-                ? "Start your first block to begin tracking progress."
-                : `You have completed ${completedCount}/${totalBlocks} blocks — keep going!`}
+                ? "🎯 Start your first block to begin tracking progress"
+                : `📊 You have completed ${completedCount}/${totalBlocks} blocks — keep going!`}
             </p>
           </div>
-          <div className="flex items-center gap-2 text-sm text-slate-400 glass px-4 py-2.5 rounded-xl">
-            <span className="text-orange-400 text-base">🔥</span>
-            {completedCount > 0 ? (
-              <span><strong className="text-white">{completedCount}</strong> block{completedCount !== 1 ? "s" : ""} completed</span>
-            ) : (
-              <span>No blocks completed yet</span>
-            )}
+          <div className="flex items-center gap-3 px-6 py-4 rounded-2xl"
+            style={{
+              background: "linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(251, 146, 60, 0.08))",
+              border: "1px solid rgba(251, 146, 60, 0.3)"
+            }}>
+            <span className="text-2xl">🔥</span>
+            <div>
+              <p className="text-xs text-slate-400 uppercase tracking-wide">Blocks Completed</p>
+              {completedCount > 0 ? (
+                <p className="text-xl font-bold text-white"><strong>{completedCount}</strong>/{totalBlocks}</p>
+              ) : (
+                <p className="text-lg font-semibold text-slate-300">Get Started</p>
+              )}
+            </div>
           </div>
         </div>
 
@@ -218,10 +258,17 @@ export default function DashboardPage() {
 
         {/* ── analytics section ── */}
         {sessions.length > 0 ? (
-          <div className="space-y-6">
-            <div className="flex items-center gap-3">
-              <h2 className="text-lg font-bold text-white">Performance Analytics</h2>
-              <span className="text-xs px-2 py-0.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400">Live</span>
+          <div className="space-y-8">
+            <div className="flex items-center gap-4 pb-4 border-b border-slate-800/50">
+              <div className="w-2 h-8 rounded-full" style={{ background: "linear-gradient(180deg, #3B82F6, #8B5CF6)" }} />
+              <div>
+                <h2 className="text-2xl font-black text-white">Performance Analytics</h2>
+                <p className="text-xs text-slate-400 mt-1">Track your progress and improvement</p>
+              </div>
+              <span className="ml-auto text-xs px-3 py-1.5 rounded-full bg-green-500/10 border border-green-500/30 text-green-400 font-semibold flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+                Live
+              </span>
             </div>
 
             <div className="grid lg:grid-cols-3 gap-6">
@@ -385,15 +432,20 @@ export default function DashboardPage() {
         )}
 
         {/* ── blocks grid ── */}
-        <div>
-          <div className="flex items-center justify-between mb-5 flex-wrap gap-3">
-            <h2 className="text-lg font-bold text-white">Available Blocks</h2>
-            <div className="flex items-center gap-3 text-xs text-slate-400">
-              <span className="flex items-center gap-1.5">
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />Completed
+        <div className="mt-12">
+          <div className="flex items-center justify-between mb-8 flex-wrap gap-4 pb-4 border-b border-slate-800/50">
+            <div>
+              <h2 className="text-2xl font-black text-white">Available Blocks</h2>
+              <p className="text-xs text-slate-400 mt-1">Practice all subjects and track your progress</p>
+            </div>
+            <div className="flex items-center gap-5 text-xs text-slate-400">
+              <span className="flex items-center gap-2.5 px-3 py-1.5 rounded-lg" style={{ background: "rgba(16, 185, 129, 0.08)" }}>
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
+                <span className="text-slate-300">Completed</span>
               </span>
-              <span className="flex items-center gap-1.5">
-                <span className="w-2.5 h-2.5 rounded-full bg-slate-600" />Not Started
+              <span className="flex items-center gap-2.5 px-3 py-1.5 rounded-lg" style={{ background: "rgba(100, 116, 139, 0.08)" }}>
+                <span className="w-2.5 h-2.5 rounded-full bg-slate-600" />
+                <span className="text-slate-400">Not Started</span>
               </span>
             </div>
           </div>

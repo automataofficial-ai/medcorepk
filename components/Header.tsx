@@ -1,11 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Menu, X, Sparkles } from "lucide-react";
+import { usePathname } from "next/navigation";
 
 export default function Header() {
+  const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // Hide header on dashboard and block pages only
+  if (pathname.startsWith("/dashboard") || pathname.startsWith("/block")) {
+    return null;
+  }
 
   const navItems = [
     { label: "Home", href: "/" },
@@ -32,25 +39,8 @@ export default function Header() {
           <div className="flex items-center justify-between gap-8">
 
             {/* Logo Section */}
-            <Link href="/" className="flex items-center gap-4 group flex-shrink-0">
-              <div
-                className="w-14 h-14 rounded-2xl flex items-center justify-center text-white font-black text-xl group-hover:shadow-2xl transition-all duration-300 flex-shrink-0"
-                style={{
-                  background: "linear-gradient(135deg, #2563EB, #7C3AED)",
-                  boxShadow: "0 8px 24px rgba(37, 99, 235, 0.35), inset 0 1px 0px rgba(255,255,255,0.2)",
-                }}
-              >
-                M
-              </div>
-              <div className="flex flex-col">
-                <span className="text-white font-black text-xl tracking-tight">
-                  Med<span className="text-transparent bg-clip-text" style={{ backgroundImage: "linear-gradient(135deg, #60A5FA, #A78BFA)" }}>Core</span>
-                </span>
-                <div className="flex items-center gap-1 mt-0.5">
-                  <Sparkles size={12} className="text-blue-400" />
-                  <span className="text-xs font-semibold text-blue-400">FCPS Excellence</span>
-                </div>
-              </div>
+            <Link href="/" className="flex items-center gap-2 group flex-shrink-0 hover:opacity-80 transition-opacity duration-300">
+              <img src="/logo.svg" alt="MedCore Logo" className="h-16 w-auto" />
             </Link>
 
             {/* Desktop Navigation */}
