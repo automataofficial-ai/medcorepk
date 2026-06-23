@@ -51,13 +51,13 @@ export default function SyllabusPage() {
       </div>
 
       {/* Hero Section */}
-      <section className="relative z-10 pt-20 pb-16 px-6 md:px-12">
+      <section className="relative z-10 pt-24 pb-20 px-6 md:px-12">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-12">
-            <h1 className="text-5xl md:text-6xl font-black text-white leading-tight mb-6">
+          <div className="text-center mb-16">
+            <h1 className="text-5xl md:text-6xl font-black text-white leading-tight mb-8">
               FCPS <span className="gradient-text">Syllabus</span>
             </h1>
-            <p className="text-lg md:text-xl text-slate-400 max-w-3xl mx-auto">
+            <p className="text-lg md:text-xl text-white max-w-3xl mx-auto">
               Complete CPSP syllabus and guidelines for all FCPS specialties. Download comprehensive study materials organized by Paper I and Paper II.
             </p>
           </div>
@@ -65,18 +65,18 @@ export default function SyllabusPage() {
       </section>
 
       {/* Paper I Section */}
-      <section className="relative z-10 py-16 px-6 md:px-12">
+      <section className="relative z-10 py-24 px-6 md:px-12">
         <div className="max-w-6xl mx-auto">
-          <div className="mb-12">
-            <h2 className="text-3xl md:text-4xl font-black text-white mb-4">
+          <div className="mb-16">
+            <h2 className="text-3xl md:text-4xl font-black text-white mb-6">
               📋 Paper I — Common for All Specialties
             </h2>
-            <p className="text-slate-400 text-lg">
+            <p className="text-white text-lg">
               These subjects are examined in Paper I for all FCPS specialties and form the foundation of your exam preparation.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-6">
+          <div className="grid md:grid-cols-2 gap-8">
             {PAPER_I_TOPICS.map((topic, idx) => (
               <div
                 key={idx}
@@ -100,7 +100,7 @@ export default function SyllabusPage() {
                     <h3 className="text-xl font-bold text-white mb-3 group-hover:text-blue-300 transition-colors">
                       {topic.title}
                     </h3>
-                    <p className="text-slate-400 leading-relaxed">{topic.description}</p>
+                    <p className="text-white leading-relaxed">{topic.description}</p>
                   </div>
                 </div>
               </div>
@@ -110,50 +110,50 @@ export default function SyllabusPage() {
       </section>
 
       {/* Paper II Section */}
-      <section className="relative z-10 py-16 px-6 md:px-12">
+      <section className="relative z-10 py-24 px-6 md:px-12">
         <div className="max-w-6xl mx-auto">
           <div
-            className="rounded-3xl p-10 md:p-14 border"
+            className="rounded-3xl p-12 md:p-16 border"
             style={{
               background: "rgba(15, 23, 42, 0.7)",
               borderColor: "rgba(99, 102, 241, 0.2)",
             }}
           >
-            <h2 className="text-3xl md:text-4xl font-black text-white mb-6 flex items-center gap-3">
+            <h2 className="text-3xl md:text-4xl font-black text-white mb-8 flex items-center gap-3">
               🩻 Paper II — Specialty-Specific
             </h2>
 
-            <p className="text-slate-300 text-lg mb-8 leading-relaxed">
+            <p className="text-white text-lg mb-10 leading-relaxed">
               Paper II covers advanced topics in your chosen specialty. The subjects typically include:
             </p>
 
-            <div className="grid md:grid-cols-2 gap-6 mb-10">
+            <div className="grid md:grid-cols-2 gap-8 mb-12">
               <div className="flex items-start gap-4">
                 <div className="text-2xl">📚</div>
                 <div>
                   <h3 className="text-white font-bold mb-2">Anatomy, Histology & Embryology</h3>
-                  <p className="text-slate-400">(specialty-focused)</p>
+                  <p className="text-white">(specialty-focused)</p>
                 </div>
               </div>
               <div className="flex items-start gap-4">
                 <div className="text-2xl">🧬</div>
                 <div>
                   <h3 className="text-white font-bold mb-2">Physiology & Biochemistry</h3>
-                  <p className="text-slate-400">Specialty-relevant pathophysiology</p>
+                  <p className="text-white">Specialty-relevant pathophysiology</p>
                 </div>
               </div>
               <div className="flex items-start gap-4">
                 <div className="text-2xl">🔬</div>
                 <div>
                   <h3 className="text-white font-bold mb-2">Pathology, Microbiology & Immunology</h3>
-                  <p className="text-slate-400">Disease mechanisms and diagnosis</p>
+                  <p className="text-white">Disease mechanisms and diagnosis</p>
                 </div>
               </div>
               <div className="flex items-start gap-4">
                 <div className="text-2xl">💊</div>
                 <div>
                   <h3 className="text-white font-bold mb-2">Pharmacology (Clinical Emphasis)</h3>
-                  <p className="text-slate-400">Treatment and management</p>
+                  <p className="text-white">Treatment and management</p>
                 </div>
               </div>
             </div>
@@ -171,7 +171,7 @@ export default function SyllabusPage() {
                 <Zap size={20} className="text-blue-400" />
                 Important
               </h3>
-              <p className="text-slate-300 leading-relaxed">
+              <p className="text-white leading-relaxed">
                 Paper II content varies significantly by specialty. Download your specialty-specific syllabus below to know exactly what to study and focus your preparation efficiently.
               </p>
             </div>
@@ -202,18 +202,18 @@ export default function SyllabusPage() {
       </section>
 
       {/* Specialty Selection Section */}
-      <section className="relative z-10 py-20 px-6 md:px-12">
+      <section className="relative z-10 py-28 px-6 md:px-12">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-black text-white mb-4">
+          <div className="text-center mb-20">
+            <h2 className="text-4xl md:text-5xl font-black text-white mb-6">
               Select Your <span className="gradient-text">Specialty</span>
             </h2>
-            <p className="text-slate-400 text-lg max-w-2xl mx-auto">
+            <p className="text-white text-lg max-w-2xl mx-auto">
               Click on your specialty to download the complete CPSP syllabus and guidelines.
             </p>
           </div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {SPECIALTIES.map((specialty, idx) => (
               <div
                 key={idx}
@@ -279,19 +279,19 @@ export default function SyllabusPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="relative z-10 py-20 px-6 md:px-12">
-        <div className="max-w-4xl mx-auto">
+      <section className="relative z-10 py-28 px-6 md:px-12">
+        <div className="max-w-5xl mx-auto">
           <div
-            className="rounded-3xl p-12 md:p-16 text-center border"
+            className="rounded-3xl p-14 md:p-20 text-center border"
             style={{
               background: "linear-gradient(135deg, rgba(37,99,235,0.15), rgba(124,58,237,0.15))",
               borderColor: "rgba(99, 102, 241, 0.3)",
             }}
           >
-            <h2 className="text-3xl md:text-4xl font-black text-white mb-6">
+            <h2 className="text-3xl md:text-4xl font-black text-white mb-8">
               Ready to Start Your Preparation?
             </h2>
-            <p className="text-slate-400 text-lg mb-8 max-w-2xl mx-auto">
+            <p className="text-white text-lg mb-10 max-w-2xl mx-auto">
               Download the syllabus for your specialty and align your preparation with CPSP guidelines. Master the exam with MedCore.
             </p>
             <Link

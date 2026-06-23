@@ -58,9 +58,9 @@ function StatCard({ icon, label, value, sub, color }: {
         {icon}
       </div>
       <div className="min-w-0 flex-1">
-        <p className="text-xs text-slate-400 uppercase tracking-widest font-semibold">{label}</p>
+        <p className="text-xs text-white uppercase tracking-widest font-semibold">{label}</p>
         <p className="text-3xl font-black text-white mt-1">{value}</p>
-        {sub && <p className="text-xs text-slate-500 mt-1 truncate">{sub}</p>}
+        {sub && <p className="text-xs text-white mt-1 truncate">{sub}</p>}
       </div>
     </div>
   );
@@ -73,7 +73,7 @@ function ChartTip({ active, payload, label }: {
   if (!active || !payload?.length) return null;
   return (
     <div className="glass rounded-xl px-3 py-2 text-sm">
-      {label && <p className="text-slate-400 mb-1 text-xs">{label}</p>}
+      {label && <p className="text-white mb-1 text-xs">{label}</p>}
       {payload.map((p) => (
         <p key={p.name} className="text-white font-semibold">{p.name}: {p.value}%</p>
       ))}
@@ -107,7 +107,7 @@ function Navbar({ name, onLogout }: { name: string; onLogout: () => void }) {
           </div>
           <div className="flex flex-col">
             <span className="text-sm font-semibold text-white">{name}</span>
-            <span className="text-xs text-slate-400">Candidate</span>
+            <span className="text-xs text-white">Candidate</span>
           </div>
         </div>
         <button onClick={onLogout}
@@ -225,7 +225,7 @@ export default function DashboardPage() {
             <h1 className="text-4xl font-black text-white mb-2">
               Welcome back, <span style={{ backgroundImage: "linear-gradient(135deg, #60A5FA, #A78BFA)", backgroundClip: "text", WebkitBackgroundClip: "text", color: "transparent" }}>{user.name.split(" ")[0]}</span>
             </h1>
-            <p className="text-slate-400 text-base">
+            <p className="text-white text-base">
               {completedCount === 0
                 ? "🎯 Start your first block to begin tracking progress"
                 : `📊 You have completed ${completedCount}/${totalBlocks} blocks — keep going!`}
@@ -238,7 +238,7 @@ export default function DashboardPage() {
             }}>
             <span className="text-2xl">🔥</span>
             <div>
-              <p className="text-xs text-slate-400 uppercase tracking-wide">Blocks Completed</p>
+              <p className="text-xs text-white uppercase tracking-wide">Blocks Completed</p>
               {completedCount > 0 ? (
                 <p className="text-xl font-bold text-white"><strong>{completedCount}</strong>/{totalBlocks}</p>
               ) : (
@@ -263,7 +263,7 @@ export default function DashboardPage() {
               <div className="w-2 h-8 rounded-full" style={{ background: "linear-gradient(180deg, #3B82F6, #8B5CF6)" }} />
               <div>
                 <h2 className="text-2xl font-black text-white">Performance Analytics</h2>
-                <p className="text-xs text-slate-400 mt-1">Track your progress and improvement</p>
+                <p className="text-xs text-white mt-1">Track your progress and improvement</p>
               </div>
               <span className="ml-auto text-xs px-3 py-1.5 rounded-full bg-green-500/10 border border-green-500/30 text-green-400 font-semibold flex items-center gap-1.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
@@ -275,23 +275,23 @@ export default function DashboardPage() {
 
               {/* overall accuracy ring + stats */}
               <div className="glass rounded-2xl p-6 flex flex-col items-center justify-center gap-4">
-                <p className="text-xs text-slate-500 uppercase tracking-wide">Overall Accuracy</p>
+                <p className="text-xs text-white uppercase tracking-wide">Overall Accuracy</p>
                 <ScoreRing pct={overallAcc} />
                 <div className="w-full grid grid-cols-2 gap-3 mt-2">
                   <div className="text-center p-3 rounded-xl" style={{ background: "rgba(16,185,129,0.1)", border: "1px solid rgba(16,185,129,0.2)" }}>
                     <p className="text-2xl font-bold text-emerald-400">{totalCorrect}</p>
-                    <p className="text-xs text-slate-400">Correct</p>
+                    <p className="text-xs text-white">Correct</p>
                   </div>
                   <div className="text-center p-3 rounded-xl" style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.2)" }}>
                     <p className="text-2xl font-bold text-red-400">{totalIncorrect}</p>
-                    <p className="text-xs text-slate-400">Incorrect</p>
+                    <p className="text-xs text-white">Incorrect</p>
                   </div>
                 </div>
               </div>
 
               {/* pie chart */}
               <div className="glass rounded-2xl p-6">
-                <p className="text-xs text-slate-500 uppercase tracking-wide mb-4">Answer Distribution</p>
+                <p className="text-xs text-white uppercase tracking-wide mb-4">Answer Distribution</p>
                 <ResponsiveContainer width="100%" height={200}>
                   <PieChart>
                     <Pie data={pieData} cx="50%" cy="50%" innerRadius={55} outerRadius={85}
@@ -311,7 +311,7 @@ export default function DashboardPage() {
 
               {/* score trend */}
               <div className="glass rounded-2xl p-6">
-                <p className="text-xs text-slate-500 uppercase tracking-wide mb-4">Score Trend</p>
+                <p className="text-xs text-white uppercase tracking-wide mb-4">Score Trend</p>
                 {areaData.length >= 2 ? (
                   <ResponsiveContainer width="100%" height={200}>
                     <AreaChart data={areaData}>
@@ -330,7 +330,7 @@ export default function DashboardPage() {
                     </AreaChart>
                   </ResponsiveContainer>
                 ) : (
-                  <div className="h-48 flex items-center justify-center text-slate-500 text-sm">
+                  <div className="h-48 flex items-center justify-center text-white text-sm">
                     Complete 2+ blocks to see trend
                   </div>
                 )}
@@ -339,7 +339,7 @@ export default function DashboardPage() {
 
             {/* bar chart: score by specialty */}
             <div className="glass rounded-2xl p-6">
-              <p className="text-xs text-slate-500 uppercase tracking-wide mb-4">Score by Specialty</p>
+              <p className="text-xs text-white uppercase tracking-wide mb-4">Score by Specialty</p>
               <ResponsiveContainer width="100%" height={220}>
                 <BarChart data={barData} barGap={4}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#1a2844" vertical={false} />
@@ -352,7 +352,7 @@ export default function DashboardPage() {
                       const d = barData.find((b) => b.name === payload[0]?.payload?.name);
                       return (
                         <div className="glass rounded-xl px-3 py-2 text-sm">
-                          <p className="text-slate-400 text-xs mb-1">{d?.full}</p>
+                          <p className="text-white text-xs mb-1">{d?.full}</p>
                           <p className="text-white font-semibold">Score: {payload[0].value}%</p>
                         </div>
                       );
@@ -369,7 +369,7 @@ export default function DashboardPage() {
 
             {/* subject accuracy progress bars */}
             <div className="glass rounded-2xl p-6">
-              <p className="text-xs text-slate-500 uppercase tracking-wide mb-5">Subject Accuracy Breakdown</p>
+              <p className="text-xs text-white uppercase tracking-wide mb-5">Subject Accuracy Breakdown</p>
               <div className="space-y-4">
                 {subjectData.map((s) => (
                   <div key={s.name}>
@@ -388,13 +388,13 @@ export default function DashboardPage() {
 
             {/* session history */}
             <div className="glass rounded-2xl p-6">
-              <p className="text-xs text-slate-500 uppercase tracking-wide mb-4">Session History</p>
+              <p className="text-xs text-white uppercase tracking-wide mb-4">Session History</p>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-slate-800">
                       {["Block", "Score", "Correct", "Incorrect", "Date"].map((h) => (
-                        <th key={h} className="text-left py-2 pr-4 text-xs text-slate-500 uppercase tracking-wide font-medium">{h}</th>
+                        <th key={h} className="text-left py-2 pr-4 text-xs text-white uppercase tracking-wide font-medium">{h}</th>
                       ))}
                     </tr>
                   </thead>
@@ -412,7 +412,7 @@ export default function DashboardPage() {
                           </td>
                           <td className="py-3 pr-4 text-emerald-400">{s.correctCount}</td>
                           <td className="py-3 pr-4 text-red-400">{s.totalMcqs - s.correctCount}</td>
-                          <td className="py-3 pr-4 text-slate-400">{new Date(s.completedAt).toLocaleDateString("en-PK", { day: "numeric", month: "short", year: "2-digit" })}</td>
+                          <td className="py-3 pr-4 text-white">{new Date(s.completedAt).toLocaleDateString("en-PK", { day: "numeric", month: "short", year: "2-digit" })}</td>
                         </tr>
                       ))}
                   </tbody>
@@ -426,7 +426,7 @@ export default function DashboardPage() {
             <div className="glass rounded-2xl p-12 text-center">
               <div className="text-5xl mb-4">📊</div>
               <h3 className="text-lg font-semibold text-white mb-2">No Analytics Yet</h3>
-              <p className="text-slate-400 text-sm mb-6">Complete your first block to unlock performance analytics, charts, and insights.</p>
+              <p className="text-white text-sm mb-6">Complete your first block to unlock performance analytics, charts, and insights.</p>
             </div>
           )
         )}
@@ -436,16 +436,16 @@ export default function DashboardPage() {
           <div className="flex items-center justify-between mb-8 flex-wrap gap-4 pb-4 border-b border-slate-800/50">
             <div>
               <h2 className="text-2xl font-black text-white">Available Blocks</h2>
-              <p className="text-xs text-slate-400 mt-1">Practice all subjects and track your progress</p>
+              <p className="text-xs text-white mt-1">Practice all subjects and track your progress</p>
             </div>
-            <div className="flex items-center gap-5 text-xs text-slate-400">
+            <div className="flex items-center gap-5 text-xs text-white">
               <span className="flex items-center gap-2.5 px-3 py-1.5 rounded-lg" style={{ background: "rgba(16, 185, 129, 0.08)" }}>
                 <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
                 <span className="text-slate-300">Completed</span>
               </span>
               <span className="flex items-center gap-2.5 px-3 py-1.5 rounded-lg" style={{ background: "rgba(100, 116, 139, 0.08)" }}>
                 <span className="w-2.5 h-2.5 rounded-full bg-slate-600" />
-                <span className="text-slate-400">Not Started</span>
+                <span className="text-white">Not Started</span>
               </span>
             </div>
           </div>
@@ -485,9 +485,9 @@ export default function DashboardPage() {
                   </div>
 
                   <div className="p-4 space-y-4">
-                    <p className="text-xs text-slate-400 leading-relaxed">{block.description}</p>
+                    <p className="text-xs text-white leading-relaxed">{block.description}</p>
 
-                    <div className="flex items-center gap-4 text-xs text-slate-500">
+                    <div className="flex items-center gap-4 text-xs text-white">
                       <span>📝 {block.mcqs.length} MCQs</span>
                       <span style={{ color: DIFF_COLOR[block.difficulty] }}>● {block.difficulty}</span>
                       {done && (

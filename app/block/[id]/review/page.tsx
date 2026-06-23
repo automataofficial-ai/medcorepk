@@ -60,7 +60,7 @@ export default function BlockReviewPage() {
         <div className="glass rounded-2xl p-10 text-center">
           <p className="text-2xl mb-3">⚠️</p>
           <p className="text-white font-semibold mb-2">No session found for this block</p>
-          <p className="text-slate-400 text-sm mb-6">You need to complete the block first to see the review.</p>
+          <p className="text-white text-sm mb-6">You need to complete the block first to see the review.</p>
           <Link href={`/block/${blockId}`}
             className="inline-block px-6 py-2.5 rounded-xl text-sm font-semibold text-white"
             style={{ background: "linear-gradient(135deg, #2563EB, #7C3AED)" }}>
@@ -83,7 +83,7 @@ export default function BlockReviewPage() {
       <div className="sticky top-0 z-40 border-b border-slate-800/50"
         style={{ background: "rgba(5,11,24,0.95)", backdropFilter: "blur(16px)" }}>
         <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
-          <Link href="/dashboard" className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors text-sm">
+          <Link href="/dashboard" className="flex items-center gap-2 text-white hover:text-white transition-colors text-sm">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
@@ -133,7 +133,7 @@ export default function BlockReviewPage() {
 
         {/* ── MCQ answer strip (mini overview) ── */}
         <div className="glass rounded-2xl p-5">
-          <p className="text-xs text-slate-500 uppercase tracking-wide mb-4">Question Overview</p>
+          <p className="text-xs text-white uppercase tracking-wide mb-4">Question Overview</p>
           <div className="flex flex-wrap gap-3">
             {session.answers.map((ans, i) => (
               <button
@@ -178,7 +178,7 @@ export default function BlockReviewPage() {
                       }}>
                       {i + 1}
                     </span>
-                    <span className="text-slate-200 text-sm font-medium truncate pr-4">
+                    <span className="text-white text-sm font-medium truncate pr-4">
                       {mcq.caseStudy.slice(0, 80)}…
                     </span>
                   </div>
@@ -192,7 +192,7 @@ export default function BlockReviewPage() {
                       {ans.isCorrect ? "✓ Correct" : "✗ Incorrect"}
                     </span>
                     <svg
-                      className="w-4 h-4 text-slate-500 transition-transform"
+                      className="w-4 h-4 text-white transition-transform"
                       style={{ transform: expandedMcq === i ? "rotate(180deg)" : "rotate(0deg)" }}
                       fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -206,8 +206,8 @@ export default function BlockReviewPage() {
 
                     {/* case study */}
                     <div>
-                      <p className="text-xs text-slate-500 uppercase tracking-wide mb-2">Clinical Scenario</p>
-                      <p className="text-slate-200 text-sm leading-relaxed">{mcq.caseStudy}</p>
+                      <p className="text-xs text-white uppercase tracking-wide mb-2">Clinical Scenario</p>
+                      <p className="text-white text-sm leading-relaxed">{mcq.caseStudy}</p>
                     </div>
 
                     {/* image */}
@@ -217,7 +217,7 @@ export default function BlockReviewPage() {
 
                     {/* all options — color coded */}
                     <div>
-                      <p className="text-xs text-slate-500 uppercase tracking-wide mb-3">All Options</p>
+                      <p className="text-xs text-white uppercase tracking-wide mb-3">All Options</p>
                       <div className="space-y-2">
                         {mcq.options.map((opt, oi) => {
                           const isCorrectOpt = oi === mcq.correctIndex;
@@ -275,7 +275,7 @@ export default function BlockReviewPage() {
                         <p className="text-emerald-300 font-semibold text-xs mb-2 flex items-center gap-1.5">
                           ✅ Why {mcq.options[mcq.correctIndex].label} is correct
                         </p>
-                        <p className="text-slate-200 text-sm leading-relaxed">{mcq.explanation.correct}</p>
+                        <p className="text-white text-sm leading-relaxed">{mcq.explanation.correct}</p>
                       </div>
 
                       {/* wrong explanations */}
@@ -292,7 +292,7 @@ export default function BlockReviewPage() {
                               <p className="text-red-300/80 text-xs font-semibold mb-1">
                                 Option {opt.label}: {opt.text}
                               </p>
-                              <p className="text-slate-400 text-sm leading-relaxed">
+                              <p className="text-white text-sm leading-relaxed">
                                 {mcq.explanation.incorrect[explIdx] ?? "This option is not the best choice for this clinical scenario."}
                               </p>
                             </div>

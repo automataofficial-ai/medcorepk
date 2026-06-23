@@ -1,36 +1,29 @@
 <svg viewBox="0 0 1200 400" xmlns="http://www.w3.org/2000/svg">
-  <!-- Define gradients -->
-  <defs>
-    <linearGradient id="heartbeatGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#0052CC;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#0052CC;stop-opacity:1" />
-    </linearGradient>
-    <linearGradient id="textGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#0052CC;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#0052CC;stop-opacity:1" />
-    </linearGradient>
-  </defs>
-
   <!-- Heartbeat Icon Circle -->
   <g id="heartbeat-icon">
-    <!-- Outer circle border -->
-    <circle cx="150" cy="150" r="140" fill="none" stroke="#0052CC" stroke-width="8"/>
-    <circle cx="150" cy="150" r="130" fill="none" stroke="#0052CC" stroke-width="4" opacity="0.6"/>
+    <!-- Blue background circle -->
+    <circle cx="130" cy="150" r="120" fill="#0052CC"/>
 
-    <!-- ECG/Heartbeat line -->
-    <polyline points="50,150 90,150 110,110 130,180 150,150 170,150 190,90 210,180 230,150 270,150"
-              fill="none" stroke="white" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+    <!-- Outer white circle border -->
+    <circle cx="130" cy="150" r="120" fill="none" stroke="#FFFFFF" stroke-width="5"/>
+
+    <!-- Inner white circle border -->
+    <circle cx="130" cy="150" r="110" fill="none" stroke="#FFFFFF" stroke-width="3"/>
+
+    <!-- Heartbeat/Pulse waveform - Exact match to reference -->
+    <polyline points="10,150 45,150 60,120 75,180 95,150 120,150 160,40 200,240 240,150 270,150"
+              fill="none" stroke="#FFFFFF" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>
   </g>
 
   <!-- Text Group -->
   <g id="text-content">
     <!-- MedCore Text -->
-    <text x="380" y="180" font-family="Inter, -apple-system, sans-serif" font-size="80" font-weight="900" fill="#0052CC" letter-spacing="-2">
-      Med<tspan fill="#0052CC">Core</tspan>
+    <text x="380" y="180" font-family="Inter, -apple-system, sans-serif" font-size="80" font-weight="900" fill="#FFFFFF" letter-spacing="-2">
+      MedCore
     </text>
 
     <!-- Tagline: Crystal clear concepts -->
-    <text x="380" y="240" font-family="Inter, -apple-system, sans-serif" font-size="32" font-weight="300" fill="#0052CC" letter-spacing="0.5">
+    <text x="380" y="240" font-family="Inter, -apple-system, sans-serif" font-size="32" font-weight="300" fill="#FFFFFF" letter-spacing="0.5">
       Crystal clear concepts
     </text>
   </g>

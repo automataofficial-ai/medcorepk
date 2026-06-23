@@ -40,7 +40,7 @@ export default function Header() {
 
             {/* Logo Section */}
             <Link href="/" className="flex items-center gap-2 group flex-shrink-0 hover:opacity-80 transition-opacity duration-300">
-              <img src="/logo.svg" alt="MedCore Logo" className="h-16 w-auto" />
+              <img src="/logo.svg" alt="MedCore Logo" className="h-20 w-auto" />
             </Link>
 
             {/* Desktop Navigation */}
@@ -49,7 +49,7 @@ export default function Header() {
                 <Link
                   key={item.label}
                   href={item.href}
-                  className="group relative px-5 py-3 text-sm font-semibold text-slate-300 hover:text-white rounded-2xl transition-all duration-300"
+                  className="group relative px-5 py-3 text-sm font-semibold text-white hover:text-white rounded-2xl transition-all duration-300"
                   style={{
                     background: "transparent",
                   }}
@@ -84,7 +84,7 @@ export default function Header() {
               {/* Mobile menu button */}
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="lg:hidden p-3 text-slate-300 hover:text-white transition-all duration-300 rounded-2xl"
+                className="lg:hidden p-3 text-white hover:text-white transition-all duration-300 rounded-2xl"
                 style={{
                   background: mobileMenuOpen ? "rgba(100, 116, 139, 0.2)" : "transparent",
                 }}
@@ -106,7 +106,7 @@ export default function Header() {
                 <Link
                   key={item.label}
                   href={item.href}
-                  className="group px-5 py-3 text-sm font-semibold text-slate-300 hover:text-white rounded-2xl transition-all duration-300"
+                  className="group px-5 py-3 text-sm font-semibold text-white hover:text-white rounded-2xl transition-all duration-300"
                   style={{
                     background: "rgba(100, 116, 139, 0.08)",
                   }}

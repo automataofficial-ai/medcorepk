@@ -49,7 +49,7 @@ function StatCounter({ target, suffix = "", label }: { target: number; suffix?: 
       <div className="text-4xl font-extrabold text-white tabular-nums">
         {count.toLocaleString()}{suffix}
       </div>
-      <div className="text-sm text-slate-400 mt-1">{label}</div>
+      <div className="text-sm text-white mt-1">{label}</div>
     </div>
   );
 }
@@ -65,7 +65,7 @@ function FeatureCard({
     >
       <div className="text-3xl mb-3">{icon}</div>
       <h3 className="text-base font-semibold text-white mb-2">{title}</h3>
-      <p className="text-sm text-slate-400 leading-relaxed">{desc}</p>
+      <p className="text-sm text-white leading-relaxed">{desc}</p>
     </div>
   );
 }
@@ -133,11 +133,65 @@ export default function HomePage() {
 
 
       {/* ──────────────────── HERO ──────────────────────────────── */}
-      <section className="relative z-10 flex flex-col items-center text-center px-6 pt-12 pb-32">
+      <section className="relative z-10 flex flex-col items-center text-center px-6 pt-16 pb-32 overflow-hidden">
+
+        {/* Professional 3D Background Video */}
+        <div className="absolute inset-0 -z-10 overflow-hidden">
+          <video
+            autoPlay
+            muted
+            loop
+            playsInline
+            className="absolute w-full h-full object-cover"
+            style={{
+              opacity: 0.45,
+              filter: "brightness(0.65) saturate(1.2) contrast(1.05)",
+              zIndex: -1
+            }}
+          >
+            {/* Add your 3D video file here - supported formats: MP4, WebM, Ogg */}
+            {/* Example: <source src="/videos/hero-3d.mp4" type="video/mp4" /> */}
+            <source src="/videos/hero-bg.mp4" type="video/mp4" />
+            <source src="/videos/hero-bg.webm" type="video/webm" />
+            Your browser does not support the video tag.
+          </video>
+
+          {/* Fallback animated background if video doesn't load */}
+          <div
+            className="absolute inset-0"
+            style={{
+              background: "linear-gradient(135deg, #0F172A 0%, #1E1B4B 25%, #1F2937 50%, #0F172A 75%, #0F172A 100%)",
+              backgroundSize: "400% 400%",
+              animation: "gradient-shift 8s ease infinite",
+              zIndex: -1
+            }}
+          />
+
+          {/* Gradient overlays */}
+          <div className="absolute inset-0 bg-gradient-to-b from-[#050B18]/30 via-[#050B18]/40 to-[#050B18]/85" style={{ zIndex: -1 }} />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#050B18]/70 via-transparent to-transparent" style={{ zIndex: -1 }} />
+
+          {/* Subtle glow overlay */}
+          <div
+            className="absolute inset-0"
+            style={{
+              background: "radial-gradient(circle at 30% 50%, rgba(59,130,246,0.08), transparent 50%)",
+              zIndex: -1
+            }}
+          />
+        </div>
+
+        <style>{`
+          @keyframes gradient-shift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+          }
+        `}</style>
 
         {/* Badge */}
         <div
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm text-blue-300 font-medium mb-8 border"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm text-white font-medium mb-8 border relative z-20"
           style={{
             background: "rgba(59,130,246,0.08)",
             borderColor: "rgba(59,130,246,0.3)",
@@ -151,7 +205,7 @@ export default function HomePage() {
 
         {/* Headline */}
         <h1
-          className="text-5xl md:text-7xl font-black text-white leading-[1.05] tracking-tight mb-6 max-w-4xl"
+          className="text-5xl md:text-7xl font-black text-white leading-[1.05] tracking-tight mb-6 max-w-4xl relative z-20"
           style={{ animation: "fade-in 0.7s ease 0.2s forwards", opacity: 0 }}
         >
           Ace Your&nbsp;
@@ -162,7 +216,7 @@ export default function HomePage() {
 
         {/* Sub-headline */}
         <p
-          className="text-lg md:text-xl text-slate-400 max-w-2xl leading-relaxed mb-10"
+          className="text-lg md:text-xl text-white max-w-2xl leading-relaxed mb-10 relative z-20"
           style={{ animation: "fade-in 0.7s ease 0.35s forwards", opacity: 0 }}
         >
           Clinically crafted case-based MCQs, deep analytics, and spaced repetition — aligned to the CPSP syllabus.
@@ -171,7 +225,7 @@ export default function HomePage() {
 
         {/* CTA buttons */}
         <div
-          className="flex flex-col sm:flex-row gap-4 items-center"
+          className="flex flex-col sm:flex-row gap-4 items-center relative z-20"
           style={{ animation: "fade-in 0.7s ease 0.5s forwards", opacity: 0 }}
         >
           <Link
@@ -186,7 +240,7 @@ export default function HomePage() {
           </Link>
           <a
             href="#features"
-            className="px-8 py-4 rounded-2xl text-base font-semibold text-slate-300 border border-slate-700 hover:border-blue-500/50 hover:text-white transition-all duration-200"
+            className="px-8 py-4 rounded-2xl text-base font-semibold text-white border border-slate-700 hover:border-blue-500/50 hover:text-white transition-all duration-200"
           >
             See How It Works
           </a>
@@ -194,18 +248,18 @@ export default function HomePage() {
 
         {/* Trust badges */}
         <div
-          className="flex flex-wrap justify-center gap-6 mt-12 text-xs text-slate-500"
+          className="flex flex-wrap justify-center gap-6 mt-12 text-xs text-slate-500 relative z-20"
           style={{ animation: "fade-in 0.7s ease 0.65s forwards", opacity: 0 }}
         >
           {["✓ CPSP Syllabus Aligned", "✓ 30 Case-Based MCQs", "✓ Instant Explanations", "✓ Performance Analytics"].map((t) => (
-            <span key={t} className="flex items-center gap-1 text-slate-400">{t}</span>
+            <span key={t} className="flex items-center gap-1 text-white">{t}</span>
           ))}
         </div>
       </section>
 
       {/* ──────────────────── STATS ──────────────────────────────── */}
-      <section className="relative z-10 py-16 px-6">
-        <div className="max-w-4xl mx-auto glass rounded-3xl p-10 grid grid-cols-2 md:grid-cols-4 gap-8">
+      <section className="relative z-10 py-24 px-6">
+        <div className="max-w-5xl mx-auto glass rounded-3xl p-14 grid grid-cols-2 md:grid-cols-4 gap-10">
           <StatCounter target={30} label="Case-Based MCQs" />
           <StatCounter target={6} label="Clinical Specialties" />
           <StatCounter target={100} suffix="%" label="CPSP Aligned" />
@@ -214,18 +268,18 @@ export default function HomePage() {
       </section>
 
       {/* ──────────────────── FEATURES ───────────────────────────── */}
-      <section id="features" className="relative z-10 py-20 px-6">
-        <div className="max-w-5xl mx-auto">
+      <section id="features" className="relative z-10 py-28 px-6">
+        <div className="max-w-6xl mx-auto">
 
-          <div className="text-center mb-14">
-            <p className="text-blue-400 text-sm font-semibold uppercase tracking-widest mb-3">Platform Features</p>
+          <div className="text-center mb-18">
+            <p className="text-blue-400 text-sm font-semibold uppercase tracking-widest mb-4">Platform Features</p>
             <h2 className="text-3xl md:text-4xl font-black text-white">
               Everything you need to pass&nbsp;
               <span className="gradient-text">FCPS</span>
             </h2>
           </div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {[
               { icon: "📋", title: "Clinical Case Studies", desc: "Every MCQ begins with a realistic patient presentation. Train your brain to think like a clinician.", delay: "0s" },
               { icon: "🩻", title: "Medical Image References", desc: "ECGs, X-rays, CT scans, and histology slides paired with each question.", delay: "0.1s" },
@@ -241,14 +295,14 @@ export default function HomePage() {
       </section>
 
       {/* ──────────────────── HOW IT WORKS ───────────────────────── */}
-      <section className="relative z-10 py-20 px-6">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-14">
-            <p className="text-blue-400 text-sm font-semibold uppercase tracking-widest mb-3">The Process</p>
+      <section className="relative z-10 py-28 px-6">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-18">
+            <p className="text-blue-400 text-sm font-semibold uppercase tracking-widest mb-4">The Process</p>
             <h2 className="text-3xl md:text-4xl font-black text-white">How MedCore Works</h2>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-3 gap-10">
             {[
               {
                 num: "01",
@@ -277,17 +331,175 @@ export default function HomePage() {
                   {step.num}
                 </div>
                 <h3 className="text-base font-bold text-white mb-2">{step.title}</h3>
-                <p className="text-sm text-slate-400 leading-relaxed">{step.desc}</p>
+                <p className="text-sm text-white leading-relaxed">{step.desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
+      {/* ──────────────────── STUDENT REVIEWS ───────────────────── */}
+      <section className="relative z-10 py-28 px-6">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-18">
+            <p className="text-blue-400 text-sm font-semibold uppercase tracking-widest mb-4">Student Success Stories</p>
+            <h2 className="text-3xl md:text-4xl font-black text-white">
+              What Our Students Say
+            </h2>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            {[
+              {
+                name: "Dr. Fatima Khan",
+                specialty: "Cardiology",
+                rating: 5,
+                review: "MedCore's case-based approach helped me understand concepts, not just memorize. Scored 92% on my first attempt!",
+                avatar: "👩‍⚕️"
+              },
+              {
+                name: "Dr. Ahmed Hassan",
+                specialty: "Pediatrics",
+                rating: 5,
+                review: "The analytics dashboard showed exactly where I was weak. Focused my study on those areas and it paid off.",
+                avatar: "👨‍⚕️"
+              },
+              {
+                name: "Dr. Aisha Malik",
+                specialty: "Surgery",
+                rating: 5,
+                review: "Best investment for FCPS prep. The medical images with explanations are game-changing. Highly recommend!",
+                avatar: "👩‍⚕️"
+              },
+              {
+                name: "Dr. Hasan Ali",
+                specialty: "Medicine",
+                rating: 5,
+                review: "Structured learning with instant feedback. Completed 300+ MCQs and felt confident going into the exam.",
+                avatar: "👨‍⚕️"
+              },
+              {
+                name: "Dr. Sara Usman",
+                specialty: "Obstetrics",
+                rating: 5,
+                review: "The block-based system kept me motivated. Daily streaks and leaderboard made studying fun and competitive!",
+                avatar: "👩‍⚕️"
+              },
+              {
+                name: "Dr. Karim Sheikh",
+                specialty: "Neurology",
+                rating: 5,
+                review: "Worth every penny. The deep explanations and CPSP alignment are unmatched. Pass guarantee material!",
+                avatar: "👨‍⚕️"
+              }
+            ].map((item) => (
+              <div key={item.name} className="glass rounded-2xl p-6">
+                <div className="flex items-center gap-1 mb-3">
+                  {Array.from({ length: item.rating }).map((_, i) => (
+                    <span key={i} className="text-yellow-400">★</span>
+                  ))}
+                </div>
+                <p className="text-white text-sm leading-relaxed mb-4">{item.review}</p>
+                <div className="flex items-center gap-3">
+                  <div className="text-3xl">{item.avatar}</div>
+                  <div>
+                    <p className="text-white font-semibold text-sm">{item.name}</p>
+                    <p className="text-white text-xs">{item.specialty}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ──────────────────── UNIVERSITY LOGOS CAROUSEL ───────────────────── */}
+      <section className="relative z-10 py-24 px-6">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-16">
+            <p className="text-blue-400 text-sm font-semibold uppercase tracking-widest mb-4">Trusted By</p>
+            <h2 className="text-3xl md:text-4xl font-black text-white">
+              Medical Schools Across The Globe
+            </h2>
+          </div>
+
+          <div className="glass rounded-3xl p-10 overflow-hidden">
+            <style>{`
+              @keyframes scroll-left {
+                0% {
+                  transform: translateX(0);
+                }
+                100% {
+                  transform: translateX(-50%);
+                }
+              }
+              .carousel-container {
+                display: flex;
+                gap: 50px;
+                animation: scroll-left 60s linear infinite;
+              }
+              .carousel-item {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 14px;
+                min-width: fit-content;
+                padding: 0 12px;
+              }
+            `}</style>
+            <div className="relative flex overflow-hidden">
+              <div className="carousel-container">
+                {[
+                  { name: "Aga Khan University", abbr: "AKU", color: "from-blue-600 to-blue-500" },
+                  { name: "Combined Military Hospital", abbr: "CMH", color: "from-green-600 to-green-500" },
+                  { name: "Fatima Memorial Medical College", abbr: "FUMC", color: "from-red-600 to-red-500" },
+                  { name: "Karachi Medical College", abbr: "KMC", color: "from-purple-600 to-purple-500" },
+                  { name: "Liaquat University", abbr: "LUMHS", color: "from-indigo-600 to-indigo-500" },
+                  { name: "University of Health Sciences", abbr: "UHS", color: "from-cyan-600 to-cyan-500" },
+                  { name: "Dow University", abbr: "DUHS", color: "from-orange-600 to-orange-500" },
+                  { name: "Liaquat College of Medicine", abbr: "LCM", color: "from-pink-600 to-pink-500" }
+                ].map((uni, idx) => (
+                  <div key={idx} className="carousel-item">
+                    <div className={`w-28 h-28 rounded-2xl bg-gradient-to-br ${uni.color} flex items-center justify-center shadow-lg hover:shadow-2xl transition-shadow duration-300`}>
+                      <span className="text-white font-black text-base text-center px-2 leading-tight">{uni.abbr}</span>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-white font-semibold text-sm leading-tight max-w-[140px]">{uni.abbr}</p>
+                      <p className="text-white text-xs max-w-[140px] line-clamp-2">{uni.name}</p>
+                    </div>
+                  </div>
+                ))}
+                {/* Duplicate for seamless loop */}
+                {[
+                  { name: "Aga Khan University", abbr: "AKU", color: "from-blue-600 to-blue-500" },
+                  { name: "Combined Military Hospital", abbr: "CMH", color: "from-green-600 to-green-500" },
+                  { name: "Fatima Memorial Medical College", abbr: "FUMC", color: "from-red-600 to-red-500" },
+                  { name: "Karachi Medical College", abbr: "KMC", color: "from-purple-600 to-purple-500" },
+                  { name: "Liaquat University", abbr: "LUMHS", color: "from-indigo-600 to-indigo-500" },
+                  { name: "University of Health Sciences", abbr: "UHS", color: "from-cyan-600 to-cyan-500" },
+                  { name: "Dow University", abbr: "DUHS", color: "from-orange-600 to-orange-500" },
+                  { name: "Liaquat College of Medicine", abbr: "LCM", color: "from-pink-600 to-pink-500" }
+                ].map((uni, idx) => (
+                  <div key={`dup-${idx}`} className="carousel-item">
+                    <div className={`w-28 h-28 rounded-2xl bg-gradient-to-br ${uni.color} flex items-center justify-center shadow-lg hover:shadow-2xl transition-shadow duration-300`}>
+                      <span className="text-white font-black text-base text-center px-2 leading-tight">{uni.abbr}</span>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-white font-semibold text-sm leading-tight max-w-[140px]">{uni.abbr}</p>
+                      <p className="text-white text-xs max-w-[140px] line-clamp-2">{uni.name}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ──────────────────── CTA BANNER ─────────────────────────── */}
-      <section className="relative z-10 py-20 px-6">
+      <section className="relative z-10 py-28 px-6">
         <div
-          className="max-w-3xl mx-auto rounded-3xl p-12 text-center"
+          className="max-w-4xl mx-auto rounded-3xl p-16 text-center"
           style={{
             background: "linear-gradient(135deg, rgba(37,99,235,0.2), rgba(124,58,237,0.2))",
             border: "1px solid rgba(99,102,241,0.3)",
@@ -296,7 +508,7 @@ export default function HomePage() {
           <h2 className="text-3xl md:text-4xl font-black text-white mb-4">
             Ready to start your FCPS journey?
           </h2>
-          <p className="text-slate-400 mb-8 text-base">
+          <p className="text-white mb-8 text-base">
             Join thousands of Pakistani medical graduates preparing smarter with MedCore.
           </p>
           <Link
@@ -313,8 +525,8 @@ export default function HomePage() {
       </section>
 
       {/* ──────────────────── FOOTER ─────────────────────────────── */}
-      <footer className="relative z-10 border-t border-slate-800/60 py-8 px-6">
-        <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-slate-500">
+      <footer className="relative z-10 border-t border-slate-800/60 py-12 px-6">
+        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6 text-sm text-slate-500">
           <div className="flex items-center gap-2">
             <img src="/icon.svg" alt="MedCore" className="h-6 w-6" />
             <span>MedCore © 2026</span>
@@ -322,7 +534,7 @@ export default function HomePage() {
           <p>Built for FCPS candidates across Pakistan</p>
           <div className="flex gap-4">
             {["Privacy", "Terms", "Contact"].map((l) => (
-              <a key={l} href="#" className="hover:text-slate-300 transition-colors">{l}</a>
+              <a key={l} href="#" className="hover:text-white transition-colors">{l}</a>
             ))}
           </div>
         </div>

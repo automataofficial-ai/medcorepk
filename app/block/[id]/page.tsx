@@ -179,7 +179,7 @@ export default function BlockQuizPage() {
       <div className="sticky top-0 z-40 border-b border-slate-800/50"
         style={{ background: "rgba(5,11,24,0.95)", backdropFilter: "blur(16px)" }}>
         <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
-          <Link href="/dashboard" className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors text-sm">
+          <Link href="/dashboard" className="flex items-center gap-2 text-white hover:text-white transition-colors text-sm">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
@@ -187,7 +187,7 @@ export default function BlockQuizPage() {
           </Link>
 
           <div className="flex-1 max-w-xs">
-            <div className="flex items-center justify-between text-xs text-slate-500 mb-1">
+            <div className="flex items-center justify-between text-xs text-white mb-1">
               <span>Question {currentIdx + 1} of {block.mcqs.length}</span>
               <span>{Math.round(progress)}%</span>
             </div>
@@ -199,7 +199,7 @@ export default function BlockQuizPage() {
 
           <div className="flex items-center gap-3 text-sm">
             <div className="glass px-3 py-1.5 rounded-lg flex items-center gap-2">
-              <span className="text-slate-400">⏱</span>
+              <span className="text-white">⏱</span>
               <span className="text-white font-mono">{formatTime(sessionTimer)}</span>
             </div>
           </div>
@@ -216,7 +216,7 @@ export default function BlockQuizPage() {
             </div>
             <div>
               <p className="text-white font-bold text-sm">{block.title}</p>
-              <p className="text-slate-400 text-xs">{block.specialty}</p>
+              <p className="text-white text-xs">{block.specialty}</p>
             </div>
           </div>
           <ProgressDots total={block.mcqs.length} current={currentIdx} answers={answers} />
@@ -229,12 +229,12 @@ export default function BlockQuizPage() {
               style={{ background: "rgba(59,130,246,0.12)", border: "1px solid rgba(59,130,246,0.25)" }}>
               Clinical Scenario
             </span>
-            <span className="text-xs px-2.5 py-1 rounded-full font-medium text-slate-400"
+            <span className="text-xs px-2.5 py-1 rounded-full font-medium text-white"
               style={{ background: "rgba(255,255,255,0.05)" }}>
               Q{currentIdx + 1}
             </span>
           </div>
-          <p className="text-slate-200 leading-relaxed text-sm md:text-base">
+          <p className="text-white leading-relaxed text-sm md:text-base">
             {mcq.caseStudy}
           </p>
         </div>
@@ -246,7 +246,7 @@ export default function BlockQuizPage() {
 
         {/* ── options ── */}
         <div className="space-y-3">
-          <p className="text-xs text-slate-500 uppercase tracking-wide font-medium">Select the best answer</p>
+          <p className="text-xs text-white uppercase tracking-wide font-medium">Select the best answer</p>
           {mcq.options.map((opt, i) => {
             const isCorrect = i === mcq.correctIndex;
             const isSelected = selected === i;
@@ -312,7 +312,7 @@ export default function BlockQuizPage() {
 
         {/* ── action buttons ── */}
         <div className="flex items-center justify-between gap-4 pt-2">
-          <div className="text-xs text-slate-500">
+          <div className="text-xs text-white">
             {!submitted
               ? selected !== null
                 ? "Click 'Submit Answer' to confirm"
@@ -353,7 +353,7 @@ export default function BlockQuizPage() {
                 <span className="text-emerald-400 text-lg">✅</span>
                 <span className="text-emerald-300 font-semibold text-sm">Correct Answer: {mcq.options[mcq.correctIndex].label}</span>
               </div>
-              <p className="text-slate-200 text-sm leading-relaxed">{mcq.explanation.correct}</p>
+              <p className="text-white text-sm leading-relaxed">{mcq.explanation.correct}</p>
             </div>
 
             {/* wrong option explanations */}
@@ -371,7 +371,7 @@ export default function BlockQuizPage() {
                     <p className="text-red-300 text-xs font-semibold mb-1.5">
                       Option {opt.label}: {opt.text}
                     </p>
-                    <p className="text-slate-400 text-sm leading-relaxed">
+                    <p className="text-white text-sm leading-relaxed">
                       {mcq.explanation.incorrect[explIdx] ?? "This option is not the best answer for this clinical scenario."}
                     </p>
                   </div>

@@ -54,7 +54,7 @@ export default function LoginPage() {
             <img src="/icon.svg" alt="MedCore Icon" className="h-16 w-16" />
           </Link>
           <h1 className="text-2xl font-bold text-white mb-1">Welcome back</h1>
-          <p className="text-slate-400 text-sm">Sign in to continue your FCPS preparation</p>
+          <p className="text-white text-sm">Sign in to continue your FCPS preparation</p>
         </div>
 
         {/* Card */}
@@ -128,7 +128,7 @@ export default function LoginPage() {
             <span className="w-5 h-5 rounded-full bg-green-500/20 flex items-center justify-center text-green-400 text-xs">✓</span>
             <span className="text-slate-300 font-medium">Demo Account</span>
           </div>
-          <div className="space-y-2 text-slate-400">
+          <div className="space-y-2 text-white">
             <div className="flex justify-between">
               <span>Email:</span>
               <button
@@ -148,7 +148,7 @@ export default function LoginPage() {
               </button>
             </div>
           </div>
-          <p className="text-xs text-slate-500 mt-3">Click the values above to auto-fill.</p>
+          <p className="text-xs text-white mt-3">Click the values above to auto-fill.</p>
         </div>
       </div>
     </div>
