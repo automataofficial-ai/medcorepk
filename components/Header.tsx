@@ -40,17 +40,7 @@ export default function Header() {
 
             {/* Logo Section */}
             <Link href="/" className="flex items-center gap-3 group flex-shrink-0 hover:opacity-80 transition-opacity duration-300">
-              <div className="w-14 h-14 md:w-16 md:h-16 rounded-full border-2 border-cyan-400 flex items-center justify-center flex-shrink-0">
-                <svg className="w-8 h-8 md:w-10 md:h-10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path stroke="url(#grad)" d="M3,12 L6,12 L8,4 L10,12 L12,12 L14,8 L16,12 L21,12" className="text-cyan-400" />
-                  <defs>
-                    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="0%">
-                      <stop offset="0%" style={{ stopColor: '#06B6D4', stopOpacity: 1 }} />
-                      <stop offset="100%" style={{ stopColor: '#0891b2', stopOpacity: 1 }} />
-                    </linearGradient>
-                  </defs>
-                </svg>
-              </div>
+              <img src="/logo.png" alt="MedCore Logo" className="h-16 w-auto md:h-20" />
               <div className="hidden sm:flex flex-col">
                 <span className="text-lg md:text-xl font-black text-white leading-tight">MedCore</span>
                 <span className="text-xs md:text-sm text-cyan-400 font-semibold">crystal clear concepts</span>

@@ -92,20 +92,10 @@ function Navbar({ name, onLogout }: { name: string; onLogout: () => void }) {
         boxShadow: "0 4px 20px rgba(0, 0, 0, 0.3)"
       }}>
       {/* Left side - Logo/Title */}
-      <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity duration-300">
-        <div className="w-10 h-10 rounded-full border-2 border-cyan-400 flex items-center justify-center flex-shrink-0">
-          <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path stroke="url(#grad)" d="M3,12 L6,12 L8,4 L10,12 L12,12 L14,8 L16,12 L21,12" className="text-cyan-400" />
-            <defs>
-              <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" style={{ stopColor: '#06B6D4', stopOpacity: 1 }} />
-                <stop offset="100%" style={{ stopColor: '#0891b2', stopOpacity: 1 }} />
-              </linearGradient>
-            </defs>
-          </svg>
-        </div>
+      <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity duration-300">
+        <img src="/logo.png" alt="MedCore Logo" className="h-12 w-auto" />
         <div className="hidden sm:flex flex-col">
-          <span className="text-white font-black text-sm leading-tight">MedCore</span>
+          <span className="text-white font-black text-base leading-tight">MedCore</span>
           <span className="text-cyan-400 text-xs font-semibold">crystal clear concepts</span>
         </div>
       </Link>
