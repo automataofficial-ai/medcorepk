@@ -320,8 +320,8 @@ export default function HomePage() {
         `}</style>
 
         {/* Hero Container - Full Width */}
-        <div className="px-6 md:px-12 lg:px-20">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24 items-center">
+        <div className="px-4 sm:px-6 md:px-12 lg:px-20">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 lg:gap-24 items-center min-h-[100vh] lg:min-h-auto py-12 md:py-0">
 
             {/* LEFT COLUMN - TEXT CONTENT */}
             <div className="relative z-20">
@@ -394,7 +394,7 @@ export default function HomePage() {
             </div>
 
             {/* RIGHT COLUMN - COMPACT PHONE MOCKUP WITH OVERLAID IMAGE */}
-            <div className="relative flex items-center justify-center h-96">
+            <div className="relative flex items-center justify-center h-80 sm:h-96 md:h-[400px] lg:h-96 order-last lg:order-none">
               <div
                 className="float-animation absolute"
                 style={{ animation: "fade-in 0.8s ease 0.4s forwards, float 5s ease-in-out infinite", opacity: 0 }}

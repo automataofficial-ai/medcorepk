@@ -39,11 +39,11 @@ export default function Header() {
           <div className="flex items-center justify-between gap-8">
 
             {/* Logo Section */}
-            <Link href="/" className="flex items-center gap-3 group flex-shrink-0 hover:opacity-80 transition-opacity duration-300">
-              <img src="/logo.png" alt="MedCore Logo" className="h-16 w-auto md:h-20" />
-              <div className="hidden sm:flex flex-col">
-                <span className="text-lg md:text-xl font-black text-white leading-tight">MedCore</span>
-                <span className="text-xs md:text-sm text-cyan-400 font-semibold">crystal clear concepts</span>
+            <Link href="/" className="flex items-center gap-2 sm:gap-3 group flex-shrink-0 hover:opacity-80 transition-opacity duration-300">
+              <img src="/logo.png" alt="MedCore Logo" className="h-10 sm:h-16 md:h-20 w-auto" />
+              <div className="flex flex-col">
+                <span className="text-base sm:text-lg md:text-xl font-black text-white leading-tight">MedCore</span>
+                <span className="text-xs text-cyan-400 font-semibold">crystal clear concepts</span>
               </div>
             </Link>
 
@@ -98,32 +98,39 @@ export default function Header() {
 
           {/* Mobile Navigation */}
           {mobileMenuOpen && (
-            <nav className="lg:hidden mt-6 pt-6 pb-2 flex flex-col gap-3 border-t"
-              style={{ borderColor: "rgba(99, 102, 241, 0.2)" }}>
-              {navItems.map((item) => (
+            <nav className="lg:hidden absolute top-full left-0 right-0 mt-2 mx-4 rounded-2xl flex flex-col gap-2 border z-40 animate-in fade-in slide-in-from-top-2"
+              style={{
+                borderColor: "rgba(99, 102, 241, 0.3)",
+                background: "linear-gradient(135deg, rgba(15, 23, 42, 0.98), rgba(30, 27, 75, 0.8))",
+                backdropFilter: "blur(20px)",
+                boxShadow: "0 20px 40px rgba(0, 0, 0, 0.4)"
+              }}>
+              <div className="p-4 space-y-2">
+                {navItems.map((item) => (
+                  <Link
+                    key={item.label}
+                    href={item.href}
+                    className="block px-4 py-3 text-sm font-semibold text-white hover:text-cyan-400 rounded-lg transition-all duration-300"
+                    style={{
+                      background: "rgba(99, 102, 241, 0.1)",
+                    }}
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    {item.label}
+                  </Link>
+                ))}
                 <Link
-                  key={item.label}
-                  href={item.href}
-                  className="group px-5 py-3 text-sm font-semibold text-white hover:text-white rounded-2xl transition-all duration-300"
+                  href="/login"
+                  className="block px-4 py-3 text-sm font-bold text-white rounded-lg text-center transition-all duration-300 mt-3 border-t"
                   style={{
-                    background: "rgba(100, 116, 139, 0.08)",
+                    background: "linear-gradient(135deg, #00CED1, #00B5CC)",
+                    borderColor: "rgba(99, 102, 241, 0.2)"
                   }}
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  {item.label}
+                  Sign In →
                 </Link>
-              ))}
-              <Link
-                href="/login"
-                className="mt-2 px-5 py-3.5 text-sm font-bold text-white rounded-2xl text-center transition-all duration-300 flex items-center justify-center gap-2"
-                style={{
-                  background: "linear-gradient(135deg, #00CED1, #00B5CC)",
-                }}
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Sign In
-                <span>→</span>
-              </Link>
+              </div>
             </nav>
           )}
         </div>
