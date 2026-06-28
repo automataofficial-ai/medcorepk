@@ -394,7 +394,7 @@ export default function HomePage() {
             </div>
 
             {/* RIGHT COLUMN - COMPACT PHONE MOCKUP WITH OVERLAID IMAGE */}
-            <div className="relative flex items-center justify-center h-80 sm:h-96 md:h-[400px] lg:h-96 order-last lg:order-none">
+            <div className="relative flex items-center justify-center h-80 sm:h-96 md:h-[400px] lg:h-96 order-last lg:order-none mt-12 md:mt-0">
               <div
                 className="float-animation absolute"
                 style={{ animation: "fade-in 0.8s ease 0.4s forwards, float 5s ease-in-out infinite", opacity: 0 }}
