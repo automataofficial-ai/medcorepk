@@ -107,7 +107,7 @@ export default function LoginPage() {
               type="submit"
               disabled={loading}
               className="btn-glow w-full py-3.5 rounded-xl font-bold text-white text-base transition-all duration-200 hover:scale-[1.02] disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none"
-              style={{ background: "linear-gradient(135deg, #2563EB, #7C3AED)", boxShadow: "0 0 20px rgba(99,102,241,0.4)" }}
+              style={{ background: "linear-gradient(135deg, #00CED1, #00B5CC)", boxShadow: "0 0 20px rgba(0,206,209,0.4)" }}
             >
               {loading ? (
                 <span className="flex items-center justify-center gap-2">

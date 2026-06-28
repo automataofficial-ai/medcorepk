@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   title: "MedCore — FCPS Exam Preparation",
   description: "Pakistan's premier FCPS exam preparation platform. Master 30,000+ MCQs with detailed explanations and analytics.",
   icons: {
-    icon: "/icon.svg",
+    icon: "/logo.png",
   },
 };
 

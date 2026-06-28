@@ -63,7 +63,7 @@ export default function BlockReviewPage() {
           <p className="text-white text-sm mb-6">You need to complete the block first to see the review.</p>
           <Link href={`/block/${blockId}`}
             className="inline-block px-6 py-2.5 rounded-xl text-sm font-semibold text-white"
-            style={{ background: "linear-gradient(135deg, #2563EB, #7C3AED)" }}>
+            style={{ background: "linear-gradient(135deg, #00CED1, #00B5CC)" }}>
             Start Block →
           </Link>
         </div>
@@ -82,12 +82,10 @@ export default function BlockReviewPage() {
       {/* ── top bar ── */}
       <div className="sticky top-0 z-40 border-b border-slate-800/50"
         style={{ background: "rgba(5,11,24,0.95)", backdropFilter: "blur(16px)" }}>
-        <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
-          <Link href="/dashboard" className="flex items-center gap-2 text-white hover:text-white transition-colors text-sm">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-            Dashboard
+        <div className="max-w-4xl mx-auto px-3 sm:px-4 py-2 sm:py-3 flex items-center justify-between gap-2 sm:gap-4 flex-wrap">
+          <Link href="/dashboard" className="flex items-center gap-3 text-white hover:text-white transition-colors">
+            <img src="/logo.png" alt="MedCore" className="h-10 w-auto" />
+            <span className="text-white font-bold text-sm hidden sm:inline">MedCore</span>
           </Link>
           <span className="text-white font-semibold text-sm">{block.title} — Review</span>
           <Link href={`/block/${blockId}`}
@@ -311,7 +309,7 @@ export default function BlockReviewPage() {
         <div className="flex flex-col sm:flex-row gap-4 pb-8">
           <Link href="/dashboard"
             className="flex-1 py-3.5 rounded-2xl text-center font-semibold text-white transition-all hover:scale-[1.02]"
-            style={{ background: "linear-gradient(135deg, #2563EB, #7C3AED)", boxShadow: "0 4px 20px rgba(99,102,241,0.3)" }}>
+            style={{ background: "linear-gradient(135deg, #00CED1, #00B5CC)", boxShadow: "0 4px 20px rgba(99,102,241,0.3)" }}>
             ← Back to Dashboard
           </Link>
           <Link href={`/block/${blockId}`}

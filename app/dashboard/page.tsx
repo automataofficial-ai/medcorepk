@@ -84,7 +84,7 @@ function ChartTip({ active, payload, label }: {
 /* ── Navbar ── */
 function Navbar({ name, onLogout }: { name: string; onLogout: () => void }) {
   return (
-    <nav className="sticky top-0 z-50 px-8 py-5 flex items-center justify-between"
+    <nav className="sticky top-0 z-50 px-4 sm:px-6 md:px-8 py-4 sm:py-5 flex items-center justify-between"
       style={{
         background: "linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 27, 75, 0.6))",
         backdropFilter: "blur(20px)",
@@ -93,8 +93,11 @@ function Navbar({ name, onLogout }: { name: string; onLogout: () => void }) {
       }}>
       {/* Left side - Logo/Title */}
       <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity duration-300">
-        <img src="/icon.svg" alt="MedCore" className="h-10 w-10" />
-        <span className="text-white font-bold text-lg hidden sm:inline">MedCore</span>
+        <img src="/logo.png" alt="MedCore Logo" className="h-12 w-auto" />
+        <div className="hidden sm:flex flex-col">
+          <span className="text-white font-black text-base leading-tight">MedCore</span>
+          <span className="text-cyan-400 text-xs font-semibold">crystal clear concepts</span>
+        </div>
       </Link>
 
       {/* Right side - User info and Logout */}
@@ -102,7 +105,7 @@ function Navbar({ name, onLogout }: { name: string; onLogout: () => void }) {
         <div className="hidden sm:flex items-center gap-3 px-4 py-2.5 rounded-2xl"
           style={{ background: "rgba(99, 102, 241, 0.08)", border: "1px solid rgba(99, 102, 241, 0.2)" }}>
           <div className="w-9 h-9 rounded-full flex items-center justify-center text-white text-sm font-bold"
-            style={{ background: "linear-gradient(135deg, #2563EB, #7C3AED)" }}>
+            style={{ background: "linear-gradient(135deg, #00CED1, #00B5CC)" }}>
             {name.charAt(0)}
           </div>
           <div className="flex flex-col">
@@ -502,7 +505,7 @@ export default function DashboardPage() {
                       className="block w-full py-2.5 rounded-xl text-center text-sm font-semibold transition-all duration-200 hover:scale-[1.02]"
                       style={done
                         ? { background: "rgba(255,255,255,0.06)", color: "#94A3B8", border: "1px solid rgba(255,255,255,0.08)" }
-                        : { background: "linear-gradient(135deg, #2563EB, #7C3AED)", color: "#fff", boxShadow: "0 4px 15px rgba(99,102,241,0.3)" }}
+                        : { background: "linear-gradient(135deg, #00CED1, #00B5CC)", color: "#fff", boxShadow: "0 4px 15px rgba(99,102,241,0.3)" }}
                     >
                       {done ? "Retake Block" : "Start Block →"}
                     </Link>

@@ -1,14 +1,12 @@
-<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-  <!-- Blue Background Circle -->
-  <circle cx="100" cy="100" r="100" fill="#0052CC"/>
+<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" fill="none">
+  <!-- Outer circle -->
+  <circle cx="100" cy="100" r="95" stroke="currentColor" stroke-width="2" opacity="0.4"/>
+  <circle cx="100" cy="100" r="88" stroke="currentColor" stroke-width="1.5" opacity="0.2"/>
 
-  <!-- Outer White Circle Border -->
-  <circle cx="100" cy="100" r="95" fill="none" stroke="#FFFFFF" stroke-width="5"/>
-
-  <!-- Inner White Circle Border -->
-  <circle cx="100" cy="100" r="85" fill="none" stroke="#FFFFFF" stroke-width="3"/>
-
-  <!-- Heartbeat/Pulse Waveform - White -->
-  <polyline points="30,100 50,100 62,75 78,125 95,100 110,100 140,40 170,140 190,100 200,100"
-            fill="none" stroke="#FFFFFF" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- ECG/Heartbeat waveform -->
+  <path d="M 20 100 L 50 100 L 65 70 L 85 130 L 100 100 L 120 100 L 145 30 L 175 170 L 190 100 L 220 100"
+        stroke="currentColor"
+        stroke-width="3"
+        stroke-linecap="round"
+        stroke-linejoin="round"/>
 </svg>

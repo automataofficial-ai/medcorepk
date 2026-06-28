@@ -90,8 +90,8 @@ export default function SyllabusPage() {
                   <div
                     className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 font-bold text-white"
                     style={{
-                      background: "linear-gradient(135deg, #2563EB, #7C3AED)",
-                      boxShadow: "0 8px 24px rgba(37, 99, 235, 0.3)",
+                      background: "linear-gradient(135deg, #00CED1, #00B5CC)",
+                      boxShadow: "0 8px 24px rgba(0, 206, 209, 0.3)",
                     }}
                   >
                     {idx + 1}
@@ -180,8 +180,8 @@ export default function SyllabusPage() {
               <button
                 className="px-8 py-4 rounded-2xl text-base font-bold text-white transition-all duration-300 hover:shadow-2xl hover:scale-105 flex items-center justify-center gap-2"
                 style={{
-                  background: "linear-gradient(135deg, #2563EB, #7C3AED)",
-                  boxShadow: "0 8px 24px rgba(37, 99, 235, 0.3)",
+                  background: "linear-gradient(135deg, #00CED1, #00B5CC)",
+                  boxShadow: "0 8px 24px rgba(0, 206, 209, 0.3)",
                 }}
               >
                 <Download size={20} />
@@ -298,8 +298,8 @@ export default function SyllabusPage() {
               href="/login"
               className="inline-flex items-center gap-2 px-10 py-4 rounded-2xl font-bold text-white text-base transition-all duration-300 hover:shadow-2xl hover:scale-105"
               style={{
-                background: "linear-gradient(135deg, #2563EB, #7C3AED)",
-                boxShadow: "0 8px 24px rgba(37, 99, 235, 0.3)",
+                background: "linear-gradient(135deg, #00CED1, #00B5CC)",
+                boxShadow: "0 8px 24px rgba(0, 206, 209, 0.3)",
               }}
             >
               Get Started Free →

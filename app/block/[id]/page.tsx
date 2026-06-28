@@ -178,12 +178,10 @@ export default function BlockQuizPage() {
       {/* ── top bar ── */}
       <div className="sticky top-0 z-40 border-b border-slate-800/50"
         style={{ background: "rgba(5,11,24,0.95)", backdropFilter: "blur(16px)" }}>
-        <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
-          <Link href="/dashboard" className="flex items-center gap-2 text-white hover:text-white transition-colors text-sm">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-            <span className="hidden sm:inline">Dashboard</span>
+        <div className="max-w-4xl mx-auto px-3 sm:px-4 py-2 sm:py-3 flex items-center justify-between gap-2 sm:gap-4">
+          <Link href="/dashboard" className="flex items-center gap-3 text-white hover:text-white transition-colors">
+            <img src="/logo.png" alt="MedCore" className="h-10 w-auto" />
+            <span className="text-white font-bold text-sm hidden sm:inline">MedCore</span>
           </Link>
 
           <div className="flex-1 max-w-xs">
@@ -327,7 +325,7 @@ export default function BlockQuizPage() {
                 onClick={handleSubmit}
                 disabled={selected === null}
                 className="px-6 py-2.5 rounded-xl font-semibold text-sm text-white transition-all duration-200 hover:scale-105 disabled:opacity-40 disabled:cursor-not-allowed disabled:transform-none"
-                style={{ background: selected !== null ? "linear-gradient(135deg, #2563EB, #7C3AED)" : "#1a2844" }}
+                style={{ background: selected !== null ? "linear-gradient(135deg, #00CED1, #00B5CC)" : "#1a2844" }}
               >
                 Submit Answer
               </button>
