@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { signInWithEmail, getCurrentUser, getUserProfile } from "@/lib/supabase";
 
 const DEMO_EMAIL = "doctor@medcore.pk";
 const DEMO_PASSWORD = "medcore2026";
@@ -18,18 +19,38 @@ export default function LoginPage() {
     e.preventDefault();
     setError("");
     setLoading(true);
-    await new Promise((r) => setTimeout(r, 800)); // simulate network
 
-    if (email === DEMO_EMAIL && password === DEMO_PASSWORD) {
-      localStorage.setItem(
-        "medcore_user",
-        JSON.stringify({ name: "Dr. Ahmed Khan", email, loggedInAt: Date.now() })
-      );
-      router.push("/dashboard");
-    } else {
-      setError("Invalid credentials. Use the demo account below.");
+    try {
+      const { data, error: signInError } = await signInWithEmail(email, password);
+
+      if (signInError) {
+        setError(signInError.message || "Invalid credentials. Please try again.");
+        setLoading(false);
+        return;
+      }
+
+      if (data.user) {
+        // Fetch full profile from database
+        const { data: profile } = await getUserProfile(data.user.id);
+
+        localStorage.setItem(
+          "medcore_user",
+          JSON.stringify({
+            id: data.user.id,
+            name: profile?.full_name || data.user.email,
+            email: data.user.email,
+            specialty: profile?.specialty || null,
+            loggedInAt: Date.now(),
+          })
+        );
+
+        router.push("/dashboard");
+      }
+    } catch (err: any) {
+      setError(err?.message || "An unexpected error occurred");
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }
 
   return (
@@ -122,33 +143,43 @@ export default function LoginPage() {
           </form>
         </div>
 
-        {/* Demo credentials */}
-        <div className="mt-6 glass rounded-2xl p-5 text-sm" style={{ animation: "fade-in 0.7s ease 0.25s forwards", opacity: 0 }}>
-          <div className="flex items-center gap-2 mb-3">
-            <span className="w-5 h-5 rounded-full bg-green-500/20 flex items-center justify-center text-green-400 text-xs">✓</span>
-            <span className="text-slate-300 font-medium">Demo Account</span>
-          </div>
-          <div className="space-y-2 text-white">
-            <div className="flex justify-between">
-              <span>Email:</span>
-              <button
-                onClick={() => setEmail(DEMO_EMAIL)}
-                className="text-blue-400 font-mono hover:text-blue-300 transition-colors"
-              >
-                {DEMO_EMAIL}
-              </button>
+        {/* Sign Up Link */}
+        <div className="mt-6 text-center glass rounded-2xl p-5" style={{ animation: "fade-in 0.7s ease 0.25s forwards", opacity: 0 }}>
+          <p className="text-slate-300 text-sm mb-4">
+            Don't have an account?{" "}
+            <Link href="/signup" className="text-cyan-400 hover:text-cyan-300 font-semibold transition-colors">
+              Sign Up
+            </Link>
+          </p>
+
+          {/* Demo credentials */}
+          <div className="border-t border-slate-700/50 pt-4">
+            <div className="flex items-center gap-2 mb-3">
+              <span className="w-5 h-5 rounded-full bg-green-500/20 flex items-center justify-center text-green-400 text-xs">✓</span>
+              <span className="text-slate-300 font-medium">Demo Account</span>
             </div>
-            <div className="flex justify-between">
-              <span>Password:</span>
-              <button
-                onClick={() => setPassword(DEMO_PASSWORD)}
-                className="text-blue-400 font-mono hover:text-blue-300 transition-colors"
-              >
-                {DEMO_PASSWORD}
-              </button>
+            <div className="space-y-2 text-white">
+              <div className="flex justify-between">
+                <span className="text-xs">Email:</span>
+                <button
+                  onClick={() => setEmail(DEMO_EMAIL)}
+                  className="text-blue-400 font-mono hover:text-blue-300 transition-colors text-xs"
+                >
+                  {DEMO_EMAIL}
+                </button>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-xs">Password:</span>
+                <button
+                  onClick={() => setPassword(DEMO_PASSWORD)}
+                  className="text-blue-400 font-mono hover:text-blue-300 transition-colors text-xs"
+                >
+                  {DEMO_PASSWORD}
+                </button>
+              </div>
             </div>
+            <p className="text-xs text-slate-400 mt-3">Click the values above to auto-fill.</p>
           </div>
-          <p className="text-xs text-white mt-3">Click the values above to auto-fill.</p>
         </div>
       </div>
     </div>

@@ -139,11 +139,18 @@ export default function BlockQuizPage() {
         timeTakenSeconds: sessionTimer,
       };
 
-      /* save to CSV via API */
+      /* Get user ID from localStorage */
+      const user = localStorage.getItem("medcore_user");
+      const userId = user ? JSON.parse(user).id : null;
+
+      /* save to database via API */
       try {
         await fetch("/api/sessions", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            "x-user-id": userId || "",
+          },
           body: JSON.stringify(session),
         });
       } catch {/* noop */}

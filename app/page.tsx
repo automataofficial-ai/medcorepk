@@ -365,14 +365,14 @@ export default function HomePage() {
                 style={{ animation: "fade-in 0.7s ease 0.5s forwards", opacity: 0 }}
               >
                 <Link
-                  href="/login"
+                  href="/signup"
                   className="px-8 py-4 rounded-lg text-base font-semibold text-white transition-all duration-200 hover:scale-105 text-center"
                   style={{
                     background: "linear-gradient(135deg, #0891b2 0%, #006b7f 100%)",
                     boxShadow: "0 4px 15px rgba(8, 145, 178, 0.4)",
                   }}
                 >
-                  Try for Free
+                  Get Started Free
                 </Link>
                 <a
                   href="#features"
