@@ -42,34 +42,43 @@ export async function POST(req: NextRequest) {
     const userId = authData.user.id;
 
     // Use service role to create user profile (bypasses RLS)
-    const { error: profileError } = await serviceClient
-      .from("users")
-      .insert({
-        id: userId,
-        email,
-        full_name: fullName,
-      } as any);
+    try {
+      const { error: profileError } = await serviceClient
+        .from("users")
+        .insert({
+          id: userId,
+          email,
+          full_name: fullName,
+        } as any);
 
-    if (profileError) {
-      // If profile creation fails, we still return success for the auth part
-      console.error("Profile creation error:", profileError);
+      if (profileError) {
+        console.error("Profile creation error:", profileError);
+      }
+    } catch (err) {
+      console.error("Profile creation error:", err);
     }
 
     // Create user progress
-    await serviceClient
-      .from("user_progress")
-      .insert({
-        user_id: userId,
-      } as any)
-      .catch((err) => console.error("Progress creation error:", err));
+    try {
+      await serviceClient
+        .from("user_progress")
+        .insert({
+          user_id: userId,
+        } as any);
+    } catch (err) {
+      console.error("Progress creation error:", err);
+    }
 
     // Create study streak
-    await serviceClient
-      .from("study_streaks")
-      .insert({
-        user_id: userId,
-      } as any)
-      .catch((err) => console.error("Streak creation error:", err));
+    try {
+      await serviceClient
+        .from("study_streaks")
+        .insert({
+          user_id: userId,
+        } as any);
+    } catch (err) {
+      console.error("Streak creation error:", err);
+    }
 
     return NextResponse.json({
       success: true,
