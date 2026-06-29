@@ -111,11 +111,19 @@ function Navbar({ name, onLogout }: { name: string; onLogout: () => void }) {
         boxShadow: "0 4px 20px rgba(0, 0, 0, 0.3)"
       }}>
       {/* Left side - Logo/Title */}
-      <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity duration-300">
-        <img src="/logo.png" alt="MedCore Logo" className="h-12 w-auto" />
+      <Link href="/" className="flex items-center gap-2 sm:gap-3 hover:opacity-80 transition-opacity duration-300">
+        <img src="/logo.png" alt="MedCore Logo" className="h-10 sm:h-12 w-auto" />
+
+        {/* Desktop version - horizontal */}
         <div className="hidden sm:flex flex-col">
           <span className="text-white font-black text-base leading-tight">MedCore</span>
           <span className="text-cyan-400 text-xs font-semibold">crystal clear concepts</span>
+        </div>
+
+        {/* Mobile version - vertical stacked */}
+        <div className="flex sm:hidden flex-col gap-0.5">
+          <span className="text-white font-black text-sm leading-tight">MedCore</span>
+          <span className="text-cyan-400 text-xs font-semibold leading-tight max-w-[80px]">crystal<br/>clear<br/>concepts</span>
         </div>
       </Link>
 
