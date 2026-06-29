@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { signUpWithEmail } from "@/lib/supabase";
 
 export default function SignUpPage() {
   const router = useRouter();
@@ -42,22 +41,24 @@ export default function SignUpPage() {
     setLoading(true);
 
     try {
-      const { data, error: signupError } = await signUpWithEmail(
-        email,
-        password,
-        fullName
-      );
+      const res = await fetch("/api/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password, fullName }),
+      });
 
-      if (signupError) {
-        setError(signupError.message || "Failed to create account. Please try again.");
+      const result = await res.json();
+
+      if (!res.ok) {
+        setError(result.error || "Failed to create account. Please try again.");
         setLoading(false);
         return;
       }
 
-      if (data.user) {
+      if (result.user) {
         // Store user in localStorage for immediate access
         const userData: any = {
-          id: data.user.id,
+          id: result.user.id,
           name: fullName,
           email,
           createdAt: new Date().toISOString(),
