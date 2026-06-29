@@ -100,9 +100,18 @@ export default function BlockQuizPage() {
   useEffect(() => {
     async function fetchBlock() {
       try {
+        console.log("Fetching block:", blockId);
         const res = await fetch("/api/blocks");
+
+        if (!res.ok) {
+          throw new Error(`API error: ${res.status}`);
+        }
+
         const data = await res.json();
+        console.log("API response:", data);
+
         const blocks = data.blocks || [];
+        console.log("Total blocks:", blocks.length);
 
         const foundBlock = blocks.find((b: Block) => b.id === blockId);
 
@@ -112,30 +121,43 @@ export default function BlockQuizPage() {
           return;
         }
 
+        console.log("Found block:", foundBlock);
+        console.log("MCQs in block:", foundBlock.mcqs?.length || 0);
+
         // Transform database MCQs to expected format
+        const transformedMCQs = (foundBlock.mcqs || []).map((dbMcq: any) => {
+          try {
+            return {
+              id: dbMcq.id,
+              caseStudy: dbMcq.case_study || "",
+              image: dbMcq.image_url ? {
+                type: dbMcq.image_url,
+                caption: "Medical Image",
+              } : null,
+              options: [
+                { label: "A", text: dbMcq.option_a || "" },
+                { label: "B", text: dbMcq.option_b || "" },
+                { label: "C", text: dbMcq.option_c || "" },
+                { label: "D", text: dbMcq.option_d || "" },
+              ],
+              correctIndex: ["a", "b", "c", "d"].indexOf((dbMcq.correct_answer || "a").toLowerCase()),
+              explanation: dbMcq.explanation ? {
+                correct: dbMcq.explanation,
+                incorrect: ["", "", ""],
+              } : null,
+            };
+          } catch (mcqErr) {
+            console.error("Error transforming MCQ:", dbMcq, mcqErr);
+            throw mcqErr;
+          }
+        });
+
         const transformedBlock = {
           ...foundBlock,
-          mcqs: (foundBlock.mcqs || []).map((dbMcq: any) => ({
-            id: dbMcq.id,
-            caseStudy: dbMcq.case_study,
-            image: dbMcq.image_url ? {
-              type: dbMcq.image_url,
-              caption: "Medical Image",
-            } : undefined,
-            options: [
-              { label: "A", text: dbMcq.option_a },
-              { label: "B", text: dbMcq.option_b },
-              { label: "C", text: dbMcq.option_c },
-              { label: "D", text: dbMcq.option_d },
-            ],
-            correctIndex: ["a", "b", "c", "d"].indexOf(dbMcq.correct_answer.toLowerCase()),
-            explanation: dbMcq.explanation ? {
-              correct: dbMcq.explanation,
-              incorrect: ["", "", ""],
-            } : undefined,
-          })),
+          mcqs: transformedMCQs,
         };
 
+        console.log("Transformed block:", transformedBlock);
         setBlock(transformedBlock);
       } catch (err) {
         console.error("Error fetching block:", err);
