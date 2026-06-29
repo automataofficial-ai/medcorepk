@@ -40,11 +40,17 @@ export default function LoginPage() {
             id: data.user.id,
             name: profile?.full_name || data.user.email,
             email: data.user.email,
+            role: profile?.role || "user",
             loggedInAt: Date.now(),
           })
         );
 
-        router.push("/dashboard");
+        // Redirect to admin dashboard if admin, otherwise regular dashboard
+        if (profile?.role === "admin") {
+          router.push("/admin/dashboard");
+        } else {
+          router.push("/dashboard");
+        }
       }
     } catch (err: any) {
       setError(err?.message || "An unexpected error occurred");
