@@ -96,62 +96,70 @@ Block Card:
 
 ## ❓ **MCQ Management** (`/admin/mcqs-manage`)
 
-### Coming Features:
+### ✅ IMPLEMENTED Features:
 
 #### **1️⃣ ADD MCQs TO BLOCKS**
 
-**Click:** "Manage MCQs" on any block
+**Access:** `/admin/mcqs-manage?blockId={id}` or select block from dropdown
+
+**Click:** "+ Add New MCQ"
 
 **Fill in form:**
 ```
-Case Study:      A 58-year-old male presents...
-Question:        What is the diagnosis?
-Image Type:      ECG / Chest X-ray / CT Scan...
-Image Caption:   12-lead ECG
-Image Finding:   ST elevation in leads V1-V4
-
+Case Study:      A 58-year-old male presents with...
+Question:        What is the most likely diagnosis?
+Image Type:      ECG / Chest X-ray / CT Scan / Histology...
 Options:
-  A) Option text...
-  B) Option text...
-  C) Option text...
-  D) Option text...
+  A) First differential diagnosis
+  B) Second differential diagnosis
+  C) Third differential diagnosis
+  D) Fourth differential diagnosis
 
 Correct Answer:  B (or A, C, D)
 
-Explanation (Correct):  Why B is correct...
-Explanation (Wrong):
-  - Why A is wrong...
-  - Why C is wrong...
-  - Why D is wrong...
+Explanation:     Detailed explanation of why B is correct
+                 and why others are wrong...
 ```
 
+**Supported Image Types (12 options):**
+- chest-xray, ecg, brain-ct, hand-xray
+- knee-xray, abdominal-xray, thyroid-scan
+- histology, fundoscopy, urine-dipstick
+- mri-knee, peripheral-smear
+
 **Result:**
-- MCQ appears in block
-- Users can answer it
-- Shows in block's MCQ count
+- ✅ MCQ appears immediately in block
+- ✅ Counted in block's total MCQs
+- ✅ Users can start practicing
 
-#### **2️⃣ EDIT MCQs**
+#### **2️⃣ EDIT MCQs** ✅ 
 
-**Click:** [Edit] on MCQ
+**Click:** [Edit] button on any MCQ
 
-**Update:**
+**Update any field:**
 - Case study text
-- Options & correct answer
-- Explanations
-- Image details
+- Question
+- All 4 options (A, B, C, D)
+- Correct answer
+- Explanation
+- Image type
 
 **Result:**
-- ✅ Updates live on user dashboards
-- ✅ Previous answers not affected
+- ✅ Changes appear instantly
+- ✅ Previous user answers preserved
+- ✅ No disruption to ongoing quizzes
 
-#### **3️⃣ DELETE MCQs**
+#### **3️⃣ DELETE MCQs** ✅
 
 **Click:** [Delete] button
 
+**Confirmation:** "Delete this MCQ?"
+
 **Result:**
-- ✅ MCQ removed
-- ✅ Users can't see it
-- ✅ Previous answers stay in database
+- ✅ MCQ removed from block
+- ✅ Users can't see it anymore
+- ✅ Previous answers stay in database (for analytics)
+- ✅ Block MCQ count updated
 
 ---
 
@@ -278,7 +286,7 @@ When creating MCQs, choose image type:
 |---------|------|--------|
 | Dashboard | `/admin/dashboard` | ✅ Active |
 | Blocks | `/admin/blocks-manage` | ✅ Active |
-| MCQs | `/admin/mcqs-manage` | 🚧 Coming |
+| MCQs | `/admin/mcqs-manage` | ✅ Active |
 | Users | `/admin/users` | 🚧 Coming |
 | Analytics | `/admin/analytics` | 🚧 Coming |
 
