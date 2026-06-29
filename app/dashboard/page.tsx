@@ -116,7 +116,7 @@ function Navbar({ name, onLogout }: { name: string; onLogout: () => void }) {
 
         {/* Title and tagline - vertically stacked */}
         <div className="flex flex-col gap-0.5 justify-start">
-          <div className="text-white font-black text-sm sm:text-base leading-none">MedCore</div>
+          <div className="text-white font-black text-base sm:text-xl leading-tight max-w-fit">MedCore</div>
           <div className="text-cyan-400 text-xs font-semibold leading-none">crystal clear concepts</div>
         </div>
       </Link>
