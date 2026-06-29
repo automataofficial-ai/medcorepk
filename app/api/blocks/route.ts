@@ -4,9 +4,10 @@ import { createClient } from "@supabase/supabase-js";
 export async function GET(req: NextRequest) {
   try {
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 
-    const supabase = createClient(supabaseUrl, supabaseAnonKey);
+    // Use service role to bypass RLS
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     // Fetch all blocks with their MCQs
     const { data: blocks, error } = await supabase
@@ -15,6 +16,7 @@ export async function GET(req: NextRequest) {
       .order("created_at", { ascending: false });
 
     if (error) {
+      console.error("Blocks fetch error:", error);
       return NextResponse.json({ error: error.message }, { status: 400 });
     }
 
@@ -35,6 +37,7 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({ blocks: blocksWithMCQs });
   } catch (error: any) {
+    console.error("API blocks error:", error);
     return NextResponse.json(
       { error: error.message || "Failed to fetch blocks" },
       { status: 500 }
