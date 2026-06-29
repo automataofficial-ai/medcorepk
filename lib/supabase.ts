@@ -1,24 +1,46 @@
 import { createClient } from '@supabase/supabase-js'
 import type { Database } from './database.types'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+let supabaseInstance: ReturnType<typeof createClient<Database>> | null = null
 
-export const supabase = createClient<Database>(
-  supabaseUrl,
-  supabaseAnonKey,
+export function getSupabase() {
+  if (!supabaseInstance) {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+    if (!supabaseUrl || !supabaseAnonKey) {
+      throw new Error('Missing Supabase environment variables')
+    }
+
+    supabaseInstance = createClient<Database>(
+      supabaseUrl,
+      supabaseAnonKey,
+      {
+        auth: {
+          persistSession: true,
+          autoRefreshToken: true,
+        },
+        realtime: {
+          params: {
+            eventsPerSecond: 10,
+          },
+        },
+      }
+    )
+  }
+  return supabaseInstance
+}
+
+// Lazy proxy for backward compatibility
+export const supabase = new Proxy(
+  {},
   {
-    auth: {
-      persistSession: true,
-      autoRefreshToken: true,
-    },
-    realtime: {
-      params: {
-        eventsPerSecond: 10,
-      },
+    get: (target, prop) => {
+      const instance = getSupabase()
+      return (instance as any)[prop]
     },
   }
-)
+) as ReturnType<typeof createClient<Database>>
 
 // Helper functions for common operations
 
