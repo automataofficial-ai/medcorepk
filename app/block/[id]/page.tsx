@@ -370,9 +370,11 @@ export default function BlockQuizPage() {
         </div>
 
         {/* ── medical image ── */}
-        <div className="max-w-lg mx-auto lg:mx-0">
-          <MedicalImage image={mcq.image} />
-        </div>
+        {mcq.image && (
+          <div className="max-w-lg mx-auto lg:mx-0">
+            <MedicalImage image={mcq.image} />
+          </div>
+        )}
 
         {/* ── options ── */}
         <div className="space-y-3">
