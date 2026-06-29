@@ -77,16 +77,14 @@ export default function SignUpPage() {
 
       if (data.user) {
         // Store user in localStorage for immediate access
-        localStorage.setItem(
-          "medcore_user",
-          JSON.stringify({
-            id: data.user.id,
-            name: fullName,
-            email,
-            specialty: specialty || null,
-            createdAt: new Date().toISOString(),
-          })
-        );
+        const userData: any = {
+          id: data.user.id,
+          name: fullName,
+          email,
+          specialty: specialty || null,
+          createdAt: new Date().toISOString(),
+        };
+        localStorage.setItem("medcore_user", JSON.stringify(userData));
 
         // Small delay for data consistency
         await new Promise((r) => setTimeout(r, 500));

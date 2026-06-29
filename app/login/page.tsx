@@ -31,7 +31,8 @@ export default function LoginPage() {
 
       if (data.user) {
         // Fetch full profile from database
-        const { data: profile } = await getUserProfile(data.user.id);
+        const profileResult = await getUserProfile(data.user.id);
+        const profile = profileResult.data as any;
 
         localStorage.setItem(
           "medcore_user",

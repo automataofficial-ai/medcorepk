@@ -41,18 +41,20 @@ export async function POST(req: NextRequest) {
 
     // Save to Supabase database
     // Create session
-    const { data: sessionData, error: sessionError } = await createSession(
+    const sessionResult = await createSession(
       userId,
       body.blockId,
       body.totalMcqs
     );
 
-    if (sessionError || !sessionData) {
-      throw new Error(sessionError?.message || "Failed to create session");
+    if (sessionResult.error || !sessionResult.data) {
+      throw new Error(sessionResult.error?.message || "Failed to create session");
     }
 
+    const sessionId = sessionResult.data.id;
+
     // Update session with final scores
-    await updateSession(sessionData.id, {
+    await updateSession(sessionId, {
       correct_count: body.correctCount,
       incorrect_count: body.totalMcqs - body.correctCount,
       score: body.score,
@@ -64,7 +66,7 @@ export async function POST(req: NextRequest) {
     for (const answer of body.answers) {
       const mcqId = `mcq-${body.blockId}-${answer.mcqIndex}`;
       await saveAnswer(
-        sessionData.id,
+        sessionId,
         mcqId,
         String.fromCharCode(65 + answer.selectedIndex), // Convert index to A, B, C, D
         answer.isCorrect,
@@ -73,7 +75,8 @@ export async function POST(req: NextRequest) {
     }
 
     // Update user progress
-    const { data: currentProgress } = await getUserProgress(userId);
+    const progressResult = await getUserProgress(userId);
+    const currentProgress = progressResult.data as any;
     if (currentProgress) {
       const newProgress = {
         total_mcqs_attempted: (currentProgress.total_mcqs_attempted || 0) + body.totalMcqs,
@@ -96,12 +99,12 @@ export async function POST(req: NextRequest) {
       correct_answers: body.correctCount,
       study_minutes: Math.round(body.timeTakenSeconds / 60),
       streak_maintained: true,
-    });
+    } as any);
 
     // Also save to CSV for backwards compatibility
     appendSession(body);
 
-    return NextResponse.json({ success: true, sessionId: sessionData.id });
+    return NextResponse.json({ success: true, sessionId });
   } catch (error) {
     console.error("Session save error:", error);
     return NextResponse.json(
