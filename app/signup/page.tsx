@@ -5,27 +5,11 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { signUpWithEmail } from "@/lib/supabase";
 
-const SPECIALTIES = [
-  "Internal Medicine",
-  "Surgery",
-  "Pediatrics",
-  "Obstetrics & Gynecology",
-  "Cardiology",
-  "Neurology",
-  "Dermatology",
-  "ENT",
-  "Orthopedics",
-  "Psychiatry",
-  "Other",
-];
-
 export default function SignUpPage() {
   const router = useRouter();
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [specialty, setSpecialty] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -46,10 +30,6 @@ export default function SignUpPage() {
       setError("Password must be at least 6 characters");
       return false;
     }
-    if (password !== confirmPassword) {
-      setError("Passwords do not match");
-      return false;
-    }
     return true;
   }
 
@@ -65,8 +45,7 @@ export default function SignUpPage() {
       const { data, error: signupError } = await signUpWithEmail(
         email,
         password,
-        fullName,
-        specialty || undefined
+        fullName
       );
 
       if (signupError) {
@@ -81,13 +60,11 @@ export default function SignUpPage() {
           id: data.user.id,
           name: fullName,
           email,
-          specialty: specialty || null,
           createdAt: new Date().toISOString(),
         };
         localStorage.setItem("medcore_user", JSON.stringify(userData));
 
-        // Small delay for data consistency
-        await new Promise((r) => setTimeout(r, 500));
+        // Redirect to dashboard
         router.push("/dashboard");
       }
     } catch (err: any) {
@@ -192,37 +169,6 @@ export default function SignUpPage() {
               />
             </div>
 
-            {/* Specialty */}
-            <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">Specialty (Optional)</label>
-              <select
-                value={specialty}
-                onChange={(e) => setSpecialty(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl text-white text-sm outline-none transition-all focus:ring-2"
-                style={{
-                  background: "rgba(255,255,255,0.05)",
-                  border: "1px solid rgba(255,255,255,0.1)",
-                  // @ts-expect-error --tw-ring-color
-                  "--tw-ring-color": "#3B82F6",
-                }}
-                onFocus={(e) => {
-                  e.target.style.borderColor = "#3B82F6";
-                  e.target.style.boxShadow = "0 0 0 2px rgba(59,130,246,0.25)";
-                }}
-                onBlur={(e) => {
-                  e.target.style.borderColor = "rgba(255,255,255,0.1)";
-                  e.target.style.boxShadow = "none";
-                }}
-              >
-                <option value="">Select your specialty...</option>
-                {SPECIALTIES.map((spec) => (
-                  <option key={spec} value={spec}>
-                    {spec}
-                  </option>
-                ))}
-              </select>
-            </div>
-
             {/* Password */}
             <div>
               <label className="block text-sm font-medium text-slate-300 mb-2">Password</label>
@@ -250,32 +196,6 @@ export default function SignUpPage() {
               />
             </div>
 
-            {/* Confirm Password */}
-            <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">Confirm Password</label>
-              <input
-                type="password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                required
-                placeholder="••••••••"
-                className="w-full px-4 py-3 rounded-xl text-white placeholder-slate-500 text-sm outline-none transition-all focus:ring-2"
-                style={{
-                  background: "rgba(255,255,255,0.05)",
-                  border: "1px solid rgba(255,255,255,0.1)",
-                  // @ts-expect-error --tw-ring-color
-                  "--tw-ring-color": "#3B82F6",
-                }}
-                onFocus={(e) => {
-                  e.target.style.borderColor = "#3B82F6";
-                  e.target.style.boxShadow = "0 0 0 2px rgba(59,130,246,0.25)";
-                }}
-                onBlur={(e) => {
-                  e.target.style.borderColor = "rgba(255,255,255,0.1)";
-                  e.target.style.boxShadow = "none";
-                }}
-              />
-            </div>
 
             {/* Error Message */}
             {error && (

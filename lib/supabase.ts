@@ -45,48 +45,55 @@ export const supabase = new Proxy(
 // Helper functions for common operations
 
 // Auth Functions
-export async function signUpWithEmail(email: string, password: string, fullName: string, specialty?: string) {
-  const { data, error } = await supabase.auth.signUp({
-    email,
-    password,
-    options: {
-      data: {
-        full_name: fullName,
-      },
-    },
-  })
+export async function signUpWithEmail(email: string, password: string, fullName: string) {
+  try {
+    const supabaseClient = getSupabase()
 
-  if (error || !data.user) {
-    return { data, error }
-  }
-
-  // Create user profile in users table
-  const { error: profileError } = await supabase
-    .from('users')
-    .insert({
-      id: data.user.id,
+    // Create auth account without email verification to avoid rate limits
+    const { data, error } = await supabaseClient.auth.signUp({
       email,
-      full_name: fullName,
-      specialty: specialty || null,
-    } as any)
+      password,
+      options: {
+        data: {
+          full_name: fullName,
+        },
+        emailRedirectTo: `${typeof window !== 'undefined' ? window.location.origin : ''}/dashboard`,
+      },
+    })
 
-  // Create empty user progress
-  if (!profileError) {
-    await supabase
-      .from('user_progress')
+    if (error || !data.user) {
+      return { data, error }
+    }
+
+    // Create user profile in users table
+    const { error: profileError } = await supabaseClient
+      .from('users')
       .insert({
-        user_id: data.user.id,
+        id: data.user.id,
+        email,
+        full_name: fullName,
       } as any)
 
-    // Create study streak entry
-    await supabase
-      .from('study_streaks')
-      .insert({
-        user_id: data.user.id,
-      } as any)
+    // Create empty user progress
+    if (!profileError) {
+      await supabaseClient
+        .from('user_progress')
+        .insert({
+          user_id: data.user.id,
+        } as any)
+
+      // Create study streak entry
+      await supabaseClient
+        .from('study_streaks')
+        .insert({
+          user_id: data.user.id,
+        } as any)
+    }
+
+    return { data, error: profileError || error }
+  } catch (err: any) {
+    return { data: null, error: err }
   }
-
-  return { data, error: profileError || error }
 }
 
 export async function signInWithEmail(email: string, password: string) {

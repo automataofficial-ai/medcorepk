@@ -40,7 +40,6 @@ export default function LoginPage() {
             id: data.user.id,
             name: profile?.full_name || data.user.email,
             email: data.user.email,
-            specialty: profile?.specialty || null,
             loggedInAt: Date.now(),
           })
         );
