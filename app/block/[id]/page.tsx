@@ -3,9 +3,21 @@
 import { useEffect, useState, useCallback } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
-import { getBlockById } from "@/lib/blocks";
+import { getSupabase } from "@/lib/supabase";
 import type { MCQAnswer, BlockSession } from "@/lib/types";
 import MedicalImage from "@/components/MedicalImage";
+
+interface Block {
+  id: string;
+  title: string;
+  specialty: string;
+  description: string;
+  icon: string;
+  color: string;
+  difficulty: string;
+  total_mcqs: number;
+  mcqs?: any[];
+}
 
 function useTimer() {
   const [elapsed, setElapsed] = useState(0);
@@ -69,7 +81,8 @@ export default function BlockQuizPage() {
   const router = useRouter();
   const params = useParams();
   const blockId = params.id as string;
-  const block = getBlockById(blockId);
+  const [block, setBlock] = useState<Block | null>(null);
+  const [loading, setLoading] = useState(true);
 
   const [currentIdx, setCurrentIdx] = useState(0);
   const [selected, setSelected] = useState<number | null>(null);
@@ -82,6 +95,36 @@ export default function BlockQuizPage() {
   useEffect(() => {
     if (!localStorage.getItem("medcore_user")) router.push("/login");
   }, [router]);
+
+  /* fetch block from database */
+  useEffect(() => {
+    async function fetchBlock() {
+      try {
+        const res = await fetch("/api/blocks");
+        const data = await res.json();
+        const blocks = data.blocks || [];
+
+        const foundBlock = blocks.find((b: Block) => b.id === blockId);
+
+        if (!foundBlock) {
+          console.error("Block not found:", blockId);
+          router.push("/dashboard");
+          return;
+        }
+
+        setBlock(foundBlock);
+      } catch (err) {
+        console.error("Error fetching block:", err);
+        router.push("/dashboard");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    if (blockId) {
+      fetchBlock();
+    }
+  }, [blockId, router]);
 
   /* reset when moving to new question */
   useEffect(() => {
@@ -163,12 +206,35 @@ export default function BlockQuizPage() {
     }
   }, [block, currentIdx, answers, sessionTimer, router]);
 
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ background: "#050B18" }}>
+        <div className="text-center glass rounded-2xl p-10">
+          <p className="text-2xl mb-4">⏳</p>
+          <p className="text-white font-semibold mb-2">Loading block...</p>
+        </div>
+      </div>
+    );
+  }
+
   if (!block) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ background: "#050B18" }}>
         <div className="text-center glass rounded-2xl p-10">
           <p className="text-2xl mb-4">❌</p>
           <p className="text-white font-semibold mb-2">Block not found</p>
+          <Link href="/dashboard" className="text-blue-400 text-sm hover:underline">← Back to Dashboard</Link>
+        </div>
+      </div>
+    );
+  }
+
+  if (!block.mcqs || block.mcqs.length === 0) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ background: "#050B18" }}>
+        <div className="text-center glass rounded-2xl p-10">
+          <p className="text-2xl mb-4">📝</p>
+          <p className="text-white font-semibold mb-2">No MCQs available in this block</p>
           <Link href="/dashboard" className="text-blue-400 text-sm hover:underline">← Back to Dashboard</Link>
         </div>
       </div>
