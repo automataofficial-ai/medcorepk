@@ -1,9 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { getSupabase } from "@/lib/supabase";
+
+function MCQsManageContent() {
 
 interface Block {
   id: string;
@@ -39,7 +41,6 @@ const IMAGE_TYPES = [
   "peripheral-smear",
 ];
 
-export default function MCQsManagePage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const blockId = searchParams.get("blockId");
@@ -484,5 +485,13 @@ export default function MCQsManagePage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function MCQsManagePage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center" style={{ background: "#050B18" }}><div className="text-white">Loading...</div></div>}>
+      <MCQsManageContent />
+    </Suspense>
   );
 }
