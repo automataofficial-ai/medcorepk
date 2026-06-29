@@ -111,13 +111,13 @@ function Navbar({ name, onLogout }: { name: string; onLogout: () => void }) {
         boxShadow: "0 4px 20px rgba(0, 0, 0, 0.3)"
       }}>
       {/* Left side - Logo/Title */}
-      <Link href="/" className="flex items-center gap-2 sm:gap-3 hover:opacity-80 transition-opacity duration-300">
-        <img src="/logo.png" alt="MedCore Logo" className="h-10 sm:h-12 w-auto" />
+      <Link href="/" className="flex items-start gap-2 sm:gap-3 hover:opacity-80 transition-opacity duration-300">
+        <img src="/logo.png" alt="MedCore Logo" className="h-10 sm:h-12 w-auto flex-shrink-0" />
 
-        {/* Title and tagline */}
-        <div className="flex flex-col gap-0">
-          <span className="text-white font-black text-sm sm:text-base leading-tight">MedCore</span>
-          <span className="text-cyan-400 text-xs font-semibold">crystal clear concepts</span>
+        {/* Title and tagline - vertically stacked */}
+        <div className="flex flex-col gap-0.5 justify-start">
+          <div className="text-white font-black text-sm sm:text-base leading-none">MedCore</div>
+          <div className="text-cyan-400 text-xs font-semibold leading-none">crystal clear concepts</div>
         </div>
       </Link>
 
