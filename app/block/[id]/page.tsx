@@ -112,7 +112,31 @@ export default function BlockQuizPage() {
           return;
         }
 
-        setBlock(foundBlock);
+        // Transform database MCQs to expected format
+        const transformedBlock = {
+          ...foundBlock,
+          mcqs: (foundBlock.mcqs || []).map((dbMcq: any) => ({
+            id: dbMcq.id,
+            caseStudy: dbMcq.case_study,
+            image: dbMcq.image_url ? {
+              type: dbMcq.image_url,
+              caption: "Medical Image",
+            } : undefined,
+            options: [
+              { label: "A", text: dbMcq.option_a },
+              { label: "B", text: dbMcq.option_b },
+              { label: "C", text: dbMcq.option_c },
+              { label: "D", text: dbMcq.option_d },
+            ],
+            correctIndex: ["a", "b", "c", "d"].indexOf(dbMcq.correct_answer.toLowerCase()),
+            explanation: dbMcq.explanation ? {
+              correct: dbMcq.explanation,
+              incorrect: ["", "", ""],
+            } : undefined,
+          })),
+        };
+
+        setBlock(transformedBlock);
       } catch (err) {
         console.error("Error fetching block:", err);
         router.push("/dashboard");
