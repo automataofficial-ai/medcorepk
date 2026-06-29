@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, Legend, AreaChart, Area, CartesianGrid,
 } from "recharts";
+import { getSupabase } from "@/lib/supabase";
 import type { BlockSession } from "@/lib/types";
 
 interface Block {
@@ -18,6 +19,14 @@ interface Block {
   color: string;
   difficulty: string;
   total_mcqs: number;
+}
+
+interface UserStats {
+  total_questions_answered: number;
+  total_correct: number;
+  total_incorrect: number;
+  current_streak: number;
+  accuracy_percentage: number;
 }
 
 /* ── palette ── */
@@ -148,50 +157,97 @@ function Navbar({ name, onLogout }: { name: string; onLogout: () => void }) {
 /* ──────────────────────────────────────────────────────────────── */
 export default function DashboardPage() {
   const router = useRouter();
-  const [user, setUser] = useState<{ name: string; email: string } | null>(null);
+  const [user, setUser] = useState<{ name: string; email: string; id: string } | null>(null);
   const [blocks, setBlocks] = useState<Block[]>([]);
   const [sessions, setSessions] = useState<BlockSession[]>([]);
+  const [userStats, setUserStats] = useState<UserStats | null>(null);
   const [loading, setLoading] = useState(true);
 
   /* ── auth guard ── */
   useEffect(() => {
     const stored = localStorage.getItem("medcore_user");
     if (!stored) { router.push("/login"); return; }
-    setUser(JSON.parse(stored));
+    const userData = JSON.parse(stored);
+    setUser(userData);
   }, [router]);
 
-  /* ── fetch blocks and sessions ── */
-  useEffect(() => {
-    async function load() {
-      try {
-        // Fetch blocks from database
-        const blocksRes = await fetch("/api/blocks");
-        const blocksData = await blocksRes.json();
-        setBlocks(blocksData.blocks || []);
+  /* ── fetch all data ── */
+  const fetchAllData = useCallback(async () => {
+    if (!user?.id) return;
 
-        // Fetch user sessions
-        const sessionsRes = await fetch("/api/sessions");
-        const sessionsData = await sessionsRes.json();
-        setSessions(sessionsData.sessions || []);
-      } catch {/* noop */}
-      setLoading(false);
+    try {
+      const supabase = getSupabase();
+
+      // Fetch blocks from database
+      const blocksRes = await fetch("/api/blocks");
+      const blocksData = await blocksRes.json();
+      setBlocks(blocksData.blocks || []);
+
+      // Fetch user sessions
+      const sessionsRes = await fetch("/api/sessions");
+      const sessionsData = await sessionsRes.json();
+      setSessions(sessionsData.sessions || []);
+
+      // Fetch user stats from database
+      const { data: userProgressData } = await supabase
+        .from("user_progress")
+        .select("*")
+        .eq("user_id", user.id)
+        .single();
+
+      if (userProgressData) {
+        setUserStats({
+          total_questions_answered: userProgressData.total_questions || 0,
+          total_correct: userProgressData.correct_answers || 0,
+          total_incorrect: (userProgressData.total_questions || 0) - (userProgressData.correct_answers || 0),
+          current_streak: userProgressData.current_streak || 0,
+          accuracy_percentage: userProgressData.total_questions ? Math.round((userProgressData.correct_answers / userProgressData.total_questions) * 100) : 0,
+        });
+      }
+    } catch (err) {
+      console.error("Error fetching data:", err);
     }
-    load();
-  }, []);
+    setLoading(false);
+  }, [user?.id]);
+
+  /* ── initial data load ── */
+  useEffect(() => {
+    fetchAllData();
+  }, [fetchAllData]);
+
+  /* ── real-time subscriptions ── */
+  useEffect(() => {
+    if (!user?.id) return;
+
+    const supabase = getSupabase();
+
+    // Subscribe to user progress changes
+    const progressSubscription = supabase
+      .from(`user_progress:user_id=eq.${user.id}`)
+      .on("*", () => {
+        fetchAllData();
+      })
+      .subscribe();
+
+    return () => {
+      progressSubscription.unsubscribe();
+    };
+  }, [user?.id, fetchAllData]);
 
   function logout() {
     localStorage.removeItem("medcore_user");
     router.push("/login");
   }
 
-  /* ── derived stats ── */
+  /* ── derived stats from database ── */
   const totalBlocks = blocks.length;
   const completedBlockIds = [...new Set(sessions.map((s) => s.blockId))];
   const completedCount = completedBlockIds.length;
-  const totalMcqs = sessions.reduce((a, s) => a + s.totalMcqs, 0);
-  const totalCorrect = sessions.reduce((a, s) => a + s.correctCount, 0);
-  const totalIncorrect = totalMcqs - totalCorrect;
-  const overallAcc = totalMcqs ? Math.round((totalCorrect / totalMcqs) * 100) : 0;
+  const totalMcqs = userStats?.total_questions_answered || 0;
+  const totalCorrect = userStats?.total_correct || 0;
+  const totalIncorrect = userStats?.total_incorrect || 0;
+  const overallAcc = userStats?.accuracy_percentage || 0;
+  const currentStreak = userStats?.current_streak || 0;
   const highestSession = sessions.reduce<BlockSession | null>((best, s) =>
     best === null || s.score > best.score ? s : best, null);
 
@@ -273,7 +329,7 @@ export default function DashboardPage() {
           <StatCard icon="📚" label="Blocks Completed" value={completedCount} sub={`of ${totalBlocks} available`} color="#3B82F6" />
           <StatCard icon="❓" label="MCQs Attempted" value={totalMcqs} sub="across all blocks" color="#8B5CF6" />
           <StatCard icon="✅" label="Correct Answers" value={totalCorrect} sub={`${overallAcc}% accuracy`} color="#10B981" />
-          <StatCard icon="🏆" label="Best Block Score" value={highestSession ? `${Math.round(highestSession.score)}%` : "—"} sub={highestSession?.blockTitle ?? "No attempts yet"} color="#F59E0B" />
+          <StatCard icon="🔥" label="Current Streak" value={currentStreak} sub="consecutive days" color="#EF4444" />
         </div>
 
         {/* ── analytics section ── */}
