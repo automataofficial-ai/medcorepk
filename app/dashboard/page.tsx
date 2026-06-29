@@ -7,8 +7,18 @@ import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, Legend, AreaChart, Area, CartesianGrid,
 } from "recharts";
-import { BLOCKS } from "@/lib/blocks";
 import type { BlockSession } from "@/lib/types";
+
+interface Block {
+  id: string;
+  title: string;
+  specialty: string;
+  description: string;
+  icon: string;
+  color: string;
+  difficulty: string;
+  total_mcqs: number;
+}
 
 /* ── palette ── */
 const COLORS = ["#3B82F6", "#8B5CF6", "#10B981", "#F59E0B", "#EF4444", "#06B6D4"];
@@ -139,6 +149,7 @@ function Navbar({ name, onLogout }: { name: string; onLogout: () => void }) {
 export default function DashboardPage() {
   const router = useRouter();
   const [user, setUser] = useState<{ name: string; email: string } | null>(null);
+  const [blocks, setBlocks] = useState<Block[]>([]);
   const [sessions, setSessions] = useState<BlockSession[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -149,13 +160,19 @@ export default function DashboardPage() {
     setUser(JSON.parse(stored));
   }, [router]);
 
-  /* ── fetch sessions ── */
+  /* ── fetch blocks and sessions ── */
   useEffect(() => {
     async function load() {
       try {
-        const res = await fetch("/api/sessions");
-        const data = await res.json();
-        setSessions(data.sessions || []);
+        // Fetch blocks from database
+        const blocksRes = await fetch("/api/blocks");
+        const blocksData = await blocksRes.json();
+        setBlocks(blocksData.blocks || []);
+
+        // Fetch user sessions
+        const sessionsRes = await fetch("/api/sessions");
+        const sessionsData = await sessionsRes.json();
+        setSessions(sessionsData.sessions || []);
       } catch {/* noop */}
       setLoading(false);
     }
@@ -168,7 +185,7 @@ export default function DashboardPage() {
   }
 
   /* ── derived stats ── */
-  const totalBlocks = BLOCKS.length;
+  const totalBlocks = blocks.length;
   const completedBlockIds = [...new Set(sessions.map((s) => s.blockId))];
   const completedCount = completedBlockIds.length;
   const totalMcqs = sessions.reduce((a, s) => a + s.totalMcqs, 0);
@@ -186,7 +203,7 @@ export default function DashboardPage() {
   }
 
   /* ── chart data ── */
-  const barData = BLOCKS.map((b) => ({
+  const barData = blocks.map((b) => ({
     name: b.specialty.split(" ")[0],
     Score: latestByBlock[b.id] ? Math.round(latestByBlock[b.id].score) : 0,
     full: b.title,
@@ -208,7 +225,7 @@ export default function DashboardPage() {
       block: s.blockTitle,
     }));
 
-  const subjectData = BLOCKS.map((b, i) => ({
+  const subjectData = blocks.map((b, i) => ({
     name: b.specialty.split(" ")[0],
     Accuracy: latestByBlock[b.id] ? Math.round(latestByBlock[b.id].score) : 0,
     fill: COLORS[i % COLORS.length],
@@ -377,7 +394,7 @@ export default function DashboardPage() {
                 {subjectData.map((s) => (
                   <div key={s.name}>
                     <div className="flex items-center justify-between text-sm mb-1.5">
-                      <span className="text-slate-300">{BLOCKS.find((b) => b.specialty.startsWith(s.name))?.title ?? s.name}</span>
+                      <span className="text-slate-300">{blocks.find((b) => b.specialty.startsWith(s.name))?.title ?? s.name}</span>
                       <span className="font-semibold" style={{ color: s.fill }}>{s.Accuracy}%</span>
                     </div>
                     <div className="h-2 rounded-full" style={{ background: "#1a2844" }}>
@@ -454,7 +471,7 @@ export default function DashboardPage() {
           </div>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {BLOCKS.map((block, i) => {
+            {blocks.map((block, i) => {
               const session = latestByBlock[block.id];
               const done = !!session;
               const score = done ? Math.round(session.score) : null;
