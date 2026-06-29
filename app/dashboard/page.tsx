@@ -508,7 +508,7 @@ export default function DashboardPage() {
                     <p className="text-xs text-white leading-relaxed">{block.description}</p>
 
                     <div className="flex items-center gap-4 text-xs text-white">
-                      <span>📝 {block.mcqs.length} MCQs</span>
+                      <span>📝 {(block as any).mcqs?.length || (block as any).total_mcqs || 0} MCQs</span>
                       <span style={{ color: DIFF_COLOR[block.difficulty] }}>● {block.difficulty}</span>
                       {done && (
                         <span className="text-emerald-400 flex items-center gap-1">
