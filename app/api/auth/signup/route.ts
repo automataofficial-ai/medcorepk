@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { randomBytes } from "crypto";
 
 export async function POST(req: NextRequest) {
   try {
@@ -13,22 +14,21 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Create anon client for auth
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
     const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 
-    const anonClient = createClient(supabaseUrl, supabaseAnonKey);
     const serviceClient = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Sign up user
-    const { data: authData, error: authError } = await anonClient.auth.signUp({
+    // Generate a unique user ID
+    const userId = randomBytes(16).toString("hex");
+
+    // Create auth user directly with service role (no email confirmation)
+    const { data: authData, error: authError } = await serviceClient.auth.admin.createUser({
       email,
       password,
-      options: {
-        data: {
-          full_name: fullName,
-        },
+      email_confirm: true, // Auto-confirm email to skip verification emails
+      user_metadata: {
+        full_name: fullName,
       },
     });
 
@@ -39,21 +39,17 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const userId = authData.user.id;
+    const createdUserId = authData.user.id;
 
-    // Use service role to create user profile (bypasses RLS)
+    // Create user profile in public.users table
     try {
-      const { error: profileError } = await serviceClient
+      await serviceClient
         .from("users")
         .insert({
-          id: userId,
+          id: createdUserId,
           email,
           full_name: fullName,
         } as any);
-
-      if (profileError) {
-        console.error("Profile creation error:", profileError);
-      }
     } catch (err) {
       console.error("Profile creation error:", err);
     }
@@ -63,7 +59,7 @@ export async function POST(req: NextRequest) {
       await serviceClient
         .from("user_progress")
         .insert({
-          user_id: userId,
+          user_id: createdUserId,
         } as any);
     } catch (err) {
       console.error("Progress creation error:", err);
@@ -74,7 +70,7 @@ export async function POST(req: NextRequest) {
       await serviceClient
         .from("study_streaks")
         .insert({
-          user_id: userId,
+          user_id: createdUserId,
         } as any);
     } catch (err) {
       console.error("Streak creation error:", err);
@@ -83,7 +79,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       success: true,
       user: {
-        id: userId,
+        id: createdUserId,
         email: authData.user.email,
         full_name: fullName,
       },
