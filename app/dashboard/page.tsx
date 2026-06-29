@@ -215,24 +215,14 @@ export default function DashboardPage() {
     fetchAllData();
   }, [fetchAllData]);
 
-  /* ── real-time subscriptions ── */
+  /* ── refresh data every 5 seconds for live updates ── */
   useEffect(() => {
-    if (!user?.id) return;
+    const interval = setInterval(() => {
+      fetchAllData();
+    }, 5000);
 
-    const supabase = getSupabase();
-
-    // Subscribe to user progress changes
-    const progressSubscription = supabase
-      .from(`user_progress:user_id=eq.${user.id}`)
-      .on("*", () => {
-        fetchAllData();
-      })
-      .subscribe();
-
-    return () => {
-      progressSubscription.unsubscribe();
-    };
-  }, [user?.id, fetchAllData]);
+    return () => clearInterval(interval);
+  }, [fetchAllData]);
 
   function logout() {
     localStorage.removeItem("medcore_user");
