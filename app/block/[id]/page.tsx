@@ -266,6 +266,19 @@ export default function BlockQuizPage() {
   }
 
   const mcq = block.mcqs[currentIdx];
+
+  // Safety check for MCQ
+  if (!mcq) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ background: "#050B18" }}>
+        <div className="text-center glass rounded-2xl p-10">
+          <p className="text-2xl mb-4">⚠️</p>
+          <p className="text-white font-semibold mb-2">Error loading question</p>
+          <Link href="/dashboard" className="text-blue-400 text-sm hover:underline">← Back to Dashboard</Link>
+        </div>
+      </div>
+    );
+  }
   const isLast = currentIdx === block.mcqs.length - 1;
   const progress = ((currentIdx + (submitted ? 1 : 0)) / block.mcqs.length) * 100;
 
@@ -342,7 +355,7 @@ export default function BlockQuizPage() {
         {/* ── options ── */}
         <div className="space-y-3">
           <p className="text-xs text-white uppercase tracking-wide font-medium">Select the best answer</p>
-          {mcq.options.map((opt, i) => {
+          {mcq.options && mcq.options.length > 0 ? mcq.options.map((opt, i) => {
             const isCorrect = i === mcq.correctIndex;
             const isSelected = selected === i;
             const showResult = submitted;
@@ -402,7 +415,9 @@ export default function BlockQuizPage() {
                 )}
               </button>
             );
-          })}
+          }) : (
+            <p className="text-white text-sm">No options available</p>
+          )}
         </div>
 
         {/* ── action buttons ── */}
