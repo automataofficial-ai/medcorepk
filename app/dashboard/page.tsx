@@ -189,19 +189,40 @@ export default function DashboardPage() {
       setSessions(sessionsData.sessions || []);
 
       // Fetch user stats from database
-      const { data: userProgressData } = await supabase
-        .from("user_progress")
-        .select("*")
-        .eq("user_id", user.id)
-        .single();
+      try {
+        const { data: userProgressData } = await supabase
+          .from("user_progress")
+          .select("*")
+          .eq("user_id", user.id)
+          .single();
 
-      if (userProgressData) {
+        if (userProgressData) {
+          setUserStats({
+            total_questions_answered: userProgressData.total_questions || 0,
+            total_correct: userProgressData.correct_answers || 0,
+            total_incorrect: (userProgressData.total_questions || 0) - (userProgressData.correct_answers || 0),
+            current_streak: userProgressData.current_streak || 0,
+            accuracy_percentage: userProgressData.total_questions ? Math.round((userProgressData.correct_answers / userProgressData.total_questions) * 100) : 0,
+          });
+        } else {
+          // Default stats if no progress found
+          setUserStats({
+            total_questions_answered: 0,
+            total_correct: 0,
+            total_incorrect: 0,
+            current_streak: 0,
+            accuracy_percentage: 0,
+          });
+        }
+      } catch (err) {
+        console.log("No user progress yet");
+        // Default stats on error
         setUserStats({
-          total_questions_answered: userProgressData.total_questions || 0,
-          total_correct: userProgressData.correct_answers || 0,
-          total_incorrect: (userProgressData.total_questions || 0) - (userProgressData.correct_answers || 0),
-          current_streak: userProgressData.current_streak || 0,
-          accuracy_percentage: userProgressData.total_questions ? Math.round((userProgressData.correct_answers / userProgressData.total_questions) * 100) : 0,
+          total_questions_answered: 0,
+          total_correct: 0,
+          total_incorrect: 0,
+          current_streak: 0,
+          accuracy_percentage: 0,
         });
       }
     } catch (err) {
