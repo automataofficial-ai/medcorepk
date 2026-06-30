@@ -3,9 +3,20 @@
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
-import { getBlockById } from "@/lib/blocks";
 import type { BlockSession } from "@/lib/types";
 import MedicalImage from "@/components/MedicalImage";
+
+interface Block {
+  id: string;
+  title: string;
+  specialty: string;
+  description: string;
+  icon: string;
+  color: string;
+  difficulty: string;
+  total_mcqs: number;
+  mcqs?: any[];
+}
 
 function ScoreCircle({ pct }: { pct: number }) {
   const r = 56;
@@ -33,7 +44,8 @@ export default function BlockReviewPage() {
   const router = useRouter();
   const params = useParams();
   const blockId = params.id as string;
-  const block = getBlockById(blockId);
+  const [block, setBlock] = useState<Block | null>(null);
+  const [loading, setLoading] = useState(true);
   const [session, setSession] = useState<BlockSession | null>(null);
   const [expandedMcq, setExpandedMcq] = useState<number | null>(null);
 
@@ -43,10 +55,75 @@ export default function BlockReviewPage() {
     if (stored) setSession(JSON.parse(stored));
   }, [blockId, router]);
 
+  useEffect(() => {
+    async function fetchBlock() {
+      try {
+        const res = await fetch("/api/blocks");
+        if (!res.ok) throw new Error(`API error: ${res.status}`);
+        const data = await res.json();
+        const blocks = data.blocks || [];
+        const foundBlock = blocks.find((b: Block) => b.id === blockId);
+
+        if (!foundBlock) {
+          setBlock(null);
+          return;
+        }
+
+        const transformedMCQs = (foundBlock.mcqs || []).map((dbMcq: any) => {
+          return {
+            id: dbMcq.id,
+            caseStudy: dbMcq.case_study || "",
+            image: dbMcq.image_url ? {
+              type: dbMcq.image_url,
+              caption: "Medical Image",
+            } : null,
+            options: [
+              { label: "A", text: dbMcq.option_a || "" },
+              { label: "B", text: dbMcq.option_b || "" },
+              { label: "C", text: dbMcq.option_c || "" },
+              { label: "D", text: dbMcq.option_d || "" },
+            ],
+            correctIndex: ["a", "b", "c", "d"].indexOf((dbMcq.correct_answer || "a").toLowerCase()),
+            explanation: dbMcq.explanation ? {
+              correct: dbMcq.explanation,
+              incorrect: ["", "", ""],
+            } : null,
+          };
+        });
+
+        setBlock({
+          ...foundBlock,
+          mcqs: transformedMCQs,
+        });
+      } catch (err) {
+        console.error("Error fetching block:", err);
+        setBlock(null);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    if (blockId) {
+      fetchBlock();
+    }
+  }, [blockId]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ background: "#050B18" }}>
+        <div className="text-center glass rounded-2xl p-10">
+          <p className="text-2xl mb-4">⏳</p>
+          <p className="text-white font-semibold mb-2">Loading review...</p>
+        </div>
+      </div>
+    );
+  }
+
   if (!block) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ background: "#050B18" }}>
         <div className="glass rounded-2xl p-10 text-center">
+          <p className="text-2xl mb-4">❌</p>
           <p className="text-white mb-4">Block not found.</p>
           <Link href="/dashboard" className="text-blue-400 text-sm hover:underline">← Dashboard</Link>
         </div>
