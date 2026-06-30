@@ -6,9 +6,6 @@ import Link from "next/link";
 import { signInWithEmail, getCurrentUser, getUserProfile } from "@/lib/supabase";
 import { useToast } from "@/context/ToastContext";
 
-const DEMO_EMAIL = "doctor@medcore.pk";
-const DEMO_PASSWORD = "medcore2026";
-
 export default function LoginPage() {
   const router = useRouter();
   const { error: showError, success } = useToast();
@@ -147,41 +144,12 @@ export default function LoginPage() {
 
         {/* Sign Up Link */}
         <div className="mt-6 text-center glass rounded-2xl p-5" style={{ animation: "fade-in 0.7s ease 0.25s forwards", opacity: 0 }}>
-          <p className="text-slate-300 text-sm mb-4">
+          <p className="text-slate-300 text-sm">
             Don't have an account?{" "}
             <Link href="/signup" className="text-cyan-400 hover:text-cyan-300 font-semibold transition-colors">
               Sign Up
             </Link>
           </p>
-
-          {/* Demo credentials */}
-          <div className="border-t border-slate-700/50 pt-4">
-            <div className="flex items-center gap-2 mb-3">
-              <span className="w-5 h-5 rounded-full bg-green-500/20 flex items-center justify-center text-green-400 text-xs">✓</span>
-              <span className="text-slate-300 font-medium">Demo Account</span>
-            </div>
-            <div className="space-y-2 text-white">
-              <div className="flex justify-between">
-                <span className="text-xs">Email:</span>
-                <button
-                  onClick={() => setEmail(DEMO_EMAIL)}
-                  className="text-blue-400 font-mono hover:text-blue-300 transition-colors text-xs"
-                >
-                  {DEMO_EMAIL}
-                </button>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-xs">Password:</span>
-                <button
-                  onClick={() => setPassword(DEMO_PASSWORD)}
-                  className="text-blue-400 font-mono hover:text-blue-300 transition-colors text-xs"
-                >
-                  {DEMO_PASSWORD}
-                </button>
-              </div>
-            </div>
-            <p className="text-xs text-slate-400 mt-3">Click the values above to auto-fill.</p>
-          </div>
         </div>
       </div>
     </div>
