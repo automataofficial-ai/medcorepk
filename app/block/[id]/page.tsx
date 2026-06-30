@@ -229,7 +229,8 @@ export default function BlockQuizPage() {
 
       /* save to database via API */
       try {
-        await fetch("/api/sessions", {
+        console.log("Saving session:", { userId, blockId: block.id, score, correctCount: correct });
+        const saveRes = await fetch("/api/sessions", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -237,10 +238,23 @@ export default function BlockQuizPage() {
           },
           body: JSON.stringify(session),
         });
-      } catch {/* noop */}
+
+        const saveData = await saveRes.json();
+        console.log("Session save response:", saveData);
+
+        if (!saveRes.ok) {
+          console.error("Session save failed:", saveData);
+        }
+      } catch (err) {
+        console.error("Session save error:", err);
+      }
 
       /* also cache in localStorage for review page */
       localStorage.setItem(`medcore_session_${block.id}`, JSON.stringify(session));
+
+      // Delay to ensure data is saved
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
       router.push(`/block/${block.id}/review`);
     } else {
       setCurrentIdx((i) => i + 1);

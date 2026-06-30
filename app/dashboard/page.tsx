@@ -189,28 +189,48 @@ export default function DashboardPage() {
       // Fetch blocks from database
       const blocksRes = await fetch("/api/blocks");
       const blocksData = await blocksRes.json();
+      console.log("Blocks fetched:", blocksData.blocks?.length || 0);
       setBlocks(blocksData.blocks || []);
 
       // Fetch user sessions
-      const sessionsRes = await fetch("/api/sessions");
+      const sessionsRes = await fetch("/api/sessions", {
+        headers: {
+          "x-user-id": user.id,
+        },
+      });
       const sessionsData = await sessionsRes.json();
+      console.log("Sessions fetched:", sessionsData.sessions?.length || 0);
+      console.log("Sessions data sample:", sessionsData.sessions?.[0]);
       setSessions(sessionsData.sessions || []);
 
       // Fetch user stats from database
       try {
-        const { data: userProgressData } = await supabase
+        const { data: userProgressData, error: progressError } = await supabase
           .from("user_progress")
           .select("*")
           .eq("user_id", user.id)
           .single();
 
+        // Fetch study streak
+        const { data: streakData } = await supabase
+          .from("study_streaks")
+          .select("*")
+          .eq("user_id", user.id)
+          .single();
+
+        console.log("User progress data:", userProgressData, "Streak data:", streakData);
+
         if (userProgressData) {
+          const totalMcqs = userProgressData.total_mcqs_attempted || 0;
+          const totalCorrect = userProgressData.total_correct || 0;
+          const accuracy = userProgressData.overall_accuracy || 0;
+
           setUserStats({
-            total_questions_answered: userProgressData.total_questions || 0,
-            total_correct: userProgressData.correct_answers || 0,
-            total_incorrect: (userProgressData.total_questions || 0) - (userProgressData.correct_answers || 0),
-            current_streak: userProgressData.current_streak || 0,
-            accuracy_percentage: userProgressData.total_questions ? Math.round((userProgressData.correct_answers / userProgressData.total_questions) * 100) : 0,
+            total_questions_answered: totalMcqs,
+            total_correct: totalCorrect,
+            total_incorrect: totalMcqs - totalCorrect,
+            current_streak: (streakData?.current_streak as number) || 0,
+            accuracy_percentage: isNaN(accuracy) ? 0 : Math.round(accuracy),
           });
         } else {
           // Default stats if no progress found
@@ -223,7 +243,7 @@ export default function DashboardPage() {
           });
         }
       } catch (err) {
-        console.log("No user progress yet");
+        console.error("Error fetching user stats:", err);
         // Default stats on error
         setUserStats({
           total_questions_answered: 0,
@@ -244,14 +264,52 @@ export default function DashboardPage() {
     fetchAllData();
   }, [fetchAllData]);
 
-  /* ── refresh data every 5 seconds for live updates ── */
+  /* ── refresh data every 3 seconds for live updates ── */
   useEffect(() => {
     const interval = setInterval(() => {
       fetchAllData();
-    }, 5000);
+    }, 3000);
 
     return () => clearInterval(interval);
   }, [fetchAllData]);
+
+  /* ── listen for updates in real-time ── */
+  useEffect(() => {
+    if (!user?.id) return;
+
+    const supabase = getSupabase();
+
+    // Subscribe to session changes
+    const sessionsChannel = supabase
+      .channel(`user_sessions_${user.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'sessions',
+          filter: `user_id=eq.${user.id}`,
+        },
+        () => {
+          console.log('✓ Session change detected via real-time, refetching...');
+          fetchAllData();
+        }
+      )
+      .subscribe((status) => {
+        console.log('Realtime subscription status:', status);
+        if (status === 'SUBSCRIBED') {
+          console.log('✓ Real-time subscribed successfully');
+        } else if (status === 'CLOSED') {
+          console.warn('Real-time subscription closed');
+        } else if (status === 'CHANNEL_ERROR') {
+          console.error('Real-time subscription error - will fall back to polling every 3s');
+        }
+      });
+
+    return () => {
+      supabase.removeChannel(sessionsChannel);
+    };
+  }, [user?.id, fetchAllData]);
 
   function logout() {
     localStorage.removeItem("medcore_user");
@@ -267,24 +325,38 @@ export default function DashboardPage() {
   const totalIncorrect = userStats?.total_incorrect || 0;
   const overallAcc = userStats?.accuracy_percentage || 0;
   const currentStreak = userStats?.current_streak || 0;
-  const highestSession = sessions.reduce<BlockSession | null>((best, s) =>
-    best === null || s.score > best.score ? s : best, null);
+
+  const highestSession = sessions.reduce<any>((best, s: any) => {
+    const score = s.score || 0;
+    const bestScore = best?.score || best?.score === 0 ? best.score : 0;
+    return best === null || score > bestScore ? s : best;
+  }, null);
 
   /* ── latest session per block ── */
-  const latestByBlock: Record<string, BlockSession> = {};
+  const latestByBlock: Record<string, any> = {};
   for (const s of sessions) {
-    if (!latestByBlock[s.blockId] || s.completedAt > latestByBlock[s.blockId].completedAt)
-      latestByBlock[s.blockId] = s;
+    const blockId = s.block_id || s.blockId;
+    const completedAt = s.completed_at || s.completedAt;
+
+    if (blockId && completedAt) {
+      if (!latestByBlock[blockId] ||
+          new Date(completedAt).getTime() > new Date(latestByBlock[blockId].completed_at || latestByBlock[blockId].completedAt).getTime()) {
+        latestByBlock[blockId] = s;
+      }
+    }
   }
 
   /* ── chart data ── */
-  const barData = blocks.map((b) => ({
-    name: b.specialty.split(" ")[0],
-    Score: latestByBlock[b.id] ? Math.round(latestByBlock[b.id].score) : 0,
-    full: b.title,
-  }));
+  const barData = blocks.map((b) => {
+    const latest = latestByBlock[b.id];
+    return {
+      name: b.specialty.split(" ")[0],
+      Score: latest ? Math.round(latest.score || 0) : 0,
+      full: b.title,
+    };
+  });
 
-  const pieData = totalMcqs
+  const pieData = totalMcqs && totalMcqs > 0
     ? [
         { name: "Correct", value: totalCorrect },
         { name: "Incorrect", value: totalIncorrect },
@@ -293,18 +365,26 @@ export default function DashboardPage() {
 
   const areaData = sessions
     .slice()
-    .sort((a, b) => a.completedAt.localeCompare(b.completedAt))
-    .map((s, i) => ({
+    .filter((s: any) => (s.completed_at || s.completedAt) && typeof s.score === "number")
+    .sort((a: any, b: any) => {
+      const dateA = new Date(a.completed_at || a.completedAt).getTime();
+      const dateB = new Date(b.completed_at || b.completedAt).getTime();
+      return dateA - dateB;
+    })
+    .map((s: any, i: number) => ({
       idx: `#${i + 1}`,
-      Score: Math.round(s.score),
-      block: s.blockTitle,
+      Score: Math.round(s.score || 0),
+      block: s.blockTitle || s.block_id || "Unknown",
     }));
 
-  const subjectData = blocks.map((b, i) => ({
-    name: b.specialty.split(" ")[0],
-    Accuracy: latestByBlock[b.id] ? Math.round(latestByBlock[b.id].score) : 0,
-    fill: COLORS[i % COLORS.length],
-  }));
+  const subjectData = blocks.map((b, i) => {
+    const latest = latestByBlock[b.id];
+    return {
+      name: b.specialty.split(" ")[0],
+      Accuracy: latest && typeof latest.score === "number" ? Math.round(latest.score) : 0,
+      fill: COLORS[i % COLORS.length],
+    };
+  });
 
   if (!user) return null;
 
@@ -504,20 +584,41 @@ export default function DashboardPage() {
                   <tbody>
                     {sessions
                       .slice()
-                      .sort((a, b) => b.completedAt.localeCompare(a.completedAt))
-                      .map((s) => (
-                        <tr key={s.id} className="border-b border-slate-800/50 hover:bg-white/[0.02] transition-colors">
-                          <td className="py-3 pr-4 text-slate-200 font-medium">{s.blockTitle}</td>
-                          <td className="py-3 pr-4">
-                            <span className="font-bold" style={{
-                              color: s.score >= 80 ? "#10B981" : s.score >= 60 ? "#F59E0B" : "#EF4444"
-                            }}>{Math.round(s.score)}%</span>
-                          </td>
-                          <td className="py-3 pr-4 text-emerald-400">{s.correctCount}</td>
-                          <td className="py-3 pr-4 text-red-400">{s.totalMcqs - s.correctCount}</td>
-                          <td className="py-3 pr-4 text-white">{new Date(s.completedAt).toLocaleDateString("en-PK", { day: "numeric", month: "short", year: "2-digit" })}</td>
-                        </tr>
-                      ))}
+                      .filter((s: any) => {
+                        const completedAt = s.completed_at || s.completedAt;
+                        const score = s.score;
+                        return completedAt && typeof score === "number" && !isNaN(score);
+                      })
+                      .sort((a: any, b: any) => {
+                        const dateA = a.completed_at || a.completedAt;
+                        const dateB = b.completed_at || b.completedAt;
+                        return new Date(dateB).getTime() - new Date(dateA).getTime();
+                      })
+                      .map((s: any) => {
+                        const blockTitle = s.blockTitle || s.block_id || "Unknown Block";
+                        const score = typeof s.score === "number" ? s.score : 0;
+                        const correctCount = s.correctCount || s.correct_count || 0;
+                        const totalMcqs = s.totalMcqs || s.total_mcqs || 0;
+                        const completedAt = s.completed_at || s.completedAt;
+
+                        return (
+                          <tr key={s.id} className="border-b border-slate-800/50 hover:bg-white/[0.02] transition-colors">
+                            <td className="py-3 pr-4 text-slate-200 font-medium">{blockTitle}</td>
+                            <td className="py-3 pr-4">
+                              <span className="font-bold" style={{
+                                color: score >= 80 ? "#10B981" : score >= 60 ? "#F59E0B" : "#EF4444"
+                              }}>{Math.round(score)}%</span>
+                            </td>
+                            <td className="py-3 pr-4 text-emerald-400">{correctCount}</td>
+                            <td className="py-3 pr-4 text-red-400">{totalMcqs - correctCount}</td>
+                            <td className="py-3 pr-4 text-white">
+                              {completedAt
+                                ? new Date(completedAt).toLocaleDateString("en-PK", { day: "numeric", month: "short", year: "2-digit" })
+                                : "N/A"}
+                            </td>
+                          </tr>
+                        );
+                      })}
                   </tbody>
                 </table>
               </div>
