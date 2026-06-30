@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import Header from "@/components/Header";
+import { ToastProvider } from "@/context/ToastContext";
+import { ToastContainer } from "@/components/ToastContainer";
 
 export const metadata: Metadata = {
   title: "MedCore — FCPS Exam Preparation",
@@ -22,8 +24,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body>
-        <Header />
-        {children}
+        <ToastProvider>
+          <Header />
+          {children}
+          <ToastContainer />
+        </ToastProvider>
       </body>
     </html>
   );

@@ -4,27 +4,27 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { signInWithEmail, getCurrentUser, getUserProfile } from "@/lib/supabase";
+import { useToast } from "@/context/ToastContext";
 
 const DEMO_EMAIL = "doctor@medcore.pk";
 const DEMO_PASSWORD = "medcore2026";
 
 export default function LoginPage() {
   const router = useRouter();
+  const { error: showError, success } = useToast();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setError("");
     setLoading(true);
 
     try {
       const { data, error: signInError } = await signInWithEmail(email, password);
 
       if (signInError) {
-        setError(signInError.message || "Invalid credentials. Please try again.");
+        showError("Login Failed", signInError.message || "Invalid credentials. Please try again.");
         setLoading(false);
         return;
       }
@@ -45,15 +45,19 @@ export default function LoginPage() {
           })
         );
 
+        success("Welcome!", `Signed in as ${data.user.email}`);
+
         // Redirect to admin dashboard if admin, otherwise regular dashboard
-        if (profile?.role === "admin") {
-          router.push("/admin/dashboard");
-        } else {
-          router.push("/dashboard");
-        }
+        setTimeout(() => {
+          if (profile?.role === "admin") {
+            router.push("/admin/dashboard");
+          } else {
+            router.push("/dashboard");
+          }
+        }, 800);
       }
     } catch (err: any) {
-      setError(err?.message || "An unexpected error occurred");
+      showError("Error", err?.message || "An unexpected error occurred");
     } finally {
       setLoading(false);
     }
@@ -121,14 +125,6 @@ export default function LoginPage() {
                 onBlur={(e) => { e.target.style.borderColor = "rgba(255,255,255,0.1)"; e.target.style.boxShadow = "none"; }}
               />
             </div>
-
-            {error && (
-              <div className="flex items-start gap-2 px-4 py-3 rounded-xl text-sm text-red-300"
-                style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.25)" }}>
-                <span className="mt-0.5">⚠️</span>
-                <span>{error}</span>
-              </div>
-            )}
 
             <button
               type="submit"
