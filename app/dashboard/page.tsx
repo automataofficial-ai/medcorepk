@@ -548,63 +548,117 @@ export default function DashboardPage() {
               return (
                 <div
                   key={block.id}
-                  className="glass rounded-2xl overflow-hidden card-lift"
-                  style={{ animationDelay: `${i * 0.05}s`, animation: "fade-in 0.5s ease forwards", opacity: 0 }}
+                  className="group relative rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-2xl card-lift"
+                  style={{
+                    animationDelay: `${i * 0.05}s`,
+                    animation: "fade-in 0.5s ease forwards",
+                    opacity: 0,
+                    background: "linear-gradient(135deg, rgba(15,23,42,0.8), rgba(30,27,75,0.4))",
+                    border: "1px solid rgba(99,102,241,0.15)",
+                    boxShadow: "0 8px 32px rgba(0,0,0,0.3), inset 0 1px 0px rgba(255,255,255,0.08)"
+                  }}
                 >
+                  {/* animated background gradient */}
+                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                    style={{
+                      background: `linear-gradient(135deg, ${block.color.includes('from-red') ? 'rgba(239,68,68,0.05)' : block.color.includes('from-sky') ? 'rgba(59,130,246,0.05)' : block.color.includes('from-purple') ? 'rgba(139,92,246,0.05)' : 'rgba(245,158,11,0.05)'}, transparent)`
+                    }} />
+
                   {/* gradient header */}
-                  <div className={`bg-gradient-to-r ${block.color} p-5 relative overflow-hidden`}>
-                    <div className="absolute inset-0 opacity-20"
+                  <div className={`bg-gradient-to-br ${block.color} p-6 relative overflow-hidden`}>
+                    <div className="absolute inset-0 opacity-30"
                       style={{
-                        backgroundImage: "radial-gradient(circle at 80% 50%, rgba(255,255,255,0.3), transparent 60%)",
+                        backgroundImage: "radial-gradient(circle at 100% 0%, rgba(255,255,255,0.4), transparent 70%)",
                       }} />
-                    <div className="relative flex items-start justify-between">
-                      <div>
-                        <span className="text-3xl">{block.icon}</span>
-                        <h3 className="text-white font-bold text-base mt-2 leading-tight">{block.title}</h3>
-                        <p className="text-white/70 text-xs mt-0.5">{block.specialty}</p>
+
+                    <div className="relative flex items-start justify-between mb-3">
+                      <div className="flex-1">
+                        <div className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl mb-3"
+                          style={{
+                            background: "rgba(255,255,255,0.2)",
+                            backdropFilter: "blur(10px)",
+                            border: "1px solid rgba(255,255,255,0.3)"
+                          }}>
+                          {block.icon}
+                        </div>
+                        <h3 className="text-white font-black text-lg leading-tight">{block.title}</h3>
+                        <p className="text-white/60 text-xs mt-1.5 font-medium uppercase tracking-wide">{block.specialty}</p>
                       </div>
-                      <div className="flex flex-col items-end gap-2">
-                        <span className="text-xs px-2 py-0.5 rounded-full font-medium text-white/90"
-                          style={{ background: "rgba(255,255,255,0.15)" }}>
+
+                      <div className="flex flex-col items-end gap-3">
+                        <span className="text-xs px-3 py-1.5 rounded-lg font-bold text-white/95"
+                          style={{
+                            background: "rgba(255,255,255,0.2)",
+                            backdropFilter: "blur(10px)",
+                            border: "1px solid rgba(255,255,255,0.25)"
+                          }}>
                           {block.difficulty}
                         </span>
                         {done && score !== null && <ScoreRing pct={score} />}
                       </div>
                     </div>
+
+                    {/* MCQ count badge */}
+                    <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg mt-2"
+                      style={{
+                        background: "rgba(255,255,255,0.15)",
+                        backdropFilter: "blur(10px)",
+                        border: "1px solid rgba(255,255,255,0.2)"
+                      }}>
+                      <span className="text-sm font-bold text-white">{(block as any).mcqs?.length || (block as any).total_mcqs || 0}</span>
+                      <span className="text-xs text-white/70">MCQs</span>
+                    </div>
                   </div>
 
-                  <div className="p-4 space-y-4">
-                    <p className="text-xs text-white leading-relaxed">{block.description}</p>
+                  <div className="p-6 space-y-5">
+                    <p className="text-sm text-white/80 leading-relaxed h-10 overflow-hidden">{block.description}</p>
 
-                    <div className="flex items-center gap-4 text-xs text-white">
-                      <span>📝 {(block as any).mcqs?.length || (block as any).total_mcqs || 0} MCQs</span>
-                      <span style={{ color: DIFF_COLOR[block.difficulty] }}>● {block.difficulty}</span>
+                    <div className="flex items-center gap-3">
                       {done && (
-                        <span className="text-emerald-400 flex items-center gap-1">
-                          ✓ Done
-                        </span>
+                        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg"
+                          style={{ background: "rgba(16,185,129,0.1)", border: "1px solid rgba(16,185,129,0.3)" }}>
+                          <span className="text-emerald-400 text-sm font-semibold">✓</span>
+                          <span className="text-emerald-400 text-xs font-medium">Completed</span>
+                        </div>
                       )}
                     </div>
 
-                    <Link
-                      href={`/block/${block.id}`}
-                      className="block w-full py-2.5 rounded-xl text-center text-sm font-semibold transition-all duration-200 hover:scale-[1.02]"
-                      style={done
-                        ? { background: "rgba(255,255,255,0.06)", color: "#94A3B8", border: "1px solid rgba(255,255,255,0.08)" }
-                        : { background: "linear-gradient(135deg, #00CED1, #00B5CC)", color: "#fff", boxShadow: "0 4px 15px rgba(99,102,241,0.3)" }}
-                    >
-                      {done ? "Retake Block" : "Start Block →"}
-                    </Link>
-
-                    {done && (
+                    <div className="space-y-2.5 pt-2">
                       <Link
-                        href={`/block/${block.id}/review`}
-                        className="block w-full py-2.5 rounded-xl text-center text-sm font-medium text-blue-400 transition-all duration-200 hover:text-blue-300"
-                        style={{ background: "rgba(59,130,246,0.08)", border: "1px solid rgba(59,130,246,0.2)" }}
+                        href={`/block/${block.id}`}
+                        className="block w-full py-3 rounded-xl text-center text-sm font-semibold transition-all duration-300 hover:scale-[1.02] active:scale-95"
+                        style={done
+                          ? {
+                            background: "linear-gradient(135deg, rgba(148,163,184,0.1), rgba(100,116,139,0.08))",
+                            color: "#CBD5E1",
+                            border: "1.5px solid rgba(148,163,184,0.25)",
+                            boxShadow: "0 2px 8px rgba(0,0,0,0.1)"
+                          }
+                          : {
+                            background: "linear-gradient(135deg, #00CED1 0%, #00B5CC 100%)",
+                            color: "#fff",
+                            boxShadow: "0 8px 24px rgba(0,206,209,0.3), 0 2px 8px rgba(0,0,0,0.1)"
+                          }
+                        }
                       >
-                        Review Answers
+                        {done ? "Retake Block" : "Start Block →"}
                       </Link>
-                    )}
+
+                      {done && (
+                        <Link
+                          href={`/block/${block.id}/review`}
+                          className="block w-full py-2.5 rounded-xl text-center text-sm font-semibold transition-all duration-300 hover:scale-[1.02] active:scale-95"
+                          style={{
+                            background: "linear-gradient(135deg, rgba(59,130,246,0.15), rgba(99,102,241,0.1))",
+                            color: "#93C5FD",
+                            border: "1.5px solid rgba(59,130,246,0.3)",
+                            boxShadow: "0 2px 8px rgba(0,0,0,0.1)"
+                          }}
+                        >
+                          📊 Review Results
+                        </Link>
+                      )}
+                    </div>
                   </div>
                 </div>
               );
