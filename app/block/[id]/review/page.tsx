@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
+import { useToast } from "@/context/ToastContext";
 import type { BlockSession } from "@/lib/types";
 import MedicalImage from "@/components/MedicalImage";
 
@@ -43,6 +44,7 @@ function ScoreCircle({ pct }: { pct: number }) {
 export default function BlockReviewPage() {
   const router = useRouter();
   const params = useParams();
+  const { info, success, error } = useToast();
   const blockId = params.id as string;
   const [block, setBlock] = useState<Block | null>(null);
   const [loading, setLoading] = useState(true);
@@ -69,36 +71,56 @@ export default function BlockReviewPage() {
         const foundBlock = blocks.find((b: Block) => b.id === blockId);
 
         if (!foundBlock || !foundBlock.mcqs || foundBlock.mcqs.length === 0) {
+          error("Block Not Found", "The quiz block could not be loaded");
           setBlock(null);
+          setTimeout(() => router.push("/dashboard"), 2000);
           return;
         }
 
-        const transformedMCQs = (foundBlock.mcqs || []).map((dbMcq: any) => ({
-          id: dbMcq.id,
-          caseStudy: dbMcq.case_study || "",
-          image: dbMcq.image_url ? {
-            type: dbMcq.image_url,
-            caption: "Medical Image",
-          } : null,
-          options: [
-            { label: "A", text: dbMcq.option_a || "" },
-            { label: "B", text: dbMcq.option_b || "" },
-            { label: "C", text: dbMcq.option_c || "" },
-            { label: "D", text: dbMcq.option_d || "" },
-          ],
-          correctIndex: ["a", "b", "c", "d"].indexOf((dbMcq.correct_answer || "a").toLowerCase()),
-          explanation: dbMcq.explanation ? {
-            correct: dbMcq.explanation,
-            incorrect: ["", "", ""],
-          } : null,
-        }));
+        const transformedMCQs = (foundBlock.mcqs || []).map((dbMcq: any) => {
+          const correctIndex = ["a", "b", "c", "d"].indexOf((dbMcq.correct_answer || "a").toLowerCase());
+          const explanations = ["", "", ""];
+
+          if (correctIndex !== 0) explanations[0] = dbMcq.explanation_a || "";
+          if (correctIndex !== 1) explanations[1] = dbMcq.explanation_b || "";
+          if (correctIndex !== 2) explanations[2] = dbMcq.explanation_c || "";
+          if (correctIndex !== 3) explanations[3] = dbMcq.explanation_d || "";
+
+          return {
+            id: dbMcq.id,
+            caseStudy: dbMcq.case_study || "",
+            question: dbMcq.question || "",
+            notes: dbMcq.notes || "",
+            image: dbMcq.image_url ? {
+              type: dbMcq.image_url,
+              caption: "Medical Image",
+            } : null,
+            options: [
+              { label: "A", text: dbMcq.option_a || "", explanation: dbMcq.explanation_a || "" },
+              { label: "B", text: dbMcq.option_b || "", explanation: dbMcq.explanation_b || "" },
+              { label: "C", text: dbMcq.option_c || "", explanation: dbMcq.explanation_c || "" },
+              { label: "D", text: dbMcq.option_d || "", explanation: dbMcq.explanation_d || "" },
+            ],
+            correctIndex,
+            explanation: dbMcq.explanation ? {
+              correct: dbMcq.explanation,
+              incorrect: explanations,
+            } : null,
+          };
+        });
 
         setBlock({
           ...foundBlock,
           mcqs: transformedMCQs,
         });
-      } catch (err) {
+        success("Review Loaded ✓", "Ready to review your answers");
+      } catch (err: any) {
         console.error("Error fetching block:", err);
+        if (err.name === "AbortError") {
+          error("Loading Timeout", "The review took too long to load");
+        } else {
+          error("Failed to Load Review", "Could not load the quiz review. Please try again");
+        }
         setBlock(null);
       } finally {
         clearTimeout(timeoutId);
@@ -109,7 +131,7 @@ export default function BlockReviewPage() {
     if (blockId) {
       fetchBlock();
     }
-  }, [blockId]);
+  }, [blockId, error, success]);
 
   if (loading) {
     return (

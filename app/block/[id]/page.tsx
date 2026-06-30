@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import { getSupabase } from "@/lib/supabase";
+import { useToast } from "@/context/ToastContext";
 import type { MCQAnswer, BlockSession } from "@/lib/types";
 import MedicalImage from "@/components/MedicalImage";
 
@@ -80,6 +81,7 @@ function ProgressDots({
 export default function BlockQuizPage() {
   const router = useRouter();
   const params = useParams();
+  const { info, success, error, warning } = useToast();
   const blockId = params.id as string;
   const [block, setBlock] = useState<Block | null>(null);
   const [loading, setLoading] = useState(true);
@@ -117,14 +119,18 @@ export default function BlockQuizPage() {
 
         if (!foundBlock) {
           console.error("Block not found:", blockId);
+          error("Block Not Found", "The quiz block you're looking for doesn't exist");
           setBlock(null);
+          setTimeout(() => router.push("/dashboard"), 2000);
           return;
         }
 
         // Ensure MCQs exist
         if (!foundBlock.mcqs || foundBlock.mcqs.length === 0) {
           console.error("No MCQs found in block:", blockId);
+          error("No Questions Found", "This block has no questions. Please try another block");
           setBlock(null);
+          setTimeout(() => router.push("/dashboard"), 2000);
           return;
         }
 
@@ -168,6 +174,11 @@ export default function BlockQuizPage() {
         });
       } catch (err: any) {
         console.error("Error fetching block:", err);
+        if (err.name === "AbortError") {
+          error("Loading Timeout", "The block took too long to load. Please check your connection");
+        } else {
+          error("Failed to Load", "Could not load the quiz block. Please try again");
+        }
         setBlock(null);
       } finally {
         clearTimeout(timeoutId);
@@ -213,7 +224,14 @@ export default function BlockQuizPage() {
     updated[currentIdx] = answer;
     setAnswers(updated);
     setSubmitted(true);
-  }, [selected, submitted, block, currentIdx, mcqTimer, answers]);
+
+    // Toast feedback
+    if (isCorrect) {
+      success("Correct! 🎉", "Great job! That's the right answer");
+    } else {
+      warning("Incorrect", "Don't worry, you'll learn from the explanation");
+    }
+  }, [selected, submitted, block, currentIdx, mcqTimer, answers, success, warning]);
 
   const handleNext = useCallback(async () => {
     if (!block) return;
@@ -223,6 +241,9 @@ export default function BlockQuizPage() {
       const finalAnswers = answers.filter(Boolean) as MCQAnswer[];
       const correct = finalAnswers.filter((a) => a.isCorrect).length;
       const score = (correct / block.mcqs.length) * 100;
+
+      // Show completion toast with score
+      info(`Quiz Complete! 🎉`, `Your Score: ${score.toFixed(1)}%`);
 
       const session: BlockSession = {
         id: generateId(),
@@ -257,22 +278,27 @@ export default function BlockQuizPage() {
 
         if (!saveRes.ok) {
           console.error("Session save failed:", saveData);
+          error("Save Failed", "Couldn't save your progress to server. Trying again...");
+        } else {
+          success("Progress Saved ✓", "Your results have been saved to your dashboard");
         }
       } catch (err) {
         console.error("Session save error:", err);
+        warning("Save Error", "Your progress was saved locally but not synced to the server");
       }
 
       /* also cache in localStorage for review page */
       localStorage.setItem(`medcore_session_${block.id}`, JSON.stringify(session));
 
       // Delay to ensure data is saved
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise(resolve => setTimeout(resolve, 1500));
 
       router.push(`/block/${block.id}/review`);
     } else {
       setCurrentIdx((i) => i + 1);
+      info(`Question ${currentIdx + 2} of ${block.mcqs.length}`, "Keep it up!");
     }
-  }, [block, currentIdx, answers, sessionTimer, router]);
+  }, [block, currentIdx, answers, sessionTimer, router, info, success, error, warning]);
 
   if (loading) {
     return (
