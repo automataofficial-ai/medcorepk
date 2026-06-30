@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { ChevronRight, Flame, BookOpen, CheckCircle2, TrendingUp } from "lucide-react";
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, Legend, AreaChart, Area, CartesianGrid,
@@ -62,24 +63,31 @@ function StatCard({ icon, label, value, sub, color }: {
   icon: string; label: string; value: string | number; sub?: string; color: string;
 }) {
   return (
-    <div className="rounded-2xl p-6 flex items-start gap-4 transition-all duration-300 hover:scale-105 cursor-pointer"
+    <div className="group relative rounded-2xl p-6 overflow-hidden transition-all duration-300 hover:scale-[1.02] cursor-pointer"
       style={{
-        background: `linear-gradient(135deg, ${color}15, ${color}08)`,
-        border: `1.5px solid ${color}30`,
-        boxShadow: `0 8px 16px rgba(0, 0, 0, 0.2), inset 0 1px 0px rgba(255,255,255,0.08)`
+        background: `linear-gradient(135deg, ${color}10, ${color}05)`,
+        border: `1.5px solid ${color}25`,
+        boxShadow: `0 8px 24px rgba(0,0,0,0.2), inset 0 1px 1px rgba(255,255,255,0.1)`
       }}>
-      <div className="w-14 h-14 rounded-xl flex items-center justify-center text-2xl flex-shrink-0"
+      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
         style={{
-          background: `${color}20`,
-          border: `1.5px solid ${color}40`,
-          boxShadow: `0 4px 12px ${color}20`
-        }}>
-        {icon}
-      </div>
-      <div className="min-w-0 flex-1">
-        <p className="text-xs text-white uppercase tracking-widest font-semibold">{label}</p>
-        <p className="text-3xl font-black text-white mt-1">{value}</p>
-        {sub && <p className="text-xs text-white mt-1 truncate">{sub}</p>}
+          background: `linear-gradient(135deg, ${color}15, transparent)`,
+        }} />
+
+      <div className="relative flex items-start gap-4">
+        <div className="w-16 h-16 rounded-xl flex items-center justify-center text-2xl flex-shrink-0 transition-transform duration-300 group-hover:scale-110"
+          style={{
+            background: `linear-gradient(135deg, ${color}30, ${color}15)`,
+            border: `1.5px solid ${color}40`,
+            boxShadow: `0 4px 16px ${color}20`
+          }}>
+          {icon}
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="text-xs text-white/70 uppercase tracking-widest font-semibold">{label}</p>
+          <p className="text-4xl font-black text-white mt-2">{value}</p>
+          {sub && <p className="text-xs text-white/60 mt-1 truncate">{sub}</p>}
+        </div>
       </div>
     </div>
   );
@@ -103,53 +111,51 @@ function ChartTip({ active, payload, label }: {
 /* ── Navbar ── */
 function Navbar({ name, onLogout }: { name: string; onLogout: () => void }) {
   return (
-    <nav className="sticky top-0 z-50 px-4 sm:px-6 md:px-8 py-4 sm:py-5 flex items-center justify-between"
+    <nav className="sticky top-0 z-50 px-4 sm:px-6 lg:px-8 py-3 sm:py-4 flex items-center justify-between"
       style={{
-        background: "linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 27, 75, 0.6))",
+        background: "linear-gradient(135deg, rgba(5,11,24,0.97), rgba(15,23,42,0.95))",
         backdropFilter: "blur(20px)",
-        borderBottom: "1px solid rgba(99, 102, 241, 0.2)",
-        boxShadow: "0 4px 20px rgba(0, 0, 0, 0.3)"
+        borderBottom: "1px solid rgba(99,102,241,0.1)",
+        boxShadow: "0 4px 24px rgba(0,0,0,0.4)"
       }}>
-      {/* Left side - Logo/Title */}
-      <Link href="/" className="flex items-start gap-2 sm:gap-3 hover:opacity-80 transition-opacity duration-300">
-        <img src="/logo.png" alt="MedCore Logo" className="h-10 sm:h-12 w-auto flex-shrink-0" />
-
-        {/* Title and tagline - vertically stacked */}
-        <div className="flex flex-col gap-0.5 justify-start">
-          <div className="text-white font-black text-base sm:text-xl leading-tight max-w-fit">MedCore</div>
-          <div className="text-cyan-400 text-xs font-semibold leading-none">crystal clear concepts</div>
+      {/* Left - Logo */}
+      <Link href="/" className="flex items-center gap-3 group">
+        <img src="/logo.png" alt="MedCore" className="h-9 sm:h-10 w-auto" />
+        <div className="flex flex-col gap-0">
+          <span className="text-white font-black text-base sm:text-lg">MedCore</span>
+          <span className="text-cyan-400 text-xs font-semibold">Master Medicine</span>
         </div>
       </Link>
 
-      {/* Right side - User info and Logout */}
-      <div className="flex items-center gap-6">
-        <div className="hidden sm:flex items-center gap-3 px-4 py-2.5 rounded-2xl"
-          style={{ background: "rgba(99, 102, 241, 0.08)", border: "1px solid rgba(99, 102, 241, 0.2)" }}>
-          <div className="w-9 h-9 rounded-full flex items-center justify-center text-white text-sm font-bold"
+      {/* Right - User & Logout */}
+      <div className="flex items-center gap-4 sm:gap-6">
+        <div className="hidden sm:flex items-center gap-3 px-4 py-2 rounded-xl"
+          style={{ background: "rgba(99,102,241,0.08)", border: "1px solid rgba(99,102,241,0.15)" }}>
+          <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white"
             style={{ background: "linear-gradient(135deg, #00CED1, #00B5CC)" }}>
-            {name.charAt(0)}
+            {name.charAt(0).toUpperCase()}
           </div>
-          <div className="flex flex-col">
-            <span className="text-sm font-semibold text-white">{name}</span>
-            <span className="text-xs text-white">Candidate</span>
+          <div className="flex flex-col gap-0">
+            <span className="text-xs font-semibold text-white">{name}</span>
+            <span className="text-xs text-white/60">Learner</span>
           </div>
         </div>
         <button onClick={onLogout}
-          className="px-5 py-2.5 text-sm font-semibold rounded-xl transition-all duration-300 border"
+          className="px-4 py-2 text-xs sm:text-sm font-semibold rounded-lg transition-all duration-300"
           style={{
-            background: "rgba(239, 68, 68, 0.1)",
-            borderColor: "rgba(239, 68, 68, 0.3)",
-            color: "#FECACA"
+            background: "rgba(239,68,68,0.1)",
+            border: "1px solid rgba(239,68,68,0.2)",
+            color: "#FCA5A5"
           }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.background = "rgba(239, 68, 68, 0.2)";
-            e.currentTarget.style.borderColor = "rgba(239, 68, 68, 0.5)";
+            e.currentTarget.style.background = "rgba(239,68,68,0.15)";
+            e.currentTarget.style.borderColor = "rgba(239,68,68,0.4)";
           }}
           onMouseLeave={(e) => {
-            e.currentTarget.style.background = "rgba(239, 68, 68, 0.1)";
-            e.currentTarget.style.borderColor = "rgba(239, 68, 68, 0.3)";
+            e.currentTarget.style.background = "rgba(239,68,68,0.1)";
+            e.currentTarget.style.borderColor = "rgba(239,68,68,0.2)";
           }}>
-          Logout
+          Sign Out
         </button>
       </div>
     </nav>
@@ -309,30 +315,38 @@ export default function DashboardPage() {
       <div className="max-w-7xl mx-auto px-6 py-12 space-y-8">
 
         {/* ── welcome banner ── */}
-        <div className="flex items-center justify-between flex-wrap gap-6 mb-2">
+        <div className="flex items-center justify-between flex-wrap gap-6 mb-8">
           <div>
-            <h1 className="text-4xl font-black text-white mb-2">
-              Welcome back, <span style={{ backgroundImage: "linear-gradient(135deg, #60A5FA, #A78BFA)", backgroundClip: "text", WebkitBackgroundClip: "text", color: "transparent" }}>{user.name.split(" ")[0]}</span>
+            <h1 className="text-5xl font-black text-white mb-3">
+              Welcome back, <span style={{ backgroundImage: "linear-gradient(135deg, #3B82F6, #8B5CF6)", backgroundClip: "text", WebkitBackgroundClip: "text", color: "transparent" }}>{user.name.split(" ")[0]}</span>
             </h1>
-            <p className="text-white text-base">
-              {completedCount === 0
-                ? "🎯 Start your first block to begin tracking progress"
-                : `📊 You have completed ${completedCount}/${totalBlocks} blocks — keep going!`}
+            <p className="text-white/80 text-base flex items-center gap-2">
+              {completedCount === 0 ? (
+                <><span>🎯</span> Start your first block to unlock insights</>
+              ) : (
+                <><TrendingUp className="w-5 h-5 text-emerald-400" /> On track! {completedCount}/{totalBlocks} blocks completed</>
+              )}
             </p>
           </div>
-          <div className="flex items-center gap-3 px-6 py-4 rounded-2xl"
+
+          <div className="group relative rounded-2xl p-6 overflow-hidden"
             style={{
-              background: "linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(251, 146, 60, 0.08))",
-              border: "1px solid rgba(251, 146, 60, 0.3)"
+              background: "linear-gradient(135deg, rgba(245,158,11,0.15), rgba(251,146,60,0.08))",
+              border: "1.5px solid rgba(251,146,60,0.25)"
             }}>
-            <span className="text-2xl">🔥</span>
-            <div>
-              <p className="text-xs text-white uppercase tracking-wide">Blocks Completed</p>
-              {completedCount > 0 ? (
-                <p className="text-xl font-bold text-white"><strong>{completedCount}</strong>/{totalBlocks}</p>
-              ) : (
-                <p className="text-lg font-semibold text-slate-300">Get Started</p>
-              )}
+            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+              style={{ background: "linear-gradient(135deg, rgba(251,146,60,0.1), transparent)" }} />
+
+            <div className="relative">
+              <div className="flex items-center gap-3">
+                <Flame className="w-6 h-6 text-orange-400" />
+                <div>
+                  <p className="text-xs text-white/70 uppercase tracking-wide font-semibold">Progress</p>
+                  <p className="text-2xl font-black text-white mt-1">
+                    <span className="text-orange-400">{completedCount}</span>/{totalBlocks}
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -348,14 +362,14 @@ export default function DashboardPage() {
         {/* ── analytics section ── */}
         {sessions.length > 0 ? (
           <div className="space-y-8">
-            <div className="flex items-center gap-4 pb-4 border-b border-slate-800/50">
-              <div className="w-2 h-8 rounded-full" style={{ background: "linear-gradient(180deg, #3B82F6, #8B5CF6)" }} />
+            <div className="flex items-center gap-4 pb-6 border-b border-slate-800/50">
+              <div className="w-2 h-10 rounded-full" style={{ background: "linear-gradient(180deg, #3B82F6, #8B5CF6)" }} />
               <div>
-                <h2 className="text-2xl font-black text-white">Performance Analytics</h2>
-                <p className="text-xs text-white mt-1">Track your progress and improvement</p>
+                <h2 className="text-3xl font-black text-white">Performance Analytics</h2>
+                <p className="text-sm text-white/60 mt-1">Track your learning journey</p>
               </div>
-              <span className="ml-auto text-xs px-3 py-1.5 rounded-full bg-green-500/10 border border-green-500/30 text-green-400 font-semibold flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+              <span className="ml-auto text-xs px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-semibold flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
                 Live
               </span>
             </div>
@@ -521,141 +535,157 @@ export default function DashboardPage() {
         )}
 
         {/* ── blocks grid ── */}
-        <div className="mt-12">
-          <div className="flex items-center justify-between mb-8 flex-wrap gap-4 pb-4 border-b border-slate-800/50">
+        <div className="mt-16">
+          <div className="flex items-center justify-between mb-8 flex-wrap gap-4 pb-6 border-b border-slate-800/50">
             <div>
-              <h2 className="text-2xl font-black text-white">Available Blocks</h2>
-              <p className="text-xs text-white mt-1">Practice all subjects and track your progress</p>
+              <div className="flex items-center gap-3 mb-2">
+                <BookOpen className="w-6 h-6 text-cyan-400" />
+                <h2 className="text-3xl font-black text-white">Learning Blocks</h2>
+              </div>
+              <p className="text-sm text-white/60">Master each subject systematically</p>
             </div>
-            <div className="flex items-center gap-5 text-xs text-white">
-              <span className="flex items-center gap-2.5 px-3 py-1.5 rounded-lg" style={{ background: "rgba(16, 185, 129, 0.08)" }}>
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
-                <span className="text-slate-300">Completed</span>
+            <div className="flex items-center gap-4 text-xs text-white">
+              <span className="flex items-center gap-2 px-3 py-1.5 rounded-lg" style={{ background: "rgba(16,185,129,0.1)", border: "1px solid rgba(16,185,129,0.2)" }}>
+                <span className="w-2 h-2 rounded-full bg-emerald-400" />
+                <span className="text-white/80">Completed</span>
               </span>
-              <span className="flex items-center gap-2.5 px-3 py-1.5 rounded-lg" style={{ background: "rgba(100, 116, 139, 0.08)" }}>
-                <span className="w-2.5 h-2.5 rounded-full bg-slate-600" />
-                <span className="text-white">Not Started</span>
+              <span className="flex items-center gap-2 px-3 py-1.5 rounded-lg" style={{ background: "rgba(100,116,139,0.1)", border: "1px solid rgba(100,116,139,0.2)" }}>
+                <span className="w-2 h-2 rounded-full bg-slate-500" />
+                <span className="text-white/80">Not Started</span>
               </span>
             </div>
           </div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {blocks.map((block, i) => {
               const session = latestByBlock[block.id];
               const done = !!session;
               const score = done ? Math.round(session.score) : null;
+              const mcqCount = (block as any).mcqs?.length || (block as any).total_mcqs || 0;
 
               return (
                 <div
                   key={block.id}
-                  className="group relative rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-2xl card-lift"
+                  className="group relative rounded-2xl overflow-hidden transition-all duration-500 hover:shadow-2xl card-lift"
                   style={{
-                    animationDelay: `${i * 0.05}s`,
-                    animation: "fade-in 0.5s ease forwards",
+                    animationDelay: `${i * 0.08}s`,
+                    animation: "fade-in 0.6s ease forwards",
                     opacity: 0,
-                    background: "linear-gradient(135deg, rgba(15,23,42,0.8), rgba(30,27,75,0.4))",
+                    background: "linear-gradient(135deg, rgba(15,23,42,0.85), rgba(30,27,75,0.5))",
                     border: "1px solid rgba(99,102,241,0.15)",
-                    boxShadow: "0 8px 32px rgba(0,0,0,0.3), inset 0 1px 0px rgba(255,255,255,0.08)"
+                    boxShadow: "0 12px 48px rgba(0,0,0,0.4), inset 0 1px 1px rgba(255,255,255,0.08)"
                   }}
                 >
-                  {/* animated background gradient */}
-                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                  {/* hover glow */}
+                  <div className="absolute -inset-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-xl pointer-events-none"
                     style={{
-                      background: `linear-gradient(135deg, ${block.color.includes('from-red') ? 'rgba(239,68,68,0.05)' : block.color.includes('from-sky') ? 'rgba(59,130,246,0.05)' : block.color.includes('from-purple') ? 'rgba(139,92,246,0.05)' : 'rgba(245,158,11,0.05)'}, transparent)`
+                      background: `linear-gradient(135deg, ${COLORS[i % COLORS.length]}, transparent)`,
+                      zIndex: -1
                     }} />
 
                   {/* gradient header */}
-                  <div className={`bg-gradient-to-br ${block.color} p-6 relative overflow-hidden`}>
-                    <div className="absolute inset-0 opacity-30"
+                  <div className={`bg-gradient-to-br ${block.color} p-7 relative overflow-hidden`}>
+                    <div className="absolute inset-0 opacity-40 group-hover:opacity-50 transition-opacity duration-300"
                       style={{
-                        backgroundImage: "radial-gradient(circle at 100% 0%, rgba(255,255,255,0.4), transparent 70%)",
+                        backgroundImage: "radial-gradient(circle at 100% -10%, rgba(255,255,255,0.5), transparent 70%)",
                       }} />
 
-                    <div className="relative flex items-start justify-between mb-3">
-                      <div className="flex-1">
-                        <div className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl mb-3"
+                    <div className="relative">
+                      {/* Top row - Icon and Difficulty */}
+                      <div className="flex items-start justify-between mb-4">
+                        <div className="w-14 h-14 rounded-xl flex items-center justify-center text-3xl"
                           style={{
-                            background: "rgba(255,255,255,0.2)",
-                            backdropFilter: "blur(10px)",
-                            border: "1px solid rgba(255,255,255,0.3)"
+                            background: "rgba(255,255,255,0.18)",
+                            backdropFilter: "blur(12px)",
+                            border: "1.5px solid rgba(255,255,255,0.35)",
+                            boxShadow: "0 8px 24px rgba(0,0,0,0.2)"
                           }}>
                           {block.icon}
                         </div>
-                        <h3 className="text-white font-black text-lg leading-tight">{block.title}</h3>
-                        <p className="text-white/60 text-xs mt-1.5 font-medium uppercase tracking-wide">{block.specialty}</p>
+
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs px-3 py-1.5 rounded-lg font-bold text-white"
+                            style={{
+                              background: "rgba(255,255,255,0.2)",
+                              backdropFilter: "blur(10px)",
+                              border: "1px solid rgba(255,255,255,0.3)"
+                            }}>
+                            {block.difficulty}
+                          </span>
+                          {done && score !== null && (
+                            <div className="text-center">
+                              <div className="text-lg font-black text-white">{score}%</div>
+                              <div className="text-xs text-white/70">Score</div>
+                            </div>
+                          )}
+                        </div>
                       </div>
 
-                      <div className="flex flex-col items-end gap-3">
-                        <span className="text-xs px-3 py-1.5 rounded-lg font-bold text-white/95"
-                          style={{
-                            background: "rgba(255,255,255,0.2)",
-                            backdropFilter: "blur(10px)",
-                            border: "1px solid rgba(255,255,255,0.25)"
-                          }}>
-                          {block.difficulty}
-                        </span>
-                        {done && score !== null && <ScoreRing pct={score} />}
-                      </div>
-                    </div>
+                      {/* Title and Specialty */}
+                      <h3 className="text-white font-black text-xl leading-tight mb-1">{block.title}</h3>
+                      <p className="text-white/70 text-xs font-semibold uppercase tracking-wider">{block.specialty}</p>
 
-                    {/* MCQ count badge */}
-                    <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg mt-2"
-                      style={{
-                        background: "rgba(255,255,255,0.15)",
-                        backdropFilter: "blur(10px)",
-                        border: "1px solid rgba(255,255,255,0.2)"
-                      }}>
-                      <span className="text-sm font-bold text-white">{(block as any).mcqs?.length || (block as any).total_mcqs || 0}</span>
-                      <span className="text-xs text-white/70">MCQs</span>
+                      {/* MCQ Badge */}
+                      <div className="mt-4 inline-flex items-center gap-2 px-3 py-1.5 rounded-lg"
+                        style={{
+                          background: "rgba(255,255,255,0.15)",
+                          backdropFilter: "blur(10px)",
+                          border: "1px solid rgba(255,255,255,0.25)"
+                        }}>
+                        <span className="text-sm font-bold text-white">{mcqCount}</span>
+                        <span className="text-xs text-white/70">Questions</span>
+                      </div>
                     </div>
                   </div>
 
                   <div className="p-6 space-y-5">
-                    <p className="text-sm text-white/80 leading-relaxed h-10 overflow-hidden">{block.description}</p>
+                    <p className="text-sm text-white/75 leading-relaxed">{block.description}</p>
 
-                    <div className="flex items-center gap-3">
-                      {done && (
-                        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg"
-                          style={{ background: "rgba(16,185,129,0.1)", border: "1px solid rgba(16,185,129,0.3)" }}>
-                          <span className="text-emerald-400 text-sm font-semibold">✓</span>
-                          <span className="text-emerald-400 text-xs font-medium">Completed</span>
-                        </div>
-                      )}
-                    </div>
+                    {/* Status Badge */}
+                    {done && (
+                      <div className="flex items-center gap-2 px-3 py-2 rounded-lg w-fit"
+                        style={{ background: "rgba(16,185,129,0.12)", border: "1px solid rgba(16,185,129,0.3)" }}>
+                        <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                        <span className="text-emerald-400 text-xs font-semibold">Completed</span>
+                      </div>
+                    )}
 
-                    <div className="space-y-2.5 pt-2">
+                    {/* Action Buttons */}
+                    <div className="space-y-3 pt-3">
                       <Link
                         href={`/block/${block.id}`}
-                        className="block w-full py-3 rounded-xl text-center text-sm font-semibold transition-all duration-300 hover:scale-[1.02] active:scale-95"
+                        className="flex items-center justify-center gap-2 w-full py-3 rounded-xl text-center text-sm font-semibold transition-all duration-300 hover:scale-[1.02] active:scale-95 group/btn"
                         style={done
                           ? {
-                            background: "linear-gradient(135deg, rgba(148,163,184,0.1), rgba(100,116,139,0.08))",
+                            background: "linear-gradient(135deg, rgba(100,116,139,0.15), rgba(71,85,105,0.1))",
                             color: "#CBD5E1",
-                            border: "1.5px solid rgba(148,163,184,0.25)",
-                            boxShadow: "0 2px 8px rgba(0,0,0,0.1)"
+                            border: "1.5px solid rgba(100,116,139,0.3)",
+                            boxShadow: "0 4px 12px rgba(0,0,0,0.15)"
                           }
                           : {
                             background: "linear-gradient(135deg, #00CED1 0%, #00B5CC 100%)",
                             color: "#fff",
-                            boxShadow: "0 8px 24px rgba(0,206,209,0.3), 0 2px 8px rgba(0,0,0,0.1)"
+                            boxShadow: "0 8px 24px rgba(0,206,209,0.35), 0 4px 12px rgba(0,0,0,0.15)"
                           }
                         }
                       >
-                        {done ? "Retake Block" : "Start Block →"}
+                        {done ? "Retake Block" : "Start Block"}
+                        {!done && <ChevronRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />}
                       </Link>
 
                       {done && (
                         <Link
                           href={`/block/${block.id}/review`}
-                          className="block w-full py-2.5 rounded-xl text-center text-sm font-semibold transition-all duration-300 hover:scale-[1.02] active:scale-95"
+                          className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl text-center text-sm font-semibold transition-all duration-300 hover:scale-[1.02] active:scale-95 group/btn"
                           style={{
-                            background: "linear-gradient(135deg, rgba(59,130,246,0.15), rgba(99,102,241,0.1))",
+                            background: "linear-gradient(135deg, rgba(59,130,246,0.18), rgba(37,99,235,0.1))",
                             color: "#93C5FD",
-                            border: "1.5px solid rgba(59,130,246,0.3)",
-                            boxShadow: "0 2px 8px rgba(0,0,0,0.1)"
+                            border: "1.5px solid rgba(59,130,246,0.35)",
+                            boxShadow: "0 4px 12px rgba(0,0,0,0.15)"
                           }}
                         >
-                          📊 Review Results
+                          Review Results
+                          <ChevronRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
                         </Link>
                       )}
                     </div>

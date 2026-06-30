@@ -57,39 +57,41 @@ export default function BlockReviewPage() {
 
   useEffect(() => {
     async function fetchBlock() {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000);
+
       try {
-        const res = await fetch("/api/blocks");
+        const res = await fetch("/api/blocks", { signal: controller.signal });
         if (!res.ok) throw new Error(`API error: ${res.status}`);
+
         const data = await res.json();
         const blocks = data.blocks || [];
         const foundBlock = blocks.find((b: Block) => b.id === blockId);
 
-        if (!foundBlock) {
+        if (!foundBlock || !foundBlock.mcqs || foundBlock.mcqs.length === 0) {
           setBlock(null);
           return;
         }
 
-        const transformedMCQs = (foundBlock.mcqs || []).map((dbMcq: any) => {
-          return {
-            id: dbMcq.id,
-            caseStudy: dbMcq.case_study || "",
-            image: dbMcq.image_url ? {
-              type: dbMcq.image_url,
-              caption: "Medical Image",
-            } : null,
-            options: [
-              { label: "A", text: dbMcq.option_a || "" },
-              { label: "B", text: dbMcq.option_b || "" },
-              { label: "C", text: dbMcq.option_c || "" },
-              { label: "D", text: dbMcq.option_d || "" },
-            ],
-            correctIndex: ["a", "b", "c", "d"].indexOf((dbMcq.correct_answer || "a").toLowerCase()),
-            explanation: dbMcq.explanation ? {
-              correct: dbMcq.explanation,
-              incorrect: ["", "", ""],
-            } : null,
-          };
-        });
+        const transformedMCQs = (foundBlock.mcqs || []).map((dbMcq: any) => ({
+          id: dbMcq.id,
+          caseStudy: dbMcq.case_study || "",
+          image: dbMcq.image_url ? {
+            type: dbMcq.image_url,
+            caption: "Medical Image",
+          } : null,
+          options: [
+            { label: "A", text: dbMcq.option_a || "" },
+            { label: "B", text: dbMcq.option_b || "" },
+            { label: "C", text: dbMcq.option_c || "" },
+            { label: "D", text: dbMcq.option_d || "" },
+          ],
+          correctIndex: ["a", "b", "c", "d"].indexOf((dbMcq.correct_answer || "a").toLowerCase()),
+          explanation: dbMcq.explanation ? {
+            correct: dbMcq.explanation,
+            incorrect: ["", "", ""],
+          } : null,
+        }));
 
         setBlock({
           ...foundBlock,
@@ -99,6 +101,7 @@ export default function BlockReviewPage() {
         console.error("Error fetching block:", err);
         setBlock(null);
       } finally {
+        clearTimeout(timeoutId);
         setLoading(false);
       }
     }
@@ -345,38 +348,42 @@ export default function BlockReviewPage() {
                     </div>
 
                     {/* explanations */}
-                    <div className="space-y-4">
-                      {/* correct explanation */}
-                      <div className="rounded-xl p-4"
-                        style={{ background: "rgba(16,185,129,0.06)", border: "1px solid rgba(16,185,129,0.2)" }}>
-                        <p className="text-emerald-300 font-semibold text-xs mb-2 flex items-center gap-1.5">
-                          ✅ Why {mcq.options[mcq.correctIndex].label} is correct
-                        </p>
-                        <p className="text-white text-sm leading-relaxed">{mcq.explanation.correct}</p>
-                      </div>
+                    {mcq.explanation && (
+                      <div className="space-y-4">
+                        {/* correct explanation */}
+                        <div className="rounded-xl p-4"
+                          style={{ background: "rgba(16,185,129,0.06)", border: "1px solid rgba(16,185,129,0.2)" }}>
+                          <p className="text-emerald-300 font-semibold text-xs mb-2 flex items-center gap-1.5">
+                            ✅ Why {mcq.options[mcq.correctIndex].label} is correct
+                          </p>
+                          <p className="text-white text-sm leading-relaxed">{mcq.explanation.correct || "See the correct option above"}</p>
+                        </div>
 
-                      {/* wrong explanations */}
-                      <div className="rounded-xl p-4 space-y-4"
-                        style={{ background: "rgba(239,68,68,0.04)", border: "1px solid rgba(239,68,68,0.15)" }}>
-                        <p className="text-red-300 font-semibold text-xs flex items-center gap-1.5">
-                          ❌ Why the other options are wrong
-                        </p>
-                        {mcq.options.map((opt, oi) => {
-                          if (oi === mcq.correctIndex) return null;
-                          const explIdx = oi < mcq.correctIndex ? oi : oi - 1;
-                          return (
-                            <div key={oi} className="border-t border-red-900/30 pt-3 first:border-0 first:pt-0">
-                              <p className="text-red-300/80 text-xs font-semibold mb-1">
-                                Option {opt.label}: {opt.text}
-                              </p>
-                              <p className="text-white text-sm leading-relaxed">
-                                {mcq.explanation.incorrect[explIdx] ?? "This option is not the best choice for this clinical scenario."}
-                              </p>
-                            </div>
-                          );
-                        })}
+                        {/* wrong explanations */}
+                        {mcq.explanation.incorrect && mcq.explanation.incorrect.length > 0 && (
+                          <div className="rounded-xl p-4 space-y-4"
+                            style={{ background: "rgba(239,68,68,0.04)", border: "1px solid rgba(239,68,68,0.15)" }}>
+                            <p className="text-red-300 font-semibold text-xs flex items-center gap-1.5">
+                              ❌ Why the other options are wrong
+                            </p>
+                            {mcq.options.map((opt, oi) => {
+                              if (oi === mcq.correctIndex) return null;
+                              const explIdx = oi < mcq.correctIndex ? oi : oi - 1;
+                              return (
+                                <div key={oi} className="border-t border-red-900/30 pt-3 first:border-0 first:pt-0">
+                                  <p className="text-red-300/80 text-xs font-semibold mb-1">
+                                    Option {opt.label}: {opt.text}
+                                  </p>
+                                  <p className="text-white text-sm leading-relaxed">
+                                    {mcq.explanation.incorrect[explIdx] ?? "This option is not the best choice for this clinical scenario."}
+                                  </p>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
                       </div>
-                    </div>
+                    )}
                   </div>
                 )}
               </div>

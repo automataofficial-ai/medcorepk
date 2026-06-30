@@ -99,70 +99,65 @@ export default function BlockQuizPage() {
   /* fetch block from database */
   useEffect(() => {
     async function fetchBlock() {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+
       try {
         console.log("Fetching block:", blockId);
-        const res = await fetch("/api/blocks");
+        const res = await fetch("/api/blocks", { signal: controller.signal });
 
         if (!res.ok) {
           throw new Error(`API error: ${res.status}`);
         }
 
         const data = await res.json();
-        console.log("API response:", data);
-
         const blocks = data.blocks || [];
-        console.log("Total blocks:", blocks.length);
 
         const foundBlock = blocks.find((b: Block) => b.id === blockId);
 
         if (!foundBlock) {
           console.error("Block not found:", blockId);
-          router.push("/dashboard");
+          setBlock(null);
           return;
         }
 
-        console.log("Found block:", foundBlock);
-        console.log("MCQs in block:", foundBlock.mcqs?.length || 0);
+        // Ensure MCQs exist
+        if (!foundBlock.mcqs || foundBlock.mcqs.length === 0) {
+          console.error("No MCQs found in block:", blockId);
+          setBlock(null);
+          return;
+        }
 
         // Transform database MCQs to expected format
-        const transformedMCQs = (foundBlock.mcqs || []).map((dbMcq: any) => {
-          try {
-            return {
-              id: dbMcq.id,
-              caseStudy: dbMcq.case_study || "",
-              image: dbMcq.image_url ? {
-                type: dbMcq.image_url,
-                caption: "Medical Image",
-              } : null,
-              options: [
-                { label: "A", text: dbMcq.option_a || "" },
-                { label: "B", text: dbMcq.option_b || "" },
-                { label: "C", text: dbMcq.option_c || "" },
-                { label: "D", text: dbMcq.option_d || "" },
-              ],
-              correctIndex: ["a", "b", "c", "d"].indexOf((dbMcq.correct_answer || "a").toLowerCase()),
-              explanation: dbMcq.explanation ? {
-                correct: dbMcq.explanation,
-                incorrect: ["", "", ""],
-              } : null,
-            };
-          } catch (mcqErr) {
-            console.error("Error transforming MCQ:", dbMcq, mcqErr);
-            throw mcqErr;
-          }
-        });
+        const transformedMCQs = (foundBlock.mcqs || []).map((dbMcq: any) => ({
+          id: dbMcq.id,
+          caseStudy: dbMcq.case_study || "",
+          image: dbMcq.image_url ? {
+            type: dbMcq.image_url,
+            caption: "Medical Image",
+          } : null,
+          options: [
+            { label: "A", text: dbMcq.option_a || "" },
+            { label: "B", text: dbMcq.option_b || "" },
+            { label: "C", text: dbMcq.option_c || "" },
+            { label: "D", text: dbMcq.option_d || "" },
+          ],
+          correctIndex: ["a", "b", "c", "d"].indexOf((dbMcq.correct_answer || "a").toLowerCase()),
+          explanation: dbMcq.explanation ? {
+            correct: dbMcq.explanation,
+            incorrect: ["", "", ""],
+          } : null,
+        }));
 
-        const transformedBlock = {
+        setBlock({
           ...foundBlock,
           mcqs: transformedMCQs,
-        };
-
-        console.log("Transformed block:", transformedBlock);
-        setBlock(transformedBlock);
-      } catch (err) {
+        });
+      } catch (err: any) {
         console.error("Error fetching block:", err);
-        router.push("/dashboard");
+        setBlock(null);
       } finally {
+        clearTimeout(timeoutId);
         setLoading(false);
       }
     }
@@ -170,7 +165,7 @@ export default function BlockQuizPage() {
     if (blockId) {
       fetchBlock();
     }
-  }, [blockId, router]);
+  }, [blockId]);
 
   /* reset when moving to new question */
   useEffect(() => {
@@ -308,63 +303,74 @@ export default function BlockQuizPage() {
     <div className="min-h-screen" style={{ background: "#050B18" }}>
 
       {/* ── top bar ── */}
-      <div className="sticky top-0 z-40 border-b border-slate-800/50"
-        style={{ background: "rgba(5,11,24,0.95)", backdropFilter: "blur(16px)" }}>
-        <div className="max-w-4xl mx-auto px-3 sm:px-4 py-2 sm:py-3 flex items-center justify-between gap-2 sm:gap-4">
-          <Link href="/dashboard" className="flex items-center gap-3 text-white hover:text-white transition-colors">
-            <img src="/logo.png" alt="MedCore" className="h-10 w-auto" />
+      <div className="sticky top-0 z-40 border-b border-slate-800/30"
+        style={{
+          background: "linear-gradient(135deg, rgba(5,11,24,0.98), rgba(15,23,42,0.95))",
+          backdropFilter: "blur(20px)",
+          boxShadow: "0 4px 12px rgba(0,0,0,0.3)"
+        }}>
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between gap-4">
+          <Link href="/dashboard" className="flex items-center gap-2 group transition-all duration-300">
+            <img src="/logo.png" alt="MedCore" className="h-9 w-auto group-hover:opacity-80" />
             <span className="text-white font-bold text-sm hidden sm:inline">MedCore</span>
           </Link>
 
-          <div className="flex-1 max-w-xs">
-            <div className="flex items-center justify-between text-xs text-white mb-1">
-              <span>Question {currentIdx + 1} of {block.mcqs.length}</span>
-              <span>{Math.round(progress)}%</span>
+          <div className="flex-1 max-w-md">
+            <div className="flex items-center justify-between text-xs text-white/70 mb-2">
+              <span className="font-medium">Question {currentIdx + 1} of {block.mcqs.length}</span>
+              <span className="text-white/60">{Math.round(progress)}%</span>
             </div>
-            <div className="h-1.5 rounded-full" style={{ background: "#1a2844" }}>
-              <div className="h-1.5 rounded-full progress-fill"
-                style={{ width: `${progress}%`, background: "linear-gradient(90deg, #3B82F6, #8B5CF6)" }} />
+            <div className="h-2 rounded-full overflow-hidden" style={{ background: "rgba(30,27,75,0.5)" }}>
+              <div className="h-2 rounded-full transition-all duration-500 ease-out"
+                style={{ width: `${progress}%`, background: "linear-gradient(90deg, #3B82F6 0%, #8B5CF6 100%)" }} />
             </div>
           </div>
 
-          <div className="flex items-center gap-3 text-sm">
-            <div className="glass px-3 py-1.5 rounded-lg flex items-center gap-2">
-              <span className="text-white">⏱</span>
-              <span className="text-white font-mono">{formatTime(sessionTimer)}</span>
+          <div className="flex items-center gap-4">
+            <div className="glass px-4 py-2 rounded-lg flex items-center gap-2 border border-slate-700/50"
+              style={{ background: "rgba(15,23,42,0.6)" }}>
+              <span className="text-white/80 text-lg">⏱️</span>
+              <span className="text-white font-mono font-bold">{formatTime(sessionTimer)}</span>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto px-4 py-6 space-y-6 page-enter">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8 space-y-7 page-enter">
 
         {/* ── block header ── */}
-        <div className="flex items-center justify-between flex-wrap gap-3">
-          <div className="flex items-center gap-3">
-            <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${block.color} flex items-center justify-center text-xl`}>
+        <div className="flex items-center justify-between flex-wrap gap-6 pb-2">
+          <div className="flex items-center gap-4">
+            <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${block.color} flex items-center justify-center text-2xl shadow-lg`}>
               {block.icon}
             </div>
             <div>
-              <p className="text-white font-bold text-sm">{block.title}</p>
-              <p className="text-white text-xs">{block.specialty}</p>
+              <p className="text-white font-black text-base">{block.title}</p>
+              <p className="text-white/60 text-xs font-medium uppercase tracking-wide">{block.specialty}</p>
             </div>
           </div>
-          <ProgressDots total={block.mcqs.length} current={currentIdx} answers={answers} />
+          <div className="hidden sm:block">
+            <ProgressDots total={block.mcqs.length} current={currentIdx} answers={answers} />
+          </div>
         </div>
 
         {/* ── case study card ── */}
-        <div className="glass rounded-2xl p-6">
-          <div className="flex items-center gap-2 mb-3">
-            <span className="text-xs px-2.5 py-1 rounded-full font-medium text-blue-300"
-              style={{ background: "rgba(59,130,246,0.12)", border: "1px solid rgba(59,130,246,0.25)" }}>
-              Clinical Scenario
+        <div className="glass rounded-2xl p-7 border border-slate-700/50"
+          style={{
+            background: "linear-gradient(135deg, rgba(30,27,75,0.4), rgba(15,23,42,0.4))",
+            boxShadow: "0 8px 32px rgba(0,0,0,0.2), inset 0 1px 1px rgba(255,255,255,0.08)"
+          }}>
+          <div className="flex items-center gap-2 mb-4">
+            <span className="text-xs px-3 py-1.5 rounded-full font-semibold text-blue-300"
+              style={{ background: "rgba(59,130,246,0.15)", border: "1px solid rgba(59,130,246,0.3)" }}>
+              📋 Clinical Scenario
             </span>
-            <span className="text-xs px-2.5 py-1 rounded-full font-medium text-white"
-              style={{ background: "rgba(255,255,255,0.05)" }}>
-              Q{currentIdx + 1}
+            <span className="text-xs px-3 py-1.5 rounded-full font-medium text-white/70"
+              style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)" }}>
+              Q{currentIdx + 1}/{block.mcqs.length}
             </span>
           </div>
-          <p className="text-white leading-relaxed text-sm md:text-base">
+          <p className="text-white/90 leading-relaxed text-base">
             {mcq.caseStudy}
           </p>
         </div>
@@ -445,40 +451,46 @@ export default function BlockQuizPage() {
         </div>
 
         {/* ── action buttons ── */}
-        <div className="flex items-center justify-between gap-4 pt-2">
-          <div className="text-xs text-white">
+        <div className="flex items-center justify-between gap-6 pt-4 pb-2">
+          <div className="text-sm text-white/70 font-medium h-6 flex items-center">
             {!submitted
               ? selected !== null
-                ? "Click 'Submit Answer' to confirm"
-                : "Select an answer above"
+                ? "🎯 Ready to submit"
+                : "👆 Select an answer"
               : submitted && selected === mcq.correctIndex
-              ? "✅ Correct!"
-              : "❌ Incorrect"}
+              ? "✅ Correct! Well done"
+              : "❌ Incorrect, try next"}
           </div>
           <div className="flex gap-3">
             {!submitted ? (
               <button
                 onClick={handleSubmit}
                 disabled={selected === null}
-                className="px-6 py-2.5 rounded-xl font-semibold text-sm text-white transition-all duration-200 hover:scale-105 disabled:opacity-40 disabled:cursor-not-allowed disabled:transform-none"
-                style={{ background: selected !== null ? "linear-gradient(135deg, #00CED1, #00B5CC)" : "#1a2844" }}
+                className="px-8 py-3 rounded-xl font-bold text-sm text-white transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 shadow-lg"
+                style={{
+                  background: selected !== null ? "linear-gradient(135deg, #00CED1 0%, #00B5CC 100%)" : "rgba(30,27,75,0.8)",
+                  boxShadow: selected !== null ? "0 8px 24px rgba(0,206,209,0.3)" : "0 2px 8px rgba(0,0,0,0.2)"
+                }}
               >
                 Submit Answer
               </button>
             ) : (
               <button
                 onClick={handleNext}
-                className="px-6 py-2.5 rounded-xl font-semibold text-sm text-white transition-all duration-200 hover:scale-105"
-                style={{ background: "linear-gradient(135deg, #059669, #0891B2)" }}
+                className="px-8 py-3 rounded-xl font-bold text-sm text-white transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg"
+                style={{
+                  background: "linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%)",
+                  boxShadow: "0 8px 24px rgba(59,130,246,0.3)"
+                }}
               >
-                {isLast ? "Finish Block →" : "Next Question →"}
+                {isLast ? "🎉 Finish Block" : "Next Question →"}
               </button>
             )}
           </div>
         </div>
 
         {/* ── explanation panel ── */}
-        {submitted && (
+        {submitted && mcq.explanation && (
           <div className="space-y-4 page-enter">
             {/* correct answer explanation */}
             <div className="rounded-2xl p-5"
@@ -487,31 +499,33 @@ export default function BlockQuizPage() {
                 <span className="text-emerald-400 text-lg">✅</span>
                 <span className="text-emerald-300 font-semibold text-sm">Correct Answer: {mcq.options[mcq.correctIndex].label}</span>
               </div>
-              <p className="text-white text-sm leading-relaxed">{mcq.explanation.correct}</p>
+              <p className="text-white text-sm leading-relaxed">{mcq.explanation.correct || "See the correct option above"}</p>
             </div>
 
             {/* wrong option explanations */}
-            <div className="rounded-2xl p-5 space-y-4"
-              style={{ background: "rgba(239,68,68,0.04)", border: "1px solid rgba(239,68,68,0.15)" }}>
-              <div className="flex items-center gap-2">
-                <span className="text-red-400 text-lg">❌</span>
-                <span className="text-red-300 font-semibold text-sm">Why the other options are incorrect</span>
+            {mcq.explanation.incorrect && mcq.explanation.incorrect.length > 0 && (
+              <div className="rounded-2xl p-5 space-y-4"
+                style={{ background: "rgba(239,68,68,0.04)", border: "1px solid rgba(239,68,68,0.15)" }}>
+                <div className="flex items-center gap-2">
+                  <span className="text-red-400 text-lg">❌</span>
+                  <span className="text-red-300 font-semibold text-sm">Why the other options are incorrect</span>
+                </div>
+                {mcq.options.map((opt, i) => {
+                  if (i === mcq.correctIndex) return null;
+                  const explIdx = i < mcq.correctIndex ? i : i - 1;
+                  return (
+                    <div key={i} className="border-t border-red-900/30 pt-3">
+                      <p className="text-red-300 text-xs font-semibold mb-1.5">
+                        Option {opt.label}: {opt.text}
+                      </p>
+                      <p className="text-white text-sm leading-relaxed">
+                        {mcq.explanation.incorrect[explIdx] ?? "This option is not the best answer for this clinical scenario."}
+                      </p>
+                    </div>
+                  );
+                })}
               </div>
-              {mcq.options.map((opt, i) => {
-                if (i === mcq.correctIndex) return null;
-                const explIdx = i < mcq.correctIndex ? i : i - 1;
-                return (
-                  <div key={i} className="border-t border-red-900/30 pt-3">
-                    <p className="text-red-300 text-xs font-semibold mb-1.5">
-                      Option {opt.label}: {opt.text}
-                    </p>
-                    <p className="text-white text-sm leading-relaxed">
-                      {mcq.explanation.incorrect[explIdx] ?? "This option is not the best answer for this clinical scenario."}
-                    </p>
-                  </div>
-                );
-              })}
-            </div>
+            )}
           </div>
         )}
       </div>
