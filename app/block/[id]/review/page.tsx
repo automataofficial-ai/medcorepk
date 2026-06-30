@@ -286,9 +286,11 @@ export default function BlockReviewPage() {
                     </div>
 
                     {/* image */}
-                    <div className="max-w-sm">
-                      <MedicalImage image={mcq.image} />
-                    </div>
+                    {mcq.image && (
+                      <div className="max-w-sm">
+                        <MedicalImage image={mcq.image} />
+                      </div>
+                    )}
 
                     {/* all options — color coded */}
                     <div>
