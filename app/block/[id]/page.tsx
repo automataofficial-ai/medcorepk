@@ -129,25 +129,38 @@ export default function BlockQuizPage() {
         }
 
         // Transform database MCQs to expected format
-        const transformedMCQs = (foundBlock.mcqs || []).map((dbMcq: any) => ({
-          id: dbMcq.id,
-          caseStudy: dbMcq.case_study || "",
-          image: dbMcq.image_url ? {
-            type: dbMcq.image_url,
-            caption: "Medical Image",
-          } : null,
-          options: [
-            { label: "A", text: dbMcq.option_a || "" },
-            { label: "B", text: dbMcq.option_b || "" },
-            { label: "C", text: dbMcq.option_c || "" },
-            { label: "D", text: dbMcq.option_d || "" },
-          ],
-          correctIndex: ["a", "b", "c", "d"].indexOf((dbMcq.correct_answer || "a").toLowerCase()),
-          explanation: dbMcq.explanation ? {
-            correct: dbMcq.explanation,
-            incorrect: ["", "", ""],
-          } : null,
-        }));
+        const transformedMCQs = (foundBlock.mcqs || []).map((dbMcq: any) => {
+          const correctIndex = ["a", "b", "c", "d"].indexOf((dbMcq.correct_answer || "a").toLowerCase());
+          const explanations = ["", "", ""];
+
+          // Map explanations to their incorrect positions (0, 1, 2)
+          if (correctIndex !== 0) explanations[0] = dbMcq.explanation_a || "";
+          if (correctIndex !== 1) explanations[1] = dbMcq.explanation_b || "";
+          if (correctIndex !== 2) explanations[2] = dbMcq.explanation_c || "";
+          if (correctIndex !== 3) explanations[3] = dbMcq.explanation_d || "";
+
+          return {
+            id: dbMcq.id,
+            caseStudy: dbMcq.case_study || "",
+            question: dbMcq.question || "",
+            notes: dbMcq.notes || "",
+            image: dbMcq.image_url ? {
+              type: dbMcq.image_url,
+              caption: "Medical Image",
+            } : null,
+            options: [
+              { label: "A", text: dbMcq.option_a || "", explanation: dbMcq.explanation_a || "" },
+              { label: "B", text: dbMcq.option_b || "", explanation: dbMcq.explanation_b || "" },
+              { label: "C", text: dbMcq.option_c || "", explanation: dbMcq.explanation_c || "" },
+              { label: "D", text: dbMcq.option_d || "", explanation: dbMcq.explanation_d || "" },
+            ],
+            correctIndex,
+            explanation: dbMcq.explanation ? {
+              correct: dbMcq.explanation,
+              incorrect: explanations,
+            } : null,
+          };
+        });
 
         setBlock({
           ...foundBlock,
@@ -368,25 +381,56 @@ export default function BlockQuizPage() {
           </div>
         </div>
 
-        {/* ── case study card ── */}
-        <div className="glass rounded-2xl p-7 border border-slate-700/50"
-          style={{
-            background: "linear-gradient(135deg, rgba(30,27,75,0.4), rgba(15,23,42,0.4))",
-            boxShadow: "0 8px 32px rgba(0,0,0,0.2), inset 0 1px 1px rgba(255,255,255,0.08)"
-          }}>
-          <div className="flex items-center gap-2 mb-4">
-            <span className="text-xs px-3 py-1.5 rounded-full font-semibold text-blue-300"
-              style={{ background: "rgba(59,130,246,0.15)", border: "1px solid rgba(59,130,246,0.3)" }}>
-              📋 Clinical Scenario
-            </span>
-            <span className="text-xs px-3 py-1.5 rounded-full font-medium text-white/70"
-              style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)" }}>
-              Q{currentIdx + 1}/{block.mcqs.length}
-            </span>
+        {/* ── case study & scenario card ── */}
+        <div className="grid lg:grid-cols-3 gap-6">
+          {/* Main case study */}
+          <div className="lg:col-span-2 glass rounded-2xl p-7 border border-slate-700/50"
+            style={{
+              background: "linear-gradient(135deg, rgba(30,27,75,0.4), rgba(15,23,42,0.4))",
+              boxShadow: "0 8px 32px rgba(0,0,0,0.2), inset 0 1px 1px rgba(255,255,255,0.08)"
+            }}>
+            <div className="flex items-center gap-2 mb-4">
+              <span className="text-xs px-3 py-1.5 rounded-full font-semibold text-blue-300"
+                style={{ background: "rgba(59,130,246,0.15)", border: "1px solid rgba(59,130,246,0.3)" }}>
+                📋 Clinical Scenario
+              </span>
+              <span className="text-xs px-3 py-1.5 rounded-full font-medium text-white/70"
+                style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)" }}>
+                Q{currentIdx + 1}/{block.mcqs.length}
+              </span>
+            </div>
+            <p className="text-white/90 leading-relaxed text-base mb-4">
+              {mcq.caseStudy}
+            </p>
+            {mcq.question && (
+              <div className="border-t border-slate-700/50 pt-4 mt-4">
+                <p className="text-xs text-white/60 font-semibold uppercase tracking-wide mb-2">Question</p>
+                <p className="text-white text-sm leading-relaxed">
+                  {mcq.question}
+                </p>
+              </div>
+            )}
           </div>
-          <p className="text-white/90 leading-relaxed text-base">
-            {mcq.caseStudy}
-          </p>
+
+          {/* Notes sidebar */}
+          {mcq.notes && (
+            <div className="glass rounded-2xl p-6 border border-amber-700/50 h-fit"
+              style={{
+                background: "linear-gradient(135deg, rgba(180,83,9,0.1), rgba(120,53,15,0.05))",
+                boxShadow: "0 8px 32px rgba(0,0,0,0.2), inset 0 1px 1px rgba(255,255,255,0.05)"
+              }}>
+              <div className="flex items-center gap-2 mb-3">
+                <span className="text-amber-400">📝</span>
+                <span className="text-xs px-2 py-1 rounded-full font-semibold text-amber-300"
+                  style={{ background: "rgba(180,83,9,0.2)", border: "1px solid rgba(180,83,9,0.3)" }}>
+                  Notes
+                </span>
+              </div>
+              <p className="text-white/80 text-sm leading-relaxed">
+                {mcq.notes}
+              </p>
+            </div>
+          )}
         </div>
 
         {/* ── medical image ── */}
@@ -506,40 +550,59 @@ export default function BlockQuizPage() {
         {/* ── explanation panel ── */}
         {submitted && mcq.explanation && (
           <div className="space-y-4 page-enter">
-            {/* correct answer explanation */}
-            <div className="rounded-2xl p-5"
-              style={{ background: "rgba(16,185,129,0.06)", border: "1px solid rgba(16,185,129,0.2)" }}>
-              <div className="flex items-center gap-2 mb-3">
-                <span className="text-emerald-400 text-lg">✅</span>
-                <span className="text-emerald-300 font-semibold text-sm">Correct Answer: {mcq.options[mcq.correctIndex].label}</span>
+            {/* all option explanations */}
+            <div className="rounded-2xl p-6 space-y-4"
+              style={{ background: "rgba(99,102,241,0.05)", border: "1.5px solid rgba(99,102,241,0.2)" }}>
+              <div className="flex items-center gap-2 mb-4">
+                <span className="text-blue-400 text-xl">💡</span>
+                <span className="text-blue-300 font-bold text-sm">Understanding Each Option</span>
               </div>
-              <p className="text-white text-sm leading-relaxed">{mcq.explanation.correct || "See the correct option above"}</p>
-            </div>
 
-            {/* wrong option explanations */}
-            {mcq.explanation.incorrect && mcq.explanation.incorrect.length > 0 && (
-              <div className="rounded-2xl p-5 space-y-4"
-                style={{ background: "rgba(239,68,68,0.04)", border: "1px solid rgba(239,68,68,0.15)" }}>
-                <div className="flex items-center gap-2">
-                  <span className="text-red-400 text-lg">❌</span>
-                  <span className="text-red-300 font-semibold text-sm">Why the other options are incorrect</span>
-                </div>
-                {mcq.options.map((opt, i) => {
-                  if (i === mcq.correctIndex) return null;
-                  const explIdx = i < mcq.correctIndex ? i : i - 1;
-                  return (
-                    <div key={i} className="border-t border-red-900/30 pt-3">
-                      <p className="text-red-300 text-xs font-semibold mb-1.5">
-                        Option {opt.label}: {opt.text}
-                      </p>
-                      <p className="text-white text-sm leading-relaxed">
-                        {mcq.explanation.incorrect[explIdx] ?? "This option is not the best answer for this clinical scenario."}
-                      </p>
+              {mcq.options.map((opt, i) => {
+                const isCorrect = i === mcq.correctIndex;
+                const explanation = opt.explanation || mcq.explanation.incorrect?.[i < mcq.correctIndex ? i : i - 1] ||
+                  "This option is not the best answer for this clinical scenario.";
+
+                return (
+                  <div
+                    key={i}
+                    className="rounded-lg p-4 transition-all"
+                    style={{
+                      background: isCorrect ? "rgba(16,185,129,0.08)" : "rgba(239,68,68,0.04)",
+                      border: `1px solid ${isCorrect ? "rgba(16,185,129,0.3)" : "rgba(239,68,68,0.2)"}`
+                    }}>
+                    <div className="flex items-start gap-3">
+                      <div className="flex-shrink-0">
+                        <span className="inline-flex items-center justify-center w-8 h-8 rounded-lg text-sm font-bold"
+                          style={{
+                            background: isCorrect ? "rgba(16,185,129,0.2)" : "rgba(239,68,68,0.1)",
+                            color: isCorrect ? "#6EE7B7" : "#FCA5A5"
+                          }}>
+                          {isCorrect ? "✓" : "✗"}
+                        </span>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className={`text-xs font-bold mb-1.5 ${isCorrect ? "text-emerald-300" : "text-red-300"}`}>
+                          Option {opt.label}: {isCorrect ? "(CORRECT)" : "(Incorrect)"}
+                        </p>
+                        <p className="text-white/90 text-sm leading-relaxed mb-2">
+                          {opt.text}
+                        </p>
+                        <div className="border-t"
+                          style={{ borderColor: isCorrect ? "rgba(16,185,129,0.2)" : "rgba(239,68,68,0.15)" }}>
+                          <p className={`text-xs font-semibold mt-2 mb-1 ${isCorrect ? "text-emerald-400" : "text-orange-400"}`}>
+                            {isCorrect ? "Why this is correct:" : "Why this is wrong:"}
+                          </p>
+                          <p className="text-white/80 text-sm leading-relaxed">
+                            {explanation}
+                          </p>
+                        </div>
+                      </div>
                     </div>
-                  );
-                })}
-              </div>
-            )}
+                  </div>
+                );
+              })}
+            </div>
           </div>
         )}
       </div>
