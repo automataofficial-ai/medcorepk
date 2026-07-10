@@ -115,7 +115,17 @@ export default function BlockQuizPage() {
         const data = await res.json();
         const blocks = data.blocks || [];
 
-        const foundBlock = blocks.find((b: Block) => b.id === blockId);
+        // Try finding by ID first (UUID), then by title (for string IDs like "anatomy")
+        let foundBlock = blocks.find((b: Block) => b.id === blockId);
+
+        if (!foundBlock) {
+          // Try finding by title if not found by ID
+          const searchName = blockId.toLowerCase().replace("-", " ");
+          foundBlock = blocks.find((b: Block) =>
+            b.title.toLowerCase().includes(searchName) ||
+            b.specialty.toLowerCase().includes(searchName)
+          );
+        }
 
         if (!foundBlock) {
           console.error("Block not found:", blockId);
