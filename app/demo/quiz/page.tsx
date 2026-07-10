@@ -4,25 +4,23 @@ import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useToast } from "@/context/ToastContext";
-import type { MCQAnswer } from "@/lib/types";
+import type { MCQAnswer, Block, MCQ } from "@/lib/types";
 import { ChevronLeft, Zap, Crown } from "lucide-react";
 
-interface MCQOption {
-  label: string;
-  text: string;
-  explanation: string;
+interface AnalyticsData {
+  score: number;
+  totalQuestions: number;
+  correctAnswers: number;
+  totalTime: number;
+  averageTimePerQuestion: number;
+  questionBreakdown: Array<{
+    questionNumber: number;
+    correct: boolean;
+    timeSpent: number;
+  }>;
 }
 
-interface MCQ {
-  id: string;
-  question: string;
-  caseStudy: string;
-  notes: string;
-  options: MCQOption[];
-  correctIndex: number;
-  image?: string;
-}
-
+// Demo MCQs - will be replaced with real block data
 const DEMO_MCQS: MCQ[] = [
   {
     id: "demo-1",
@@ -855,7 +853,54 @@ export default function DemoQuizPage() {
   const [showAnalytics, setShowAnalytics] = useState(false);
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
   const [finalScore, setFinalScore] = useState(0);
+  const [block, setBlock] = useState<Block | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [quizMCQs, setQuizMCQs] = useState<MCQ[]>([]);
   const sessionTimer = useTimer();
+
+  // Fetch real block data from API
+  useEffect(() => {
+    async function fetchDemoBlock() {
+      try {
+        const res = await fetch("/api/blocks");
+        const data = await res.json();
+        const blocks = data.blocks || [];
+
+        if (blocks.length === 0) {
+          error("No blocks available", "Could not load demo blocks");
+          return;
+        }
+
+        // Select first block as demo block
+        const demoBlock = blocks[0];
+        setBlock(demoBlock);
+
+        // Limit to first 10 MCQs for demo
+        const demoQuestions = demoBlock.mcqs?.slice(0, 10) || [];
+        setQuizMCQs(demoQuestions);
+        setLoading(false);
+
+        console.log(`Loaded demo block: ${demoBlock.title} with ${demoQuestions.length} questions`);
+      } catch (err) {
+        console.error("Error fetching demo block:", err);
+        error("Loading Error", "Could not load demo block. Using fallback demo MCQs.");
+        setQuizMCQs(DEMO_MCQS);
+        setBlock({
+          id: "demo-fallback",
+          title: "Demo Quiz",
+          specialty: "Medical",
+          description: "Fallback demo questions",
+          difficulty: "Medium",
+          color: "from-violet-600 to-blue-600",
+          icon: "🎁",
+          mcqs: DEMO_MCQS,
+        });
+        setLoading(false);
+      }
+    }
+
+    fetchDemoBlock();
+  }, []);
 
   useEffect(() => {
     setSelected(null);
@@ -902,12 +947,12 @@ export default function DemoQuizPage() {
   }, [selected, submitted, currentIdx, mcqTimer, answers, timings, success, warning]);
 
   const handleNext = useCallback(() => {
-    const isLast = currentIdx === DEMO_MCQS.length - 1;
+    const isLast = currentIdx === quizMCQs.length - 1;
 
     if (isLast) {
       const finalAnswers = answers.filter(Boolean) as MCQAnswer[];
       const correct = finalAnswers.filter((a) => a.isCorrect).length;
-      const score = (correct / DEMO_MCQS.length) * 100;
+      const score = (correct / quizMCQs.length) * 100;
       setFinalScore(score);
 
       // Calculate analytics
@@ -922,7 +967,7 @@ export default function DemoQuizPage() {
 
       const analyticsData: AnalyticsData = {
         score,
-        totalQuestions: DEMO_MCQS.length,
+        totalQuestions: quizMCQs.length,
         correctAnswers: correct,
         totalTime,
         averageTimePerQuestion: averageTime,
@@ -933,17 +978,40 @@ export default function DemoQuizPage() {
       setShowAnalytics(true);
     } else {
       setCurrentIdx((i) => i + 1);
-      info(`Question ${currentIdx + 2} of ${DEMO_MCQS.length}`, "Keep it up!");
+      info(`Question ${currentIdx + 2} of ${quizMCQs.length}`, "Keep it up!");
     }
   }, [currentIdx, answers, info]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ background: "#050B18" }}>
+        <div className="text-center">
+          <div className="text-4xl mb-4">⏳</div>
+          <p className="text-white font-semibold">Loading demo quiz...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (showAnalytics && analytics) {
     return <DemoAnalyticsDashboard analytics={analytics} />;
   }
 
-  const mcq = DEMO_MCQS[currentIdx];
-  const isLast = currentIdx === DEMO_MCQS.length - 1;
-  const progress = ((currentIdx + (submitted ? 1 : 0)) / DEMO_MCQS.length) * 100;
+  if (!block || quizMCQs.length === 0) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ background: "#050B18" }}>
+        <div className="text-center">
+          <div className="text-4xl mb-4">❌</div>
+          <p className="text-white font-semibold">Could not load demo quiz</p>
+          <Link href="/" className="text-blue-400 text-sm hover:underline mt-4 inline-block">← Back to Home</Link>
+        </div>
+      </div>
+    );
+  }
+
+  const mcq = quizMCQs[currentIdx];
+  const isLast = currentIdx === quizMCQs.length - 1;
+  const progress = ((currentIdx + (submitted ? 1 : 0)) / quizMCQs.length) * 100;
 
   return (
     <div className="min-h-screen overflow-hidden" style={{ background: "#050B18" }}>
@@ -974,7 +1042,7 @@ export default function DemoQuizPage() {
           <div className="flex-1 max-w-md">
             <div className="flex items-center justify-between text-xs text-white/70 mb-2">
               <span className="font-medium">
-                Question {currentIdx + 1} of {DEMO_MCQS.length}
+                Question {currentIdx + 1} of {quizMCQs.length}
               </span>
               <span className="text-white/60">{Math.round(progress)}%</span>
             </div>
@@ -1005,17 +1073,17 @@ export default function DemoQuizPage() {
         <div className="flex items-center justify-between flex-wrap gap-6 pb-2">
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-violet-600 to-blue-600 flex items-center justify-center text-2xl shadow-lg">
-              🎁
+              {block.icon}
             </div>
             <div>
-              <p className="text-white font-black text-base">Demo Quiz</p>
+              <p className="text-white font-black text-base">{block.title}</p>
               <p className="text-white/60 text-xs font-medium uppercase tracking-wide">
-                10 Sample Questions
+                {quizMCQs.length} Questions • Demo Mode
               </p>
             </div>
           </div>
           <div className="hidden sm:block">
-            <ProgressDots total={DEMO_MCQS.length} current={currentIdx} answers={answers} />
+            <ProgressDots total={quizMCQs.length} current={currentIdx} answers={answers} />
           </div>
         </div>
 
@@ -1046,7 +1114,7 @@ export default function DemoQuizPage() {
                   border: "1px solid rgba(255,255,255,0.1)",
                 }}
               >
-                Q{currentIdx + 1}/{DEMO_MCQS.length}
+                Q{currentIdx + 1}/{quizMCQs.length}
               </span>
             </div>
             <p className="text-white/90 leading-relaxed text-base mb-4">{mcq.caseStudy}</p>
@@ -1071,19 +1139,21 @@ export default function DemoQuizPage() {
                 <span className="text-cyan-400">🏥</span>
                 <span className="text-xs px-2 py-1 rounded-full font-semibold text-cyan-300"
                   style={{ background: "rgba(6,182,212,0.2)", border: "1px solid rgba(6,182,212,0.3)" }}>
-                  Medical Image
+                  {mcq.image.caption || "Medical Image"}
                 </span>
               </div>
-              <div className="rounded-lg overflow-hidden border border-slate-700/50">
-                <img
-                  src={mcq.image}
-                  alt="Medical case image"
-                  className="w-full h-auto object-cover"
-                  style={{ maxHeight: "280px" }}
-                />
+              <div className="rounded-lg overflow-hidden border border-slate-700/50 bg-slate-900 p-4">
+                <p className="text-white/70 text-sm text-center">
+                  📊 {mcq.image.type}
+                </p>
+                {mcq.image.finding && (
+                  <p className="text-white/60 text-xs mt-2 text-center italic">
+                    {mcq.image.finding}
+                  </p>
+                )}
               </div>
               <p className="text-white/60 text-xs mt-3 leading-relaxed">
-                Reference image related to the clinical case presented above.
+                {mcq.image.caption || "Reference image related to the clinical case presented above."}
               </p>
             </div>
           )}
@@ -1216,6 +1286,9 @@ export default function DemoQuizPage() {
             {mcq.options.map((opt, i) => {
               const isCorrect = i === mcq.correctIndex;
               const isSelected = selected === i;
+              const explanation = isCorrect
+                ? mcq.explanation.correct
+                : (mcq.explanation.incorrect?.[i < mcq.correctIndex ? i : i - 1] || "Review this option carefully.");
 
               return (
                 <div
@@ -1253,7 +1326,7 @@ export default function DemoQuizPage() {
                           {isCorrect ? "✓ Why this is correct:" : "✗ Why this is wrong:"}
                         </p>
                         <p className="text-white/80 text-sm leading-relaxed">
-                          {opt.explanation}
+                          {explanation}
                         </p>
                       </div>
                     </div>
