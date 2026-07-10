@@ -9,6 +9,8 @@ export default function ImportMCQsPage() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
+  const [preview, setPreview] = useState<any>(null);
+  const [showPreview, setShowPreview] = useState(false);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
@@ -16,6 +18,40 @@ export default function ImportMCQsPage() {
       setFile(selectedFile);
       setError(null);
       setResult(null);
+      setPreview(null);
+      setShowPreview(false);
+    }
+  };
+
+  const handlePreview = async () => {
+    if (!file) {
+      setError("Please select a CSV file");
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const csvText = await file.text();
+      const response = await fetch("/api/import/preview", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ csvText }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.error || "Failed to preview CSV");
+      } else {
+        setPreview(data);
+        setShowPreview(true);
+      }
+    } catch (err: any) {
+      setError(err.message || "Error previewing CSV file");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -183,14 +219,61 @@ export default function ImportMCQsPage() {
           </div>
         )}
 
-        <button onClick={handleImport} disabled={!file || loading}
-          className="w-full py-3 px-4 rounded-xl font-bold text-white transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
-          style={{
-            background: file && !loading ? "linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%)" : "rgba(30,27,75,0.8)",
-            boxShadow: file && !loading ? "0 8px 24px rgba(59,130,246,0.3)" : "none",
+        {showPreview && preview && (
+          <div className="rounded-2xl p-6 border border-blue-700/50 mb-8" style={{
+            background: "linear-gradient(135deg, rgba(59,130,246,0.1), rgba(15,23,42,0.4))",
           }}>
-          {loading ? "Importing..." : file ? "Import MCQs" : "Select a file to import"}
-        </button>
+            <div className="mb-4">
+              <h3 className="text-blue-300 font-bold text-lg mb-2">CSV Preview</h3>
+              <p className="text-white/70 text-sm mb-4">Headers: {preview.headers.join(", ")}</p>
+              <p className="text-white/70 text-sm mb-4">Total rows: {preview.totalRows}</p>
+            </div>
+
+            {preview.issues && preview.issues.length > 0 && (
+              <div className="mb-4 p-3 bg-red-500/20 rounded-lg border border-red-500/30">
+                <p className="text-red-300 font-bold mb-2">Issues Found:</p>
+                {preview.issues.map((issue: any, idx: number) => (
+                  <div key={idx} className="text-red-200 text-sm mb-1">
+                    Row {issue.row}: {issue.warnings.join("; ")}
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {preview.preview && preview.preview.length > 0 && (
+              <div className="mb-4">
+                <p className="text-white/70 text-sm font-bold mb-2">First Row Preview:</p>
+                <div className="bg-black/30 p-3 rounded-lg text-white/60 text-xs max-h-40 overflow-y-auto">
+                  {Object.entries(preview.preview[0].data).map(([key, value]: [string, any]) => (
+                    <div key={key} className="mb-1">
+                      <span className="text-cyan-300">{key}:</span> {String(value).substring(0, 50)}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        <div className="flex gap-3">
+          <button onClick={handlePreview} disabled={!file || loading}
+            className="flex-1 py-3 px-4 rounded-xl font-bold text-white transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+            style={{
+              background: file && !loading ? "linear-gradient(135deg, #06B6D4 0%, #0891B2 100%)" : "rgba(30,27,75,0.8)",
+              boxShadow: file && !loading ? "0 8px 24px rgba(6,182,212,0.3)" : "none",
+            }}>
+            {loading ? "Previewing..." : "Preview CSV"}
+          </button>
+
+          <button onClick={handleImport} disabled={!file || loading}
+            className="flex-1 py-3 px-4 rounded-xl font-bold text-white transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+            style={{
+              background: file && !loading ? "linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%)" : "rgba(30,27,75,0.8)",
+              boxShadow: file && !loading ? "0 8px 24px rgba(59,130,246,0.3)" : "none",
+            }}>
+            {loading ? "Importing..." : file ? "Import MCQs" : "Select a file to import"}
+          </button>
+        </div>
       </div>
     </div>
   );
