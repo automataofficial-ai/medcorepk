@@ -1,10 +1,12 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Upload, CheckCircle, AlertCircle } from "lucide-react";
+import { Upload, CheckCircle, AlertCircle, ChevronLeft } from "lucide-react";
 
 export default function ImportMCQsPage() {
+  const router = useRouter();
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<any>(null);
@@ -156,12 +158,23 @@ export default function ImportMCQsPage() {
           backdropFilter: "blur(20px)",
         }}>
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex items-center justify-between">
+          <button
+            onClick={() => router.back()}
+            className="flex items-center gap-2 text-white/80 hover:text-white transition-colors"
+          >
+            <ChevronLeft size={20} />
+            <span className="text-sm font-medium">Back</span>
+          </button>
           <Link href="/" className="flex items-center gap-2">
             <img src="/logo.png" alt="MedCore" className="h-10 w-auto" />
           </Link>
-          <Link href="/" className="px-4 py-2 rounded-lg text-white text-sm font-semibold hover:bg-white/10 transition-colors">
-            ← Back
-          </Link>
+          <button
+            onClick={() => router.back()}
+            className="px-4 py-2 rounded-lg text-white text-sm font-semibold hover:bg-white/10 transition-colors flex items-center gap-1"
+          >
+            <ChevronLeft size={16} />
+            Back
+          </button>
         </div>
       </div>
 

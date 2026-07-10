@@ -272,13 +272,24 @@ export default function DashboardPage() {
     fetchAllData();
   }, [fetchAllData]);
 
-  /* ── refresh data every 3 seconds for live updates ── */
+  /* ── refresh data every 1.5 seconds for live updates ── */
   useEffect(() => {
     const interval = setInterval(() => {
       fetchAllData();
-    }, 3000);
+    }, 1500);
 
     return () => clearInterval(interval);
+  }, [fetchAllData]);
+
+  /* ── listen for session completion events ── */
+  useEffect(() => {
+    const handleSessionComplete = () => {
+      console.log("Session completed, refreshing dashboard...");
+      fetchAllData();
+    };
+
+    window.addEventListener("sessionCompleted", handleSessionComplete);
+    return () => window.removeEventListener("sessionCompleted", handleSessionComplete);
   }, [fetchAllData]);
 
   /* ── listen for updates in real-time ── */
@@ -304,18 +315,39 @@ export default function DashboardPage() {
         }
       )
       .subscribe((status) => {
-        console.log('Realtime subscription status:', status);
+        console.log('Sessions subscription status:', status);
         if (status === 'SUBSCRIBED') {
-          console.log('✓ Real-time subscribed successfully');
+          console.log('✓ Real-time sessions subscribed successfully');
         } else if (status === 'CLOSED') {
-          console.warn('Real-time subscription closed');
+          console.warn('Sessions subscription closed');
         } else if (status === 'CHANNEL_ERROR') {
-          console.error('Real-time subscription error - will fall back to polling every 3s');
+          console.error('Sessions subscription error - will fall back to polling');
         }
+      });
+
+    // Subscribe to user_progress changes
+    const progressChannel = supabase
+      .channel(`user_progress_${user.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'user_progress',
+          filter: `user_id=eq.${user.id}`,
+        },
+        () => {
+          console.log('✓ User progress updated via real-time, refetching...');
+          fetchAllData();
+        }
+      )
+      .subscribe((status) => {
+        console.log('Progress subscription status:', status);
       });
 
     return () => {
       supabase.removeChannel(sessionsChannel);
+      supabase.removeChannel(progressChannel);
     };
   }, [user?.id, fetchAllData]);
 
@@ -326,12 +358,25 @@ export default function DashboardPage() {
 
   /* ── derived stats from database ── */
   const totalBlocks = blocks.length;
-  const completedBlockIds = [...new Set(sessions.map((s) => s.blockId))];
+
+  // Calculate from sessions (more reliable than user_progress)
+  const completedBlockIds = [...new Set(sessions.map((s: any) => s.block_id || s.blockId).filter(Boolean))];
   const completedCount = completedBlockIds.length;
-  const totalMcqs = userStats?.total_questions_answered || 0;
-  const totalCorrect = userStats?.total_correct || 0;
-  const totalIncorrect = userStats?.total_incorrect || 0;
-  const overallAcc = userStats?.accuracy_percentage || 0;
+
+  // Calculate totals from sessions for more accuracy
+  const sessionTotals = sessions.reduce((acc: any, s: any) => {
+    return {
+      totalMcqs: acc.totalMcqs + (s.total_mcqs || 0),
+      totalCorrect: acc.totalCorrect + (s.correct_count || 0),
+      totalIncorrect: acc.totalIncorrect + (s.incorrect_count || 0),
+    };
+  }, { totalMcqs: 0, totalCorrect: 0, totalIncorrect: 0 });
+
+  // Use sessions data, fallback to user_progress
+  const totalMcqs = sessionTotals.totalMcqs > 0 ? sessionTotals.totalMcqs : (userStats?.total_questions_answered || 0);
+  const totalCorrect = sessionTotals.totalCorrect > 0 ? sessionTotals.totalCorrect : (userStats?.total_correct || 0);
+  const totalIncorrect = sessionTotals.totalIncorrect > 0 ? sessionTotals.totalIncorrect : (userStats?.total_incorrect || 0);
+  const overallAcc = totalMcqs > 0 ? Math.round((totalCorrect / totalMcqs) * 100) : (userStats?.accuracy_percentage || 0);
   const currentStreak = userStats?.current_streak || 0;
 
   const highestSession = sessions.reduce<any>((best, s: any) => {
