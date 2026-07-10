@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
 
     const blockNameToId: Record<string, string> = {};
     allBlocks?.forEach((block: any) => {
-      blockNameToId[block.title.toLowerCase()] = block.id;
+      blockNameToId[block.title.toLowerCase().trim()] = block.id;
     });
 
     console.log(`✅ Found ${Object.keys(blockNameToId).length} blocks\n`);
@@ -54,7 +54,7 @@ export async function POST(req: NextRequest) {
       // Resolve block name to ID
       let blockId = mcq.block_id;
       if (mcq.block_name) {
-        blockId = blockNameToId[mcq.block_name.toLowerCase()];
+        blockId = blockNameToId[mcq.block_name.toLowerCase().trim()];
         if (!blockId) {
           throw new Error(
             `Block not found: "${mcq.block_name}". Available blocks: ${Object.keys(blockNameToId).join(", ")}`
