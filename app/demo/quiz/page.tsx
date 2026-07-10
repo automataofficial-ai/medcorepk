@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useToast } from "@/context/ToastContext";
 import type { MCQAnswer, Block, MCQ } from "@/lib/types";
-import { ChevronLeft, Zap, Crown } from "lucide-react";
+import { Zap, Crown } from "lucide-react";
 
 interface AnalyticsData {
   score: number;
@@ -438,15 +438,7 @@ function DemoAnalyticsDashboard({ analytics }: { analytics: AnalyticsData }) {
           backdropFilter: "blur(20px)",
           boxShadow: "0 4px 12px rgba(0,0,0,0.3)"
         }}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex items-center justify-between gap-4">
-          <button
-            onClick={() => router.back()}
-            className="p-2 rounded-lg hover:bg-white/10 transition-colors text-white/80 hover:text-white flex items-center gap-1"
-            title="Go back"
-          >
-            <ChevronLeft size={20} />
-            <span className="text-sm font-medium hidden sm:inline">Back</span>
-          </button>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex items-center justify-center">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg flex items-center justify-center text-xl"
               style={{
@@ -460,7 +452,6 @@ function DemoAnalyticsDashboard({ analytics }: { analytics: AnalyticsData }) {
               <p className="text-white/50 text-xs">Demo Performance Report</p>
             </div>
           </div>
-          <div style={{ width: "80px" }} />
         </div>
       </div>
 

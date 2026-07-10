@@ -1,12 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { Upload, CheckCircle, AlertCircle, ChevronLeft } from "lucide-react";
+import { Upload, CheckCircle, AlertCircle } from "lucide-react";
 
 export default function ImportMCQsPage() {
-  const router = useRouter();
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<any>(null);
@@ -152,32 +149,6 @@ export default function ImportMCQsPage() {
 
   return (
     <div className="min-h-screen" style={{ background: "#050B18" }}>
-      <div className="sticky top-0 z-40 border-b border-slate-800/30"
-        style={{
-          background: "linear-gradient(135deg, rgba(5,11,24,0.98), rgba(15,23,42,0.95))",
-          backdropFilter: "blur(20px)",
-        }}>
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex items-center justify-between">
-          <button
-            onClick={() => router.back()}
-            className="flex items-center gap-2 text-white/80 hover:text-white transition-colors"
-          >
-            <ChevronLeft size={20} />
-            <span className="text-sm font-medium">Back</span>
-          </button>
-          <Link href="/" className="flex items-center gap-2">
-            <img src="/logo.png" alt="MedCore" className="h-10 w-auto" />
-          </Link>
-          <button
-            onClick={() => router.back()}
-            className="px-4 py-2 rounded-lg text-white text-sm font-semibold hover:bg-white/10 transition-colors flex items-center gap-1"
-          >
-            <ChevronLeft size={16} />
-            Back
-          </button>
-        </div>
-      </div>
-
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
         <div className="mb-12">
           <h1 className="text-4xl md:text-5xl font-black text-white mb-3">Import MCQs from CSV</h1>

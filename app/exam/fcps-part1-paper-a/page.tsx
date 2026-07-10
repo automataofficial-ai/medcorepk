@@ -1,9 +1,8 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import { useEffect, useState } from "react";
-import { ChevronRight, ChevronLeft, Microscope, Heart, Beaker, AlertCircle, Biohazard, Pill, Globe } from "lucide-react";
+import { ChevronRight, Microscope, Heart, Beaker, AlertCircle, Biohazard, Pill, Globe } from "lucide-react";
 
 interface Subject {
   id: string;
@@ -112,34 +111,6 @@ export default function FCPSPart1PaperAPage() {
         <div className="absolute w-96 h-96 bg-blue-600 rounded-full blur-3xl opacity-20 top-[-80px] left-[-80px] animate-pulse" style={{ animationDuration: "8s" }} />
         <div className="absolute w-80 h-80 bg-violet-700 rounded-full blur-3xl opacity-20 top-40 right-[-60px] animate-pulse" style={{ animationDuration: "10s", animationDelay: "2s" }} />
         <div className="absolute w-72 h-72 bg-cyan-600 rounded-full blur-3xl opacity-20 bottom-20 left-1/3 animate-pulse" style={{ animationDuration: "9s", animationDelay: "4s" }} />
-      </div>
-
-      {/* ── Top Navigation ── */}
-      <div className="sticky top-0 z-40 border-b border-slate-800/30"
-        style={{
-          background: "linear-gradient(135deg, rgba(5,11,24,0.98), rgba(15,23,42,0.95))",
-          backdropFilter: "blur(20px)",
-          boxShadow: "0 4px 12px rgba(0,0,0,0.3)"
-        }}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex items-center justify-between">
-          <button
-            onClick={() => router.back()}
-            className="flex items-center gap-2 text-white/80 hover:text-white transition-colors"
-          >
-            <ChevronLeft size={20} />
-            <span className="text-sm font-medium hidden sm:inline">Back</span>
-          </button>
-          <Link href="/" className="group transition-all duration-300">
-            <img src="/logo.png" alt="MedCore" className="h-10 w-auto group-hover:opacity-80" />
-          </Link>
-          <button
-            onClick={() => router.back()}
-            className="px-4 py-2 rounded-lg text-white text-sm font-semibold hover:bg-white/10 transition-colors flex items-center gap-1"
-          >
-            <ChevronLeft size={16} />
-            Back
-          </button>
-        </div>
       </div>
 
       {/* ── Main Content ── */}

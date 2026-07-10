@@ -40,35 +40,35 @@ export default function Header() {
   ];
 
   return (
-    <header className="sticky top-0 z-50 w-full py-4 px-4 md:px-8">
+    <header className="sticky top-0 z-50 w-full py-2 px-4 md:px-8">
       <div className="max-w-7xl mx-auto">
         {/* Main Header Card */}
         <div
-          className="rounded-full px-6 md:px-12 py-3 md:py-4 backdrop-blur-2xl transition-all duration-300 border hover:shadow-2xl hover:border-blue-500/40"
+          className="rounded-full px-4 md:px-8 py-2.5 md:py-3 backdrop-blur-2xl transition-all duration-300 border hover:shadow-2xl hover:border-blue-500/40"
           style={{
             background: "linear-gradient(135deg, rgba(15, 23, 42, 0.9) 0%, rgba(30, 27, 75, 0.7) 100%)",
             borderColor: "rgba(59, 130, 246, 0.4)",
             boxShadow: "0 20px 40px rgba(37, 99, 235, 0.15), inset 0 1px 1px rgba(255, 255, 255, 0.15), 0 0 60px rgba(59, 130, 246, 0.1)",
           }}
         >
-          <div className="flex items-center justify-between gap-8">
+          <div className="flex items-center justify-between gap-6">
 
             {/* Logo Section */}
-            <Link href="/" className="flex items-center gap-2 sm:gap-3 group flex-shrink-0 hover:opacity-80 transition-opacity duration-300">
-              <img src="/logo.png" alt="MedCore Logo" className="h-10 sm:h-16 md:h-20 w-auto" />
-              <div className="flex flex-col">
-                <span className="text-base sm:text-lg md:text-xl font-black text-white leading-tight">MedCore</span>
+            <Link href="/" className="flex items-center gap-1.5 sm:gap-2 group flex-shrink-0 hover:opacity-80 transition-opacity duration-300">
+              <img src="/logo.png" alt="MedCore Logo" className="h-8 sm:h-10 md:h-12 w-auto" />
+              <div className="flex flex-col gap-0">
+                <span className="text-sm sm:text-base md:text-lg font-black text-white leading-tight">MedCore</span>
                 <span className="text-xs text-cyan-400 font-semibold">crystal clear concepts</span>
               </div>
             </Link>
 
             {/* Desktop Navigation */}
-            <nav className="hidden lg:flex items-center gap-1">
+            <nav className="hidden lg:flex items-center gap-0.5">
               {navItems.map((item) => (
                 <div key={item.label} className="relative group">
                   <button
                     onClick={() => item.submenu && setOpenDropdown(openDropdown === item.label ? null : item.label)}
-                    className="group relative px-6 py-3 text-sm font-semibold text-white hover:text-white rounded-full transition-all duration-300 hover:bg-white/10 flex items-center gap-1"
+                    className="group relative px-4 py-2 text-xs font-semibold text-white hover:text-white rounded-full transition-all duration-300 hover:bg-white/10 flex items-center gap-1"
                     style={{
                       background: "transparent",
                     }}
@@ -105,32 +105,32 @@ export default function Header() {
             </nav>
 
             {/* Right side actions */}
-            <div className="flex items-center gap-4 flex-shrink-0">
+            <div className="flex items-center gap-3 flex-shrink-0">
               {/* Sign In / Login Button */}
               <Link
                 href="/login"
-                className="hidden sm:flex items-center gap-2 px-8 py-3.5 text-sm font-bold text-white rounded-full transition-all duration-300 hover:shadow-2xl hover:scale-105"
+                className="hidden sm:flex items-center gap-1.5 px-5 py-2 text-xs font-bold text-white rounded-full transition-all duration-300 hover:shadow-2xl hover:scale-105"
                 style={{
                   background: "linear-gradient(135deg, #0891b2 0%, #006b7f 100%)",
                   boxShadow: "0 12px 32px rgba(8, 145, 178, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.2)",
                 }}
               >
                 Sign In
-                <span className="text-lg">→</span>
+                <span className="text-base">→</span>
               </Link>
 
               {/* Mobile menu button */}
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="lg:hidden p-3 text-white hover:text-white transition-all duration-300 rounded-2xl"
+                className="lg:hidden p-2 text-white hover:text-white transition-all duration-300 rounded-xl"
                 style={{
                   background: mobileMenuOpen ? "rgba(100, 116, 139, 0.2)" : "transparent",
                 }}
               >
                 {mobileMenuOpen ? (
-                  <X size={28} />
+                  <X size={20} />
                 ) : (
-                  <Menu size={28} />
+                  <Menu size={20} />
                 )}
               </button>
             </div>

@@ -3,7 +3,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
-import { ChevronLeft } from "lucide-react";
 import { getSupabase } from "@/lib/supabase";
 import { useToast } from "@/context/ToastContext";
 import type { MCQAnswer, BlockSession } from "@/lib/types";
@@ -387,15 +386,6 @@ export default function BlockQuizPage() {
           boxShadow: "0 4px 12px rgba(0,0,0,0.3)"
         }}>
         <div className="max-w-4xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between gap-4">
-          {/* Back Button */}
-          <button
-            onClick={() => router.back()}
-            className="p-2 rounded-lg hover:bg-white/10 transition-colors text-white/80 hover:text-white flex items-center gap-1"
-            title="Go back"
-          >
-            <ChevronLeft size={20} />
-            <span className="text-sm font-medium hidden sm:inline">Back</span>
-          </button>
           <Link href="/dashboard" className="flex items-center gap-2 group transition-all duration-300">
             <img src="/logo.png" alt="MedCore" className="h-9 w-auto group-hover:opacity-80" />
             <span className="text-white font-bold text-sm hidden sm:inline">MedCore</span>

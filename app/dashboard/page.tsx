@@ -74,7 +74,7 @@ function StatCard({ icon, label, value, sub, color }: {
   icon: string; label: string; value: string | number; sub?: string; color: string;
 }) {
   return (
-    <div className="group relative rounded-2xl p-6 overflow-hidden transition-all duration-300 hover:scale-[1.02] cursor-pointer"
+    <div className="group relative rounded-xl p-4 overflow-hidden transition-all duration-300 hover:scale-[1.02] cursor-pointer"
       style={{
         background: `linear-gradient(135deg, ${color}10, ${color}05)`,
         border: `1.5px solid ${color}25`,
@@ -85,8 +85,8 @@ function StatCard({ icon, label, value, sub, color }: {
           background: `linear-gradient(135deg, ${color}15, transparent)`,
         }} />
 
-      <div className="relative flex items-start gap-4">
-        <div className="w-16 h-16 rounded-xl flex items-center justify-center text-2xl flex-shrink-0 transition-transform duration-300 group-hover:scale-110"
+      <div className="relative flex items-start gap-3">
+        <div className="w-12 h-12 rounded-lg flex items-center justify-center text-xl flex-shrink-0 transition-transform duration-300 group-hover:scale-110"
           style={{
             background: `linear-gradient(135deg, ${color}30, ${color}15)`,
             border: `1.5px solid ${color}40`,
@@ -96,7 +96,7 @@ function StatCard({ icon, label, value, sub, color }: {
         </div>
         <div className="min-w-0 flex-1">
           <p className="text-xs text-white/70 uppercase tracking-widest font-semibold">{label}</p>
-          <p className="text-4xl font-black text-white mt-2">{value}</p>
+          <p className="text-2xl font-black text-white mt-1">{value}</p>
           {sub && <p className="text-xs text-white/60 mt-1 truncate">{sub}</p>}
         </div>
       </div>
@@ -122,7 +122,7 @@ function ChartTip({ active, payload, label }: {
 /* ── Navbar ── */
 function Navbar({ name, onLogout }: { name: string; onLogout: () => void }) {
   return (
-    <nav className="sticky top-0 z-50 px-4 sm:px-6 lg:px-8 py-3 sm:py-4 flex items-center justify-between"
+    <nav className="sticky top-0 z-50 px-4 sm:px-6 lg:px-8 py-2 sm:py-2.5 flex items-center justify-between"
       style={{
         background: "linear-gradient(135deg, rgba(5,11,24,0.97), rgba(15,23,42,0.95))",
         backdropFilter: "blur(20px)",
@@ -130,29 +130,29 @@ function Navbar({ name, onLogout }: { name: string; onLogout: () => void }) {
         boxShadow: "0 4px 24px rgba(0,0,0,0.4)"
       }}>
       {/* Left - Logo */}
-      <Link href="/" className="flex items-center gap-3 group">
-        <img src="/logo.png" alt="MedCore" className="h-9 sm:h-10 w-auto" />
-        <div className="flex flex-col gap-0">
-          <span className="text-white font-black text-base sm:text-lg">MedCore</span>
+      <Link href="/" className="flex items-center gap-2 group">
+        <img src="/logo.png" alt="MedCore" className="h-8 sm:h-9 w-auto" />
+        <div className="hidden sm:flex flex-col gap-0">
+          <span className="text-white font-black text-sm">MedCore</span>
           <span className="text-cyan-400 text-xs font-semibold">Master Medicine</span>
         </div>
       </Link>
 
       {/* Right - User & Logout */}
-      <div className="flex items-center gap-4 sm:gap-6">
-        <div className="hidden sm:flex items-center gap-3 px-4 py-2 rounded-xl"
+      <div className="flex items-center gap-2 sm:gap-3">
+        <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm"
           style={{ background: "rgba(99,102,241,0.08)", border: "1px solid rgba(99,102,241,0.15)" }}>
-          <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white"
+          <div className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white"
             style={{ background: "linear-gradient(135deg, #00CED1, #00B5CC)" }}>
             {name.charAt(0).toUpperCase()}
           </div>
-          <div className="flex flex-col gap-0">
-            <span className="text-xs font-semibold text-white">{name}</span>
+          <div className="hidden lg:flex flex-col gap-0">
+            <span className="text-xs font-semibold text-white">{name.split(" ")[0]}</span>
             <span className="text-xs text-white/60">Learner</span>
           </div>
         </div>
         <button onClick={onLogout}
-          className="px-4 py-2 text-xs sm:text-sm font-semibold rounded-lg transition-all duration-300"
+          className="px-3 py-1.5 text-xs font-semibold rounded-lg transition-all duration-300"
           style={{
             background: "rgba(239,68,68,0.1)",
             border: "1px solid rgba(239,68,68,0.2)",
@@ -445,15 +445,15 @@ export default function DashboardPage() {
     <div className="min-h-screen page-enter" style={{ background: "#050B18" }}>
       <Navbar name={user.name} onLogout={logout} />
 
-      <div className="max-w-7xl mx-auto px-6 py-12 space-y-8">
+      <div className="max-w-7xl mx-auto px-6 py-6 space-y-4">
 
         {/* ── welcome banner ── */}
-        <div className="flex items-center justify-between flex-wrap gap-6 mb-8">
+        <div className="flex items-center justify-between flex-wrap gap-3 mb-4">
           <div>
-            <h1 className="text-5xl font-black text-white mb-3">
+            <h1 className="text-3xl md:text-4xl font-black text-white mb-1">
               Welcome back, <span style={{ backgroundImage: "linear-gradient(135deg, #3B82F6, #8B5CF6)", backgroundClip: "text", WebkitBackgroundClip: "text", color: "transparent" }}>{user.name.split(" ")[0]}</span>
             </h1>
-            <p className="text-white/80 text-base flex items-center gap-2">
+            <p className="text-white/80 text-sm flex items-center gap-2">
               {completedCount === 0 ? (
                 <><span>🎯</span> Start your first block to unlock insights</>
               ) : (
@@ -485,7 +485,7 @@ export default function DashboardPage() {
         </div>
 
         {/* ── stats row ── */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
           <StatCard icon="📚" label="Blocks Completed" value={completedCount} sub={`of ${totalBlocks} available`} color="#3B82F6" />
           <StatCard icon="❓" label="MCQs Attempted" value={totalMcqs} sub="across all blocks" color="#8B5CF6" />
           <StatCard icon="✅" label="Correct Answers" value={totalCorrect} sub={`${overallAcc}% accuracy`} color="#10B981" />
@@ -495,12 +495,12 @@ export default function DashboardPage() {
 
         {/* ── analytics section ── */}
         {sessions.length > 0 ? (
-          <div className="space-y-8">
-            <div className="flex items-center gap-4 pb-6 border-b border-slate-800/50">
-              <div className="w-2 h-10 rounded-full" style={{ background: "linear-gradient(180deg, #3B82F6, #8B5CF6)" }} />
+          <div className="space-y-4">
+            <div className="flex items-center gap-3 pb-3 border-b border-slate-800/50">
+              <div className="w-2 h-8 rounded-full" style={{ background: "linear-gradient(180deg, #3B82F6, #8B5CF6)" }} />
               <div>
-                <h2 className="text-3xl font-black text-white">Performance Analytics</h2>
-                <p className="text-sm text-white/60 mt-1">Track your learning journey</p>
+                <h2 className="text-2xl font-black text-white">Performance Analytics</h2>
+                <p className="text-xs text-white/60 mt-0.5">Track your learning journey</p>
               </div>
               <span className="ml-auto text-xs px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-semibold flex items-center gap-1.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
@@ -508,30 +508,30 @@ export default function DashboardPage() {
               </span>
             </div>
 
-            <div className="grid lg:grid-cols-3 gap-6">
+            <div className="grid lg:grid-cols-3 gap-4">
 
               {/* overall accuracy ring + stats */}
-              <div className="glass rounded-2xl p-6 flex flex-col items-center justify-center gap-4">
+              <div className="glass rounded-xl p-4 flex flex-col items-center justify-center gap-3">
                 <p className="text-xs text-white uppercase tracking-wide">Overall Accuracy</p>
                 <ScoreRing pct={overallAcc} />
-                <div className="w-full grid grid-cols-2 gap-3 mt-2">
-                  <div className="text-center p-3 rounded-xl" style={{ background: "rgba(16,185,129,0.1)", border: "1px solid rgba(16,185,129,0.2)" }}>
-                    <p className="text-2xl font-bold text-emerald-400">{totalCorrect}</p>
+                <div className="w-full grid grid-cols-2 gap-2 mt-1">
+                  <div className="text-center p-2 rounded-lg" style={{ background: "rgba(16,185,129,0.1)", border: "1px solid rgba(16,185,129,0.2)" }}>
+                    <p className="text-lg font-bold text-emerald-400">{totalCorrect}</p>
                     <p className="text-xs text-white">Correct</p>
                   </div>
-                  <div className="text-center p-3 rounded-xl" style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.2)" }}>
-                    <p className="text-2xl font-bold text-red-400">{totalIncorrect}</p>
+                  <div className="text-center p-2 rounded-lg" style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.2)" }}>
+                    <p className="text-lg font-bold text-red-400">{totalIncorrect}</p>
                     <p className="text-xs text-white">Incorrect</p>
                   </div>
                 </div>
               </div>
 
               {/* pie chart */}
-              <div className="glass rounded-2xl p-6">
-                <p className="text-xs text-white uppercase tracking-wide mb-4">Answer Distribution</p>
-                <ResponsiveContainer width="100%" height={200}>
+              <div className="glass rounded-xl p-4">
+                <p className="text-xs text-white uppercase tracking-wide mb-2">Answer Distribution</p>
+                <ResponsiveContainer width="100%" height={160}>
                   <PieChart>
-                    <Pie data={pieData} cx="50%" cy="50%" innerRadius={55} outerRadius={85}
+                    <Pie data={pieData} cx="50%" cy="50%" innerRadius={45} outerRadius={70}
                       paddingAngle={pieData.length > 1 ? 4 : 0} dataKey="value">
                       {pieData.map((_, i) => (
                         <Cell key={i} fill={
@@ -547,10 +547,10 @@ export default function DashboardPage() {
               </div>
 
               {/* score trend */}
-              <div className="glass rounded-2xl p-6">
-                <p className="text-xs text-white uppercase tracking-wide mb-4">Score Trend</p>
+              <div className="glass rounded-xl p-4">
+                <p className="text-xs text-white uppercase tracking-wide mb-2">Score Trend</p>
                 {areaData.length >= 2 ? (
-                  <ResponsiveContainer width="100%" height={200}>
+                  <ResponsiveContainer width="100%" height={160}>
                     <AreaChart data={areaData}>
                       <defs>
                         <linearGradient id="scoreGrad" x1="0" y1="0" x2="0" y2="1">
@@ -567,7 +567,7 @@ export default function DashboardPage() {
                     </AreaChart>
                   </ResponsiveContainer>
                 ) : (
-                  <div className="h-48 flex items-center justify-center text-white text-sm">
+                  <div className="h-32 flex items-center justify-center text-white text-xs">
                     Complete 2+ blocks to see trend
                   </div>
                 )}
@@ -575,9 +575,9 @@ export default function DashboardPage() {
             </div>
 
             {/* bar chart: score by specialty */}
-            <div className="glass rounded-2xl p-6">
-              <p className="text-xs text-white uppercase tracking-wide mb-4">Score by Specialty</p>
-              <ResponsiveContainer width="100%" height={220}>
+            <div className="glass rounded-xl p-4">
+              <p className="text-xs text-white uppercase tracking-wide mb-2">Score by Specialty</p>
+              <ResponsiveContainer width="100%" height={180}>
                 <BarChart data={barData} barGap={4}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#1a2844" vertical={false} />
                   <XAxis dataKey="name" tick={{ fill: "#64748B", fontSize: 11 }} axisLine={false} />
@@ -605,17 +605,17 @@ export default function DashboardPage() {
             </div>
 
             {/* subject accuracy progress bars */}
-            <div className="glass rounded-2xl p-6">
-              <p className="text-xs text-white uppercase tracking-wide mb-5">Subject Accuracy Breakdown</p>
-              <div className="space-y-4">
+            <div className="glass rounded-xl p-4">
+              <p className="text-xs text-white uppercase tracking-wide mb-3">Subject Accuracy Breakdown</p>
+              <div className="space-y-3">
                 {subjectData.map((s) => (
                   <div key={s.name}>
-                    <div className="flex items-center justify-between text-sm mb-1.5">
-                      <span className="text-slate-300">{blocks.find((b) => b.specialty.startsWith(s.name))?.title ?? s.name}</span>
-                      <span className="font-semibold" style={{ color: s.fill }}>{s.Accuracy}%</span>
+                    <div className="flex items-center justify-between text-xs mb-1">
+                      <span className="text-slate-300 truncate">{blocks.find((b) => b.specialty.startsWith(s.name))?.title ?? s.name}</span>
+                      <span className="font-semibold ml-2" style={{ color: s.fill }}>{s.Accuracy}%</span>
                     </div>
-                    <div className="h-2 rounded-full" style={{ background: "#1a2844" }}>
-                      <div className="h-2 rounded-full progress-fill"
+                    <div className="h-1.5 rounded-full" style={{ background: "#1a2844" }}>
+                      <div className="h-1.5 rounded-full progress-fill"
                         style={{ width: `${s.Accuracy}%`, background: `linear-gradient(90deg, ${s.fill}99, ${s.fill})` }} />
                     </div>
                   </div>
@@ -624,14 +624,14 @@ export default function DashboardPage() {
             </div>
 
             {/* session history */}
-            <div className="glass rounded-2xl p-6">
-              <p className="text-xs text-white uppercase tracking-wide mb-4">Session History</p>
+            <div className="glass rounded-xl p-4">
+              <p className="text-xs text-white uppercase tracking-wide mb-2">Session History</p>
               <div className="overflow-x-auto">
-                <table className="w-full text-sm">
+                <table className="w-full text-xs">
                   <thead>
                     <tr className="border-b border-slate-800">
                       {["Block", "Score", "Correct", "Incorrect", "Date"].map((h) => (
-                        <th key={h} className="text-left py-2 pr-4 text-xs text-white uppercase tracking-wide font-medium">{h}</th>
+                        <th key={h} className="text-left py-1 px-2 text-xs text-white uppercase tracking-wide font-medium">{h}</th>
                       ))}
                     </tr>
                   </thead>
@@ -648,6 +648,7 @@ export default function DashboardPage() {
                         const dateB = b.completed_at || b.completedAt;
                         return new Date(dateB).getTime() - new Date(dateA).getTime();
                       })
+                      .slice(0, 8)
                       .map((s: any) => {
                         const blockTitle = s.blockTitle || s.block_id || "Unknown Block";
                         const score = typeof s.score === "number" ? s.score : 0;
@@ -657,15 +658,15 @@ export default function DashboardPage() {
 
                         return (
                           <tr key={s.id} className="border-b border-slate-800/50 hover:bg-white/[0.02] transition-colors">
-                            <td className="py-3 pr-4 text-slate-200 font-medium">{blockTitle}</td>
-                            <td className="py-3 pr-4">
+                            <td className="py-1.5 px-2 text-slate-200 font-medium truncate">{blockTitle}</td>
+                            <td className="py-1.5 px-2">
                               <span className="font-bold" style={{
                                 color: score >= 80 ? "#10B981" : score >= 60 ? "#F59E0B" : "#EF4444"
                               }}>{Math.round(score)}%</span>
                             </td>
-                            <td className="py-3 pr-4 text-emerald-400">{correctCount}</td>
-                            <td className="py-3 pr-4 text-red-400">{totalMcqs - correctCount}</td>
-                            <td className="py-3 pr-4 text-white">
+                            <td className="py-1.5 px-2 text-emerald-400">{correctCount}</td>
+                            <td className="py-1.5 px-2 text-red-400">{totalMcqs - correctCount}</td>
+                            <td className="py-1.5 px-2 text-white">
                               {completedAt
                                 ? new Date(completedAt).toLocaleDateString("en-PK", { day: "numeric", month: "short", year: "2-digit" })
                                 : "N/A"}
@@ -681,43 +682,43 @@ export default function DashboardPage() {
         ) : (
           /* empty analytics state */
           !loading && (
-            <div className="glass rounded-2xl p-12 text-center">
-              <div className="text-5xl mb-4">📊</div>
-              <h3 className="text-lg font-semibold text-white mb-2">No Analytics Yet</h3>
-              <p className="text-white text-sm mb-6">Complete your first block to unlock performance analytics, charts, and insights.</p>
+            <div className="glass rounded-xl p-8 text-center">
+              <div className="text-4xl mb-2">📊</div>
+              <h3 className="text-base font-semibold text-white mb-1">No Analytics Yet</h3>
+              <p className="text-white text-xs">Complete your first block to unlock performance analytics, charts, and insights.</p>
             </div>
           )
         )}
 
         {/* ── practice modes ── */}
-        <div className="mt-16 mb-12">
-          <div className="flex items-center justify-between mb-8 flex-wrap gap-4 pb-6 border-b border-slate-800/50">
+        <div className="mt-6 mb-6">
+          <div className="flex items-center justify-between mb-4 flex-wrap gap-2 pb-3 border-b border-slate-800/50">
             <div>
-              <div className="flex items-center gap-3 mb-2">
-                <span className="text-3xl">🎯</span>
-                <h2 className="text-3xl font-black text-white">Practice Modes</h2>
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-2xl">🎯</span>
+                <h2 className="text-2xl font-black text-white">Practice Modes</h2>
               </div>
-              <p className="text-sm text-white/60">Master your skills with specialized learning methods</p>
+              <p className="text-xs text-white/60">Master your skills with specialized learning methods</p>
             </div>
           </div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {/* Timed Exam */}
             <Link
               href="/exam/timed"
-              className="group relative rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-xl"
+              className="group relative rounded-xl overflow-hidden transition-all duration-300 hover:shadow-xl"
               style={{
                 background: "linear-gradient(135deg, rgba(15,23,42,0.85), rgba(30,27,75,0.5))",
                 border: "1px solid rgba(59,130,246,0.2)",
               }}
             >
-              <div className="p-6 space-y-4">
-                <div className="text-4xl">⏱️</div>
-                <h3 className="text-xl font-bold text-white">Timed Exam</h3>
-                <p className="text-sm text-white/70">2h 30m CBT simulation with real exam conditions</p>
-                <div className="flex flex-wrap gap-2 pt-2">
-                  <span className="px-2 py-1 rounded-lg text-xs bg-blue-500/20 text-blue-300">200 Questions</span>
-                  <span className="px-2 py-1 rounded-lg text-xs bg-cyan-500/20 text-cyan-300">Timer</span>
+              <div className="p-4 space-y-2">
+                <div className="text-3xl">⏱️</div>
+                <h3 className="text-base font-bold text-white">Timed Exam</h3>
+                <p className="text-xs text-white/70">2h 30m CBT simulation with real exam conditions</p>
+                <div className="flex flex-wrap gap-1 pt-1">
+                  <span className="px-2 py-0.5 rounded-lg text-xs bg-blue-500/20 text-blue-300">200 Questions</span>
+                  <span className="px-2 py-0.5 rounded-lg text-xs bg-cyan-500/20 text-cyan-300">Timer</span>
                 </div>
               </div>
             </Link>
@@ -725,19 +726,19 @@ export default function DashboardPage() {
             {/* Mock Exam */}
             <Link
               href="/exam/mock"
-              className="group relative rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-xl"
+              className="group relative rounded-xl overflow-hidden transition-all duration-300 hover:shadow-xl"
               style={{
                 background: "linear-gradient(135deg, rgba(15,23,42,0.85), rgba(30,27,75,0.5))",
                 border: "1px solid rgba(245,158,11,0.2)",
               }}
             >
-              <div className="p-6 space-y-4">
-                <div className="text-4xl">📋</div>
-                <h3 className="text-xl font-bold text-white">Mock Exam</h3>
-                <p className="text-sm text-white/70">Full simulation with detailed analytics & breakdown</p>
-                <div className="flex flex-wrap gap-2 pt-2">
-                  <span className="px-2 py-1 rounded-lg text-xs bg-amber-500/20 text-amber-300">Analytics</span>
-                  <span className="px-2 py-1 rounded-lg text-xs bg-orange-500/20 text-orange-300">Report</span>
+              <div className="p-4 space-y-2">
+                <div className="text-3xl">📋</div>
+                <h3 className="text-base font-bold text-white">Mock Exam</h3>
+                <p className="text-xs text-white/70">Full simulation with detailed analytics & breakdown</p>
+                <div className="flex flex-wrap gap-1 pt-1">
+                  <span className="px-2 py-0.5 rounded-lg text-xs bg-amber-500/20 text-amber-300">Analytics</span>
+                  <span className="px-2 py-0.5 rounded-lg text-xs bg-orange-500/20 text-orange-300">Report</span>
                 </div>
               </div>
             </Link>
@@ -745,19 +746,19 @@ export default function DashboardPage() {
             {/* Spaced Repetition */}
             <Link
               href="/learn/spaced-repetition"
-              className="group relative rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-xl"
+              className="group relative rounded-xl overflow-hidden transition-all duration-300 hover:shadow-xl"
               style={{
                 background: "linear-gradient(135deg, rgba(15,23,42,0.85), rgba(30,27,75,0.5))",
                 border: "1px solid rgba(34,197,94,0.2)",
               }}
             >
-              <div className="p-6 space-y-4">
-                <div className="text-4xl">🧠</div>
-                <h3 className="text-xl font-bold text-white">Spaced Repetition</h3>
-                <p className="text-sm text-white/70">SM-2 algorithm for optimal retention & mastery</p>
-                <div className="flex flex-wrap gap-2 pt-2">
-                  <span className="px-2 py-1 rounded-lg text-xs bg-green-500/20 text-green-300">Smart Learning</span>
-                  <span className="px-2 py-1 rounded-lg text-xs bg-emerald-500/20 text-emerald-300">Adaptive</span>
+              <div className="p-4 space-y-2">
+                <div className="text-3xl">🧠</div>
+                <h3 className="text-base font-bold text-white">Spaced Repetition</h3>
+                <p className="text-xs text-white/70">SM-2 algorithm for optimal retention & mastery</p>
+                <div className="flex flex-wrap gap-1 pt-1">
+                  <span className="px-2 py-0.5 rounded-lg text-xs bg-green-500/20 text-green-300">Smart Learning</span>
+                  <span className="px-2 py-0.5 rounded-lg text-xs bg-emerald-500/20 text-emerald-300">Adaptive</span>
                 </div>
               </div>
             </Link>
