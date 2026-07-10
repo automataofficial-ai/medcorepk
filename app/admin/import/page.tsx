@@ -41,10 +41,38 @@ export default function ImportMCQsPage() {
 
       const headers = lines[0].split(",").map(h => h.trim());
       const mcqs = [];
-      
+
+      // Helper to parse CSV line with proper quoted field handling
+      const parseCSVLine = (line: string): string[] => {
+        const values: string[] = [];
+        let current = "";
+        let inQuotes = false;
+
+        for (let j = 0; j < line.length; j++) {
+          const char = line[j];
+          const nextChar = line[j + 1];
+
+          if (char === '"') {
+            if (inQuotes && nextChar === '"') {
+              current += '"';
+              j++; // Skip next quote (escaped quote)
+            } else {
+              inQuotes = !inQuotes;
+            }
+          } else if (char === "," && !inQuotes) {
+            values.push(current.trim().replace(/^"|"$/g, ""));
+            current = "";
+          } else {
+            current += char;
+          }
+        }
+        values.push(current.trim().replace(/^"|"$/g, ""));
+        return values;
+      };
+
       for (let i = 1; i < lines.length; i++) {
         if (!lines[i].trim()) continue;
-        const values = lines[i].split(",").map(v => v.trim());
+        const values = parseCSVLine(lines[i]);
         const mcq: any = {};
         headers.forEach((header, index) => {
           mcq[header] = values[index] || null;
