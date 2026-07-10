@@ -34,6 +34,17 @@ interface UserStats {
 const COLORS = ["#3B82F6", "#8B5CF6", "#10B981", "#F59E0B", "#EF4444", "#06B6D4"];
 const DIFF_COLOR = { Easy: "#10B981", Medium: "#F59E0B", Hard: "#EF4444" } as const;
 
+/* ── Paper A Subjects ── */
+const PAPER_A_SUBJECTS: Block[] = [
+  { id: "anatomy", title: "Anatomy & Histology", specialty: "Basic Science", description: "Study human body structures", icon: "🔬", color: "#3B82F6", difficulty: "Medium", total_mcqs: 520 },
+  { id: "physiology", title: "Physiology", specialty: "Basic Science", description: "Body systems and functions", icon: "❤️", color: "#EF4444", difficulty: "Medium", total_mcqs: 480 },
+  { id: "biochemistry", title: "Biochemistry", specialty: "Basic Science", description: "Molecular processes", icon: "⚗️", color: "#F59E0B", difficulty: "Medium", total_mcqs: 510 },
+  { id: "pathology", title: "Pathology", specialty: "Basic Science", description: "Disease mechanisms", icon: "⚠️", color: "#8B5CF6", difficulty: "Hard", total_mcqs: 580 },
+  { id: "microbiology", title: "Microbiology", specialty: "Basic Science", description: "Infectious agents", icon: "🦠", color: "#06B6D4", difficulty: "Hard", total_mcqs: 490 },
+  { id: "pharmacology", title: "Pharmacology", specialty: "Clinical", description: "Drug mechanisms", icon: "💊", color: "#10B981", difficulty: "Hard", total_mcqs: 620 },
+  { id: "community-medicine", title: "Community Medicine", specialty: "Public Health", description: "Public health concepts", icon: "🌍", color: "#EC4899", difficulty: "Medium", total_mcqs: 420 },
+];
+
 /* ── helpers ── */
 function clsx(...cls: (string | boolean | undefined)[]) {
   return cls.filter(Boolean).join(" ");
@@ -186,11 +197,8 @@ export default function DashboardPage() {
     try {
       const supabase = getSupabase();
 
-      // Fetch blocks from database
-      const blocksRes = await fetch("/api/blocks");
-      const blocksData = await blocksRes.json();
-      console.log("Blocks fetched:", blocksData.blocks?.length || 0);
-      setBlocks(blocksData.blocks || []);
+      // Use Paper A Subjects
+      setBlocks(PAPER_A_SUBJECTS);
 
       // Fetch user sessions
       const sessionsRes = await fetch("/api/sessions", {
@@ -439,6 +447,7 @@ export default function DashboardPage() {
           <StatCard icon="🔥" label="Current Streak" value={currentStreak} sub="consecutive days" color="#EF4444" />
         </div>
 
+
         {/* ── analytics section ── */}
         {sessions.length > 0 ? (
           <div className="space-y-8">
@@ -635,167 +644,81 @@ export default function DashboardPage() {
           )
         )}
 
-        {/* ── blocks grid ── */}
-        <div className="mt-16">
+        {/* ── practice modes ── */}
+        <div className="mt-16 mb-12">
           <div className="flex items-center justify-between mb-8 flex-wrap gap-4 pb-6 border-b border-slate-800/50">
             <div>
               <div className="flex items-center gap-3 mb-2">
-                <BookOpen className="w-6 h-6 text-cyan-400" />
-                <h2 className="text-3xl font-black text-white">Learning Blocks</h2>
+                <span className="text-3xl">🎯</span>
+                <h2 className="text-3xl font-black text-white">Practice Modes</h2>
               </div>
-              <p className="text-sm text-white/60">Master each subject systematically</p>
-            </div>
-            <div className="flex items-center gap-4 text-xs text-white">
-              <span className="flex items-center gap-2 px-3 py-1.5 rounded-lg" style={{ background: "rgba(16,185,129,0.1)", border: "1px solid rgba(16,185,129,0.2)" }}>
-                <span className="w-2 h-2 rounded-full bg-emerald-400" />
-                <span className="text-white/80">Completed</span>
-              </span>
-              <span className="flex items-center gap-2 px-3 py-1.5 rounded-lg" style={{ background: "rgba(100,116,139,0.1)", border: "1px solid rgba(100,116,139,0.2)" }}>
-                <span className="w-2 h-2 rounded-full bg-slate-500" />
-                <span className="text-white/80">Not Started</span>
-              </span>
+              <p className="text-sm text-white/60">Master your skills with specialized learning methods</p>
             </div>
           </div>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {blocks.map((block, i) => {
-              const session = latestByBlock[block.id];
-              const done = !!session;
-              const score = done ? Math.round(session.score) : null;
-              const mcqCount = (block as any).mcqs?.length || (block as any).total_mcqs || 0;
-
-              return (
-                <div
-                  key={block.id}
-                  className="group relative rounded-2xl overflow-hidden transition-all duration-500 hover:shadow-2xl card-lift"
-                  style={{
-                    animationDelay: `${i * 0.08}s`,
-                    animation: "fade-in 0.6s ease forwards",
-                    opacity: 0,
-                    background: "linear-gradient(135deg, rgba(15,23,42,0.85), rgba(30,27,75,0.5))",
-                    border: "1px solid rgba(99,102,241,0.15)",
-                    boxShadow: "0 12px 48px rgba(0,0,0,0.4), inset 0 1px 1px rgba(255,255,255,0.08)"
-                  }}
-                >
-                  {/* hover glow */}
-                  <div className="absolute -inset-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-xl pointer-events-none"
-                    style={{
-                      background: `linear-gradient(135deg, ${COLORS[i % COLORS.length]}, transparent)`,
-                      zIndex: -1
-                    }} />
-
-                  {/* gradient header */}
-                  <div className={`bg-gradient-to-br ${block.color} p-7 relative overflow-hidden`}>
-                    <div className="absolute inset-0 opacity-40 group-hover:opacity-50 transition-opacity duration-300"
-                      style={{
-                        backgroundImage: "radial-gradient(circle at 100% -10%, rgba(255,255,255,0.5), transparent 70%)",
-                      }} />
-
-                    <div className="relative">
-                      {/* Top row - Icon and Difficulty */}
-                      <div className="flex items-start justify-between mb-4">
-                        <div className="w-14 h-14 rounded-xl flex items-center justify-center text-3xl"
-                          style={{
-                            background: "rgba(255,255,255,0.18)",
-                            backdropFilter: "blur(12px)",
-                            border: "1.5px solid rgba(255,255,255,0.35)",
-                            boxShadow: "0 8px 24px rgba(0,0,0,0.2)"
-                          }}>
-                          {block.icon}
-                        </div>
-
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs px-3 py-1.5 rounded-lg font-bold text-white"
-                            style={{
-                              background: "rgba(255,255,255,0.2)",
-                              backdropFilter: "blur(10px)",
-                              border: "1px solid rgba(255,255,255,0.3)"
-                            }}>
-                            {block.difficulty}
-                          </span>
-                          {done && score !== null && (
-                            <div className="text-center">
-                              <div className="text-lg font-black text-white">{score}%</div>
-                              <div className="text-xs text-white/70">Score</div>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Title and Specialty */}
-                      <h3 className="text-white font-black text-xl leading-tight mb-1">{block.title}</h3>
-                      <p className="text-white/70 text-xs font-semibold uppercase tracking-wider">{block.specialty}</p>
-
-                      {/* MCQ Badge */}
-                      <div className="mt-4 inline-flex items-center gap-2 px-3 py-1.5 rounded-lg"
-                        style={{
-                          background: "rgba(255,255,255,0.15)",
-                          backdropFilter: "blur(10px)",
-                          border: "1px solid rgba(255,255,255,0.25)"
-                        }}>
-                        <span className="text-sm font-bold text-white">{mcqCount}</span>
-                        <span className="text-xs text-white/70">Questions</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="p-6 space-y-5">
-                    <p className="text-sm text-white/75 leading-relaxed">{block.description}</p>
-
-                    {/* Status Badge */}
-                    {done && (
-                      <div className="flex items-center gap-2 px-3 py-2 rounded-lg w-fit"
-                        style={{ background: "rgba(16,185,129,0.12)", border: "1px solid rgba(16,185,129,0.3)" }}>
-                        <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                        <span className="text-emerald-400 text-xs font-semibold">Completed</span>
-                      </div>
-                    )}
-
-                    {/* Action Buttons */}
-                    <div className="space-y-3 pt-3">
-                      <Link
-                        href={`/block/${block.id}`}
-                        className="flex items-center justify-center gap-2 w-full py-3 rounded-xl text-center text-sm font-semibold transition-all duration-300 hover:scale-[1.02] active:scale-95 group/btn"
-                        style={done
-                          ? {
-                            background: "linear-gradient(135deg, rgba(100,116,139,0.15), rgba(71,85,105,0.1))",
-                            color: "#CBD5E1",
-                            border: "1.5px solid rgba(100,116,139,0.3)",
-                            boxShadow: "0 4px 12px rgba(0,0,0,0.15)"
-                          }
-                          : {
-                            background: "linear-gradient(135deg, #00CED1 0%, #00B5CC 100%)",
-                            color: "#fff",
-                            boxShadow: "0 8px 24px rgba(0,206,209,0.35), 0 4px 12px rgba(0,0,0,0.15)"
-                          }
-                        }
-                      >
-                        {done ? "Retake Block" : "Start Block"}
-                        {!done && <ChevronRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />}
-                      </Link>
-
-                      {done && (
-                        <Link
-                          href={`/block/${block.id}/review`}
-                          className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl text-center text-sm font-semibold transition-all duration-300 hover:scale-[1.02] active:scale-95 group/btn"
-                          style={{
-                            background: "linear-gradient(135deg, rgba(59,130,246,0.18), rgba(37,99,235,0.1))",
-                            color: "#93C5FD",
-                            border: "1.5px solid rgba(59,130,246,0.35)",
-                            boxShadow: "0 4px 12px rgba(0,0,0,0.15)"
-                          }}
-                        >
-                          Review Results
-                          <ChevronRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
-                        </Link>
-                      )}
-                    </div>
-                  </div>
+            {/* Timed Exam */}
+            <Link
+              href="/exam/timed"
+              className="group relative rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-xl"
+              style={{
+                background: "linear-gradient(135deg, rgba(15,23,42,0.85), rgba(30,27,75,0.5))",
+                border: "1px solid rgba(59,130,246,0.2)",
+              }}
+            >
+              <div className="p-6 space-y-4">
+                <div className="text-4xl">⏱️</div>
+                <h3 className="text-xl font-bold text-white">Timed Exam</h3>
+                <p className="text-sm text-white/70">2h 30m CBT simulation with real exam conditions</p>
+                <div className="flex flex-wrap gap-2 pt-2">
+                  <span className="px-2 py-1 rounded-lg text-xs bg-blue-500/20 text-blue-300">200 Questions</span>
+                  <span className="px-2 py-1 rounded-lg text-xs bg-cyan-500/20 text-cyan-300">Timer</span>
                 </div>
-              );
-            })}
+              </div>
+            </Link>
+
+            {/* Mock Exam */}
+            <Link
+              href="/exam/mock"
+              className="group relative rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-xl"
+              style={{
+                background: "linear-gradient(135deg, rgba(15,23,42,0.85), rgba(30,27,75,0.5))",
+                border: "1px solid rgba(245,158,11,0.2)",
+              }}
+            >
+              <div className="p-6 space-y-4">
+                <div className="text-4xl">📋</div>
+                <h3 className="text-xl font-bold text-white">Mock Exam</h3>
+                <p className="text-sm text-white/70">Full simulation with detailed analytics & breakdown</p>
+                <div className="flex flex-wrap gap-2 pt-2">
+                  <span className="px-2 py-1 rounded-lg text-xs bg-amber-500/20 text-amber-300">Analytics</span>
+                  <span className="px-2 py-1 rounded-lg text-xs bg-orange-500/20 text-orange-300">Report</span>
+                </div>
+              </div>
+            </Link>
+
+            {/* Spaced Repetition */}
+            <Link
+              href="/learn/spaced-repetition"
+              className="group relative rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-xl"
+              style={{
+                background: "linear-gradient(135deg, rgba(15,23,42,0.85), rgba(30,27,75,0.5))",
+                border: "1px solid rgba(34,197,94,0.2)",
+              }}
+            >
+              <div className="p-6 space-y-4">
+                <div className="text-4xl">🧠</div>
+                <h3 className="text-xl font-bold text-white">Spaced Repetition</h3>
+                <p className="text-sm text-white/70">SM-2 algorithm for optimal retention & mastery</p>
+                <div className="flex flex-wrap gap-2 pt-2">
+                  <span className="px-2 py-1 rounded-lg text-xs bg-green-500/20 text-green-300">Smart Learning</span>
+                  <span className="px-2 py-1 rounded-lg text-xs bg-emerald-500/20 text-emerald-300">Adaptive</span>
+                </div>
+              </div>
+            </Link>
           </div>
         </div>
+
       </div>
     </div>
   );

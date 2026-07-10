@@ -23,18 +23,27 @@ export async function GET(req: NextRequest) {
     // For each block, fetch its MCQs
     const blocksWithMCQs = await Promise.all(
       (blocks || []).map(async (block: any) => {
-        const { data: mcqs } = await supabase
+        const { data: mcqs, error: mcqError } = await supabase
           .from("mcqs")
           .select("*")
           .eq("block_id", block.id);
 
+        if (mcqError) {
+          console.error(`Error fetching MCQs for block ${block.id}:`, mcqError);
+        }
+
+        const mcqList = mcqs || [];
+        console.log(`Block ${block.title} (${block.id}): ${mcqList.length} MCQs found`);
+
         return {
           ...block,
-          mcqs: mcqs || [],
+          mcqs: mcqList,
+          total_mcqs: mcqList.length,
         };
       })
     );
 
+    console.log(`Returning ${blocksWithMCQs.length} blocks with MCQs`);
     return NextResponse.json({ blocks: blocksWithMCQs });
   } catch (error: any) {
     console.error("API blocks error:", error);

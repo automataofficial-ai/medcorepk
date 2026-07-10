@@ -2,12 +2,13 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Menu, X, Sparkles } from "lucide-react";
+import { Menu, X, Sparkles, ChevronDown } from "lucide-react";
 import { usePathname } from "next/navigation";
 
 export default function Header() {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
 
   // Hide header on dashboard and block pages only
   if (pathname.startsWith("/dashboard") || pathname.startsWith("/block")) {
@@ -15,10 +16,24 @@ export default function Header() {
   }
 
   const navItems = [
-    { label: "Home", href: "/" },
-    { label: "About", href: "/about" },
+    {
+      label: "FCPS",
+      href: "#",
+      submenu: [
+        { label: "FCPS PART1-PAPER A", href: "/exam/fcps-part1-paper-a" },
+        { label: "FCPS PART1-PAPER B", href: "/exam/fcps-part1-paper-b" },
+      ]
+    },
     { label: "Syllabus", href: "/syllabus" },
-    { label: "Dashboard", href: "/dashboard" },
+    { label: "MD/MS", href: "/md-ms" },
+    {
+      label: "NOTES",
+      href: "#",
+      submenu: [
+        { label: "FCPS PEARLS", href: "/notes/fcps-pearls" },
+        { label: "Flash Cards", href: "/notes/flash-cards" },
+      ]
+    },
     { label: "Resources", href: "#resources" },
     { label: "Blog", href: "#blog" },
     { label: "Contact", href: "#contact" },
@@ -50,17 +65,42 @@ export default function Header() {
             {/* Desktop Navigation */}
             <nav className="hidden lg:flex items-center gap-1">
               {navItems.map((item) => (
-                <Link
-                  key={item.label}
-                  href={item.href}
-                  className="group relative px-6 py-3 text-sm font-semibold text-white hover:text-white rounded-full transition-all duration-300 hover:bg-white/10"
-                  style={{
-                    background: "transparent",
-                  }}
-                >
-                  {item.label}
-                  <span className="absolute bottom-1 left-6 right-6 h-0.5 bg-gradient-to-r from-blue-400 to-cyan-400 rounded-full scale-x-0 group-hover:scale-x-100 transition-transform duration-300" />
-                </Link>
+                <div key={item.label} className="relative group">
+                  <button
+                    onClick={() => item.submenu && setOpenDropdown(openDropdown === item.label ? null : item.label)}
+                    className="group relative px-6 py-3 text-sm font-semibold text-white hover:text-white rounded-full transition-all duration-300 hover:bg-white/10 flex items-center gap-1"
+                    style={{
+                      background: "transparent",
+                    }}
+                  >
+                    {item.label}
+                    {item.submenu && <ChevronDown size={16} className="group-hover:rotate-180 transition-transform" />}
+                    <span className="absolute bottom-1 left-6 right-6 h-0.5 bg-gradient-to-r from-blue-400 to-cyan-400 rounded-full scale-x-0 group-hover:scale-x-100 transition-transform duration-300" />
+                  </button>
+
+                  {item.submenu && (
+                    <div className="absolute left-0 mt-0 w-48 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300"
+                      style={{
+                        background: "linear-gradient(135deg, rgba(15, 23, 42, 0.98), rgba(30, 27, 75, 0.8))",
+                        backdropFilter: "blur(20px)",
+                        borderColor: "rgba(59, 130, 246, 0.4)",
+                        border: "1px solid rgba(59, 130, 246, 0.4)",
+                      }}
+                    >
+                      <div className="py-2">
+                        {item.submenu.map((subitem) => (
+                          <Link
+                            key={subitem.label}
+                            href={subitem.href}
+                            className="block px-4 py-2 text-sm text-white hover:text-cyan-400 hover:bg-white/10 transition-all"
+                          >
+                            {subitem.label}
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
               ))}
             </nav>
 
@@ -98,7 +138,7 @@ export default function Header() {
 
           {/* Mobile Navigation */}
           {mobileMenuOpen && (
-            <nav className="lg:hidden absolute top-full left-0 right-0 mt-2 mx-4 rounded-2xl flex flex-col gap-2 border z-40 animate-in fade-in slide-in-from-top-2"
+            <nav className="lg:hidden absolute top-full left-0 right-0 mt-2 mx-4 rounded-2xl flex flex-col gap-2 border z-40 animate-in fade-in slide-in-from-top-2 max-h-96 overflow-y-auto"
               style={{
                 borderColor: "rgba(99, 102, 241, 0.3)",
                 background: "linear-gradient(135deg, rgba(15, 23, 42, 0.98), rgba(30, 27, 75, 0.8))",
@@ -107,17 +147,50 @@ export default function Header() {
               }}>
               <div className="p-4 space-y-2">
                 {navItems.map((item) => (
-                  <Link
-                    key={item.label}
-                    href={item.href}
-                    className="block px-4 py-3 text-sm font-semibold text-white hover:text-cyan-400 rounded-lg transition-all duration-300"
-                    style={{
-                      background: "rgba(99, 102, 241, 0.1)",
-                    }}
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    {item.label}
-                  </Link>
+                  <div key={item.label}>
+                    {item.submenu ? (
+                      <div>
+                        <button
+                          onClick={() => setOpenDropdown(openDropdown === item.label ? null : item.label)}
+                          className="w-full text-left px-4 py-3 text-sm font-semibold text-white hover:text-cyan-400 rounded-lg transition-all duration-300 flex items-center justify-between"
+                          style={{
+                            background: "rgba(99, 102, 241, 0.1)",
+                          }}
+                        >
+                          {item.label}
+                          <ChevronDown size={16} className={openDropdown === item.label ? "rotate-180" : ""} />
+                        </button>
+                        {openDropdown === item.label && (
+                          <div className="pl-4 space-y-1 mt-1">
+                            {item.submenu.map((subitem) => (
+                              <Link
+                                key={subitem.label}
+                                href={subitem.href}
+                                className="block px-4 py-2 text-sm text-white hover:text-cyan-400 rounded-lg transition-all"
+                                style={{
+                                  background: "rgba(99, 102, 241, 0.15)",
+                                }}
+                                onClick={() => setMobileMenuOpen(false)}
+                              >
+                                {subitem.label}
+                              </Link>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <Link
+                        href={item.href}
+                        className="block px-4 py-3 text-sm font-semibold text-white hover:text-cyan-400 rounded-lg transition-all duration-300"
+                        style={{
+                          background: "rgba(99, 102, 241, 0.1)",
+                        }}
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        {item.label}
+                      </Link>
+                    )}
+                  </div>
                 ))}
                 <Link
                   href="/login"

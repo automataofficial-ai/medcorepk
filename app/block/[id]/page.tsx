@@ -128,26 +128,37 @@ export default function BlockQuizPage() {
         // Ensure MCQs exist
         if (!foundBlock.mcqs || foundBlock.mcqs.length === 0) {
           console.error("No MCQs found in block:", blockId);
+          console.error("Block data:", foundBlock);
           error("No Questions Found", "This block has no questions. Please try another block");
           setBlock(null);
           setTimeout(() => router.push("/dashboard"), 2000);
           return;
         }
 
+        console.log(`Found ${foundBlock.mcqs.length} MCQs for block`, blockId);
+
         // Transform database MCQs to expected format
         const transformedMCQs = (foundBlock.mcqs || []).map((dbMcq: any) => {
-          const correctIndex = ["a", "b", "c", "d"].indexOf((dbMcq.correct_answer || "a").toLowerCase());
-          const explanations = ["", "", ""];
+          // Handle correct_answer which can be a letter (a, b, c, d) or index (0, 1, 2, 3)
+          let correctIndex = 0;
+          if (typeof dbMcq.correct_answer === "string") {
+            correctIndex = ["a", "b", "c", "d"].indexOf(dbMcq.correct_answer.toLowerCase());
+            if (correctIndex === -1) correctIndex = 0;
+          } else if (typeof dbMcq.correct_answer === "number") {
+            correctIndex = dbMcq.correct_answer;
+          }
 
-          // Map explanations to their incorrect positions (0, 1, 2)
-          if (correctIndex !== 0) explanations[0] = dbMcq.explanation_a || "";
-          if (correctIndex !== 1) explanations[1] = dbMcq.explanation_b || "";
-          if (correctIndex !== 2) explanations[2] = dbMcq.explanation_c || "";
-          if (correctIndex !== 3) explanations[3] = dbMcq.explanation_d || "";
+          // Build explanations array for all 4 options
+          const allExplanations = [
+            dbMcq.explanation_a || "",
+            dbMcq.explanation_b || "",
+            dbMcq.explanation_c || "",
+            dbMcq.explanation_d || "",
+          ];
 
           return {
-            id: dbMcq.id,
-            caseStudy: dbMcq.case_study || "",
+            id: dbMcq.id || `mcq-${Math.random()}`,
+            caseStudy: dbMcq.case_study || dbMcq.caseStudy || "",
             question: dbMcq.question || "",
             notes: dbMcq.notes || "",
             image: dbMcq.image_url ? {
@@ -161,10 +172,10 @@ export default function BlockQuizPage() {
               { label: "D", text: dbMcq.option_d || "", explanation: dbMcq.explanation_d || "" },
             ],
             correctIndex,
-            explanation: dbMcq.explanation ? {
-              correct: dbMcq.explanation,
-              incorrect: explanations,
-            } : null,
+            explanation: {
+              correct: dbMcq.explanation_summary || allExplanations[correctIndex] || "See individual option explanations",
+              incorrect: allExplanations,
+            },
           };
         });
 

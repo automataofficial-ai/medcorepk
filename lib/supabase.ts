@@ -49,7 +49,7 @@ export async function signUpWithEmail(email: string, password: string, fullName:
   try {
     const supabaseClient = getSupabase()
 
-    // Create auth account without email verification to avoid rate limits
+    // Create auth account - no email verification, instant signup
     const { data, error } = await supabaseClient.auth.signUp({
       email,
       password,
@@ -57,7 +57,8 @@ export async function signUpWithEmail(email: string, password: string, fullName:
         data: {
           full_name: fullName,
         },
-        emailRedirectTo: `${typeof window !== 'undefined' ? window.location.origin : ''}/dashboard`,
+        // Disable email verification for instant signup
+        emailRedirectTo: undefined,
       },
     })
 
@@ -65,32 +66,27 @@ export async function signUpWithEmail(email: string, password: string, fullName:
       return { data, error }
     }
 
-    // Create user profile in users table
-    const { error: profileError } = await supabaseClient
-      .from('users')
-      .insert({
-        id: data.user.id,
-        email,
-        full_name: fullName,
-      } as any)
+    // Create user profile via API endpoint (uses service role to bypass RLS)
+    try {
+      const profileRes = await fetch('/api/auth/create-profile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: data.user.id,
+          email,
+          fullName,
+        }),
+      });
 
-    // Create empty user progress
-    if (!profileError) {
-      await supabaseClient
-        .from('user_progress')
-        .insert({
-          user_id: data.user.id,
-        } as any)
-
-      // Create study streak entry
-      await supabaseClient
-        .from('study_streaks')
-        .insert({
-          user_id: data.user.id,
-        } as any)
+      if (!profileRes.ok) {
+        const errorData = await profileRes.json();
+        return { data, error: { message: errorData.error || 'Failed to create user profile' } };
+      }
+    } catch (err: any) {
+      return { data, error: { message: err.message || 'Failed to create user profile' } };
     }
 
-    return { data, error: profileError || error }
+    return { data, error }
   } catch (err: any) {
     return { data: null, error: err }
   }

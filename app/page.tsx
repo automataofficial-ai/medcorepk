@@ -365,7 +365,7 @@ export default function HomePage() {
                 style={{ animation: "fade-in 0.7s ease 0.5s forwards", opacity: 0 }}
               >
                 <Link
-                  href="/signup"
+                  href="/demo"
                   className="px-8 py-4 rounded-lg text-base font-semibold text-white transition-all duration-200 hover:scale-105 text-center"
                   style={{
                     background: "linear-gradient(135deg, #0891b2 0%, #006b7f 100%)",
@@ -378,7 +378,7 @@ export default function HomePage() {
                   href="#features"
                   className="px-8 py-4 rounded-lg text-base font-semibold text-white border border-white/20 hover:border-white/40 hover:bg-white/5 transition-all duration-200 text-center"
                 >
-                  Learn More
+                  Packages
                 </a>
               </div>
 
@@ -387,7 +387,7 @@ export default function HomePage() {
                 className="flex flex-wrap gap-8 text-sm text-white/60"
                 style={{ animation: "fade-in 0.7s ease 0.65s forwards", opacity: 0 }}
               >
-                {["✓ CPSP Aligned", "✓ 30+ MCQs", "✓ Real Analytics"].map((t) => (
+                {["✓ CPSP Aligned", "✓ 5k+ MCQs", "✓ Real Analytics"].map((t) => (
                   <span key={t} className="flex items-center gap-2">{t}</span>
                 ))}
               </div>
@@ -577,7 +577,7 @@ export default function HomePage() {
               className="text-4xl md:text-5xl font-black text-white mb-4"
               style={{ animation: "fade-in 0.7s ease forwards", opacity: 0 }}
             >
-              MedCore Is Trusted by 1,000+
+              MedCore Is Trusted by Various
             </h2>
             <p
               className="text-lg text-white/70"

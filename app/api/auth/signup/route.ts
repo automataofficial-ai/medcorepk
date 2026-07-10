@@ -41,6 +41,8 @@ export async function POST(req: NextRequest) {
 
     const createdUserId = authData.user.id;
 
+    const now = new Date().toISOString();
+
     // Create user profile in public.users table
     try {
       await serviceClient
@@ -49,6 +51,9 @@ export async function POST(req: NextRequest) {
           id: createdUserId,
           email,
           full_name: fullName,
+          subscription_tier: "free",
+          created_at: now,
+          updated_at: now,
         } as any);
     } catch (err) {
       console.error("Profile creation error:", err);
@@ -60,6 +65,11 @@ export async function POST(req: NextRequest) {
         .from("user_progress")
         .insert({
           user_id: createdUserId,
+          total_mcqs_attempted: 0,
+          total_correct: 0,
+          overall_accuracy: 0,
+          blocks_completed: 0,
+          study_hours: 0,
         } as any);
     } catch (err) {
       console.error("Progress creation error:", err);
@@ -71,6 +81,9 @@ export async function POST(req: NextRequest) {
         .from("study_streaks")
         .insert({
           user_id: createdUserId,
+          current_streak: 0,
+          longest_streak: 0,
+          last_study_date: now,
         } as any);
     } catch (err) {
       console.error("Streak creation error:", err);

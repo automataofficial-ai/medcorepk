@@ -3,73 +3,98 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useToast } from "@/context/ToastContext";
 
 export default function SignUpPage() {
   const router = useRouter();
+  const { error: showError, success } = useToast();
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
 
-  function validateForm(): boolean {
+  const validateForm = () => {
     if (!fullName.trim()) {
-      setError("Full name is required");
+      showError("Validation Error", "Please enter your full name");
+      return false;
+    }
+    if (fullName.trim().length < 2) {
+      showError("Validation Error", "Name must be at least 2 characters");
       return false;
     }
     if (!email.trim()) {
-      setError("Email is required");
+      showError("Validation Error", "Please enter your email");
       return false;
     }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setError("Please enter a valid email address");
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      showError("Validation Error", "Please enter a valid email address");
       return false;
     }
-    if (password.length < 6) {
-      setError("Password must be at least 6 characters");
+    if (!password) {
+      showError("Validation Error", "Please enter a password");
+      return false;
+    }
+    if (password.length < 8) {
+      showError("Validation Error", "Password must be at least 8 characters");
+      return false;
+    }
+    if (password !== confirmPassword) {
+      showError("Validation Error", "Passwords do not match");
+      return false;
+    }
+    if (!agreedToTerms) {
+      showError("Validation Error", "Please agree to the terms and conditions");
       return false;
     }
     return true;
-  }
+  };
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setError("");
 
-    if (!validateForm()) return;
+    if (!validateForm()) {
+      return;
+    }
 
     setLoading(true);
 
     try {
+      // Call server-side signup API (uses service role - NO EMAIL SENT)
       const res = await fetch("/api/auth/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password, fullName }),
       });
 
-      const result = await res.json();
+      const data = await res.json();
 
       if (!res.ok) {
-        setError(result.error || "Failed to create account. Please try again.");
+        showError("Signup Failed", data.error || "Could not create account");
         setLoading(false);
         return;
       }
 
-      if (result.user) {
-        // Store user in localStorage for immediate access
-        const userData: any = {
-          id: result.user.id,
-          name: fullName,
-          email,
-          createdAt: new Date().toISOString(),
-        };
-        localStorage.setItem("medcore_user", JSON.stringify(userData));
+      success("Account Created! ✓", "Redirecting to onboarding...");
 
-        // Redirect to dashboard
-        router.push("/dashboard");
-      }
+      localStorage.setItem(
+        "medcore_user",
+        JSON.stringify({
+          id: data.user.id,
+          name: fullName,
+          email: data.user.email,
+          role: "user",
+          loggedInAt: Date.now(),
+        })
+      );
+
+      setTimeout(() => {
+        router.push("/onboarding");
+      }, 1200);
     } catch (err: any) {
-      setError(err?.message || "An unexpected error occurred");
+      showError("Error", err?.message || "An unexpected error occurred");
     } finally {
       setLoading(false);
     }
@@ -177,14 +202,36 @@ export default function SignUpPage() {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                required
                 placeholder="••••••••"
                 className="w-full px-4 py-3 rounded-xl text-white placeholder-slate-500 text-sm outline-none transition-all focus:ring-2"
                 style={{
                   background: "rgba(255,255,255,0.05)",
                   border: "1px solid rgba(255,255,255,0.1)",
-                  // @ts-expect-error --tw-ring-color
-                  "--tw-ring-color": "#3B82F6",
+                }}
+                onFocus={(e) => {
+                  e.target.style.borderColor = "#3B82F6";
+                  e.target.style.boxShadow = "0 0 0 2px rgba(59,130,246,0.25)";
+                }}
+                onBlur={(e) => {
+                  e.target.style.borderColor = "rgba(255,255,255,0.1)";
+                  e.target.style.boxShadow = "none";
+                }}
+              />
+              <p className="text-xs text-slate-400 mt-1">At least 8 characters</p>
+            </div>
+
+            {/* Confirm Password */}
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-2">Confirm Password</label>
+              <input
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder="••••••••"
+                className="w-full px-4 py-3 rounded-xl text-white placeholder-slate-500 text-sm outline-none transition-all focus:ring-2"
+                style={{
+                  background: "rgba(255,255,255,0.05)",
+                  border: "1px solid rgba(255,255,255,0.1)",
                 }}
                 onFocus={(e) => {
                   e.target.style.borderColor = "#3B82F6";
@@ -197,20 +244,30 @@ export default function SignUpPage() {
               />
             </div>
 
-
-            {/* Error Message */}
-            {error && (
-              <div
-                className="flex items-start gap-2 px-4 py-3 rounded-xl text-sm text-red-300"
+            {/* Terms Checkbox */}
+            <div className="flex items-start gap-3 pt-2">
+              <input
+                type="checkbox"
+                id="terms"
+                checked={agreedToTerms}
+                onChange={(e) => setAgreedToTerms(e.target.checked)}
+                className="w-4 h-4 rounded mt-1 cursor-pointer"
                 style={{
-                  background: "rgba(239,68,68,0.1)",
-                  border: "1px solid rgba(239,68,68,0.25)",
+                  background: agreedToTerms ? "#3B82F6" : "rgba(255,255,255,0.1)",
+                  border: "1px solid rgba(59,130,246,0.5)",
                 }}
-              >
-                <span className="mt-0.5">⚠️</span>
-                <span>{error}</span>
-              </div>
-            )}
+              />
+              <label htmlFor="terms" className="text-xs text-slate-300 cursor-pointer">
+                I agree to the{" "}
+                <Link href="/terms" className="text-cyan-400 hover:text-cyan-300">
+                  Terms of Service
+                </Link>{" "}
+                and{" "}
+                <Link href="/privacy" className="text-cyan-400 hover:text-cyan-300">
+                  Privacy Policy
+                </Link>
+              </label>
+            </div>
 
             {/* Sign Up Button */}
             <button

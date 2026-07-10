@@ -44,10 +44,10 @@ export default function LoginPage() {
 
         success("Welcome!", `Signed in as ${data.user.email}`);
 
-        // Redirect to admin dashboard if admin, otherwise regular dashboard
+        // Redirect to admin panel if admin, otherwise regular dashboard
         setTimeout(() => {
           if (profile?.role === "admin") {
-            router.push("/admin/dashboard");
+            router.push("/admin");
           } else {
             router.push("/dashboard");
           }
