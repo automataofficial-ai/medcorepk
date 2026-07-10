@@ -873,14 +873,54 @@ export default function DemoQuizPage() {
 
         // Select first block as demo block
         const demoBlock = blocks[0];
-        setBlock(demoBlock);
 
-        // Limit to first 10 MCQs for demo
-        const demoQuestions = demoBlock.mcqs?.slice(0, 10) || [];
-        setQuizMCQs(demoQuestions);
+        // Transform database MCQs to expected format
+        const transformedMCQs = (demoBlock.mcqs || [])
+          .slice(0, 10)
+          .map((dbMcq: any) => {
+            let correctIndex = 0;
+            if (typeof dbMcq.correct_answer === "string") {
+              correctIndex = ["a", "b", "c", "d"].indexOf(dbMcq.correct_answer.toLowerCase());
+              if (correctIndex === -1) correctIndex = 0;
+            } else if (typeof dbMcq.correct_answer === "number") {
+              correctIndex = dbMcq.correct_answer;
+            }
+
+            const allExplanations = [
+              dbMcq.explanation_a || "",
+              dbMcq.explanation_b || "",
+              dbMcq.explanation_c || "",
+              dbMcq.explanation_d || "",
+            ];
+
+            return {
+              id: dbMcq.id || `mcq-${Math.random()}`,
+              caseStudy: dbMcq.case_study || dbMcq.caseStudy || "",
+              question: dbMcq.question || "",
+              notes: dbMcq.notes || "",
+              image: dbMcq.image_url ? {
+                type: dbMcq.image_url,
+                caption: "Medical Image",
+              } : null,
+              options: [
+                { label: "A", text: dbMcq.option_a || "" },
+                { label: "B", text: dbMcq.option_b || "" },
+                { label: "C", text: dbMcq.option_c || "" },
+                { label: "D", text: dbMcq.option_d || "" },
+              ],
+              correctIndex,
+              explanation: {
+                correct: dbMcq.explanation_summary || allExplanations[correctIndex] || "See individual option explanations",
+                incorrect: allExplanations,
+              },
+            };
+          });
+
+        setBlock(demoBlock);
+        setQuizMCQs(transformedMCQs);
         setLoading(false);
 
-        console.log(`Loaded demo block: ${demoBlock.title} with ${demoQuestions.length} questions`);
+        console.log(`Loaded demo block: ${demoBlock.title} with ${transformedMCQs.length} questions`);
       } catch (err) {
         console.error("Error fetching demo block:", err);
         error("Loading Error", "Could not load demo block. Using fallback demo MCQs.");
