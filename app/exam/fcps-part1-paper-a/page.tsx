@@ -223,30 +223,6 @@ export default function FCPSPart1PaperAPage() {
             </div>
           ))}
         </div>
-
-        {/* ── Footer Section ── */}
-        <div className="mt-16 md:mt-20 pt-12 border-t border-slate-700/30">
-          <div className="grid md:grid-cols-2 gap-8 md:gap-12">
-            <div>
-              <h4 className="text-white font-black text-lg mb-3">How to Use</h4>
-              <ul className="space-y-2 text-white/70 text-sm leading-relaxed">
-                <li>✓ Select a subject to view all topics</li>
-                <li>✓ Practice MCQs organized by difficulty</li>
-                <li>✓ Track your progress with detailed analytics</li>
-                <li>✓ Review explanations for each answer</li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="text-white font-black text-lg mb-3">Pro Tips</h4>
-              <ul className="space-y-2 text-white/70 text-sm leading-relaxed">
-                <li>💡 Focus on weak areas first for maximum improvement</li>
-                <li>💡 Regular practice improves retention and speed</li>
-                <li>💡 Review incorrect answers thoroughly</li>
-                <li>💡 Use analytics to track improvement</li>
-              </ul>
-            </div>
-          </div>
-        </div>
       </div>
 
       {/* ── CSS Animations ── */}
