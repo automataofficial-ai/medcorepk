@@ -31,10 +31,22 @@ CREATE TABLE IF NOT EXISTS public.blocks (
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+-- Sub-Subjects (Subdivisions within blocks)
+CREATE TABLE IF NOT EXISTS public.sub_subjects (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  block_id UUID NOT NULL REFERENCES public.blocks(id) ON DELETE CASCADE,
+  name TEXT NOT NULL,
+  description TEXT,
+  order_index INTEGER DEFAULT 0,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
 -- MCQs (Multiple Choice Questions)
 CREATE TABLE IF NOT EXISTS public.mcqs (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   block_id UUID NOT NULL REFERENCES public.blocks(id) ON DELETE CASCADE,
+  sub_subject_id UUID REFERENCES public.sub_subjects(id) ON DELETE CASCADE,
   case_study TEXT NOT NULL,
   question TEXT NOT NULL,
   image_url TEXT,
@@ -50,6 +62,7 @@ CREATE TABLE IF NOT EXISTS public.mcqs (
   explanation_d TEXT,
   difficulty_level TEXT DEFAULT 'medium',
   keywords TEXT[], -- for search
+  is_fcps_pearl BOOLEAN DEFAULT FALSE,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -59,6 +72,7 @@ CREATE TABLE IF NOT EXISTS public.sessions (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   user_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
   block_id UUID NOT NULL REFERENCES public.blocks(id) ON DELETE CASCADE,
+  sub_subject_id UUID REFERENCES public.sub_subjects(id) ON DELETE CASCADE,
   total_mcqs INTEGER NOT NULL,
   correct_count INTEGER DEFAULT 0,
   incorrect_count INTEGER DEFAULT 0,
@@ -116,6 +130,21 @@ CREATE TABLE IF NOT EXISTS public.block_progress (
   UNIQUE(user_id, block_id)
 );
 
+-- Sub-Subject Progress (Per sub-subject within block)
+CREATE TABLE IF NOT EXISTS public.sub_subject_progress (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
+  sub_subject_id UUID NOT NULL REFERENCES public.sub_subjects(id) ON DELETE CASCADE,
+  attempts INTEGER DEFAULT 0,
+  best_score DECIMAL(5,2) DEFAULT 0,
+  total_correct INTEGER DEFAULT 0,
+  total_attempted INTEGER DEFAULT 0,
+  last_attempt_date TIMESTAMP WITH TIME ZONE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  UNIQUE(user_id, sub_subject_id)
+);
+
 -- Analytics/Daily Stats
 CREATE TABLE IF NOT EXISTS public.daily_stats (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -131,12 +160,17 @@ CREATE TABLE IF NOT EXISTS public.daily_stats (
 
 -- Create indexes for performance
 CREATE INDEX IF NOT EXISTS idx_mcqs_block_id ON public.mcqs(block_id);
+CREATE INDEX IF NOT EXISTS idx_mcqs_sub_subject_id ON public.mcqs(sub_subject_id);
+CREATE INDEX IF NOT EXISTS idx_sub_subjects_block_id ON public.sub_subjects(block_id);
 CREATE INDEX IF NOT EXISTS idx_sessions_user_id ON public.sessions(user_id);
 CREATE INDEX IF NOT EXISTS idx_sessions_block_id ON public.sessions(block_id);
+CREATE INDEX IF NOT EXISTS idx_sessions_sub_subject_id ON public.sessions(sub_subject_id);
 CREATE INDEX IF NOT EXISTS idx_answers_session_id ON public.answers(session_id);
 CREATE INDEX IF NOT EXISTS idx_answers_mcq_id ON public.answers(mcq_id);
 CREATE INDEX IF NOT EXISTS idx_study_streaks_user_id ON public.study_streaks(user_id);
 CREATE INDEX IF NOT EXISTS idx_block_progress_user_id ON public.block_progress(user_id);
+CREATE INDEX IF NOT EXISTS idx_sub_subject_progress_user_id ON public.sub_subject_progress(user_id);
+CREATE INDEX IF NOT EXISTS idx_sub_subject_progress_sub_subject_id ON public.sub_subject_progress(sub_subject_id);
 CREATE INDEX IF NOT EXISTS idx_daily_stats_user_id ON public.daily_stats(user_id);
 
 -- Enable Row Level Security (RLS)

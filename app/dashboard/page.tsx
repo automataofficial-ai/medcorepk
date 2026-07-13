@@ -197,8 +197,10 @@ export default function DashboardPage() {
     try {
       const supabase = getSupabase();
 
-      // Use Paper A Subjects
-      setBlocks(PAPER_A_SUBJECTS);
+      // Fetch real blocks from API
+      const blocksRes = await fetch("/api/blocks");
+      const blocksData = await blocksRes.json();
+      setBlocks(blocksData.blocks || []);
 
       // Fetch user sessions
       const sessionsRes = await fetch("/api/sessions", {
@@ -365,10 +367,16 @@ export default function DashboardPage() {
 
   // Calculate totals from sessions for more accuracy
   const sessionTotals = sessions.reduce((acc: any, s: any) => {
+    const mcqs = s.total_mcqs || 0;
+    const score = s.score || 0;
+    // Calculate correct answers from score percentage
+    const correct = Math.round((mcqs * score) / 100);
+    const incorrect = mcqs - correct;
+
     return {
-      totalMcqs: acc.totalMcqs + (s.total_mcqs || 0),
-      totalCorrect: acc.totalCorrect + (s.correct_count || 0),
-      totalIncorrect: acc.totalIncorrect + (s.incorrect_count || 0),
+      totalMcqs: acc.totalMcqs + mcqs,
+      totalCorrect: acc.totalCorrect + correct,
+      totalIncorrect: acc.totalIncorrect + incorrect,
     };
   }, { totalMcqs: 0, totalCorrect: 0, totalIncorrect: 0 });
 
@@ -650,10 +658,13 @@ export default function DashboardPage() {
                       })
                       .slice(0, 8)
                       .map((s: any) => {
-                        const blockTitle = s.blockTitle || s.block_id || "Unknown Block";
+                        // Look up block title from blocks array
+                        const blockId = s.block_id || s.blockId;
+                        const block = blocks.find((b: Block) => b.id === blockId);
+                        const blockTitle = block?.title || s.blockTitle || "Unknown Block";
                         const score = typeof s.score === "number" ? s.score : 0;
-                        const correctCount = s.correctCount || s.correct_count || 0;
-                        const totalMcqs = s.totalMcqs || s.total_mcqs || 0;
+                        const correctCount = s.correct_count || s.correctCount || 0;
+                        const totalMcqs = s.total_mcqs || s.totalMcqs || 0;
                         const completedAt = s.completed_at || s.completedAt;
 
                         return (

@@ -1,7 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Upload, CheckCircle, AlertCircle } from "lucide-react";
+
+interface Block {
+  id: string;
+  title: string;
+}
+
+interface SubSubject {
+  id: string;
+  name: string;
+}
 
 export default function ImportMCQsPage() {
   const [file, setFile] = useState<File | null>(null);
@@ -10,6 +20,43 @@ export default function ImportMCQsPage() {
   const [error, setError] = useState<string | null>(null);
   const [preview, setPreview] = useState<any>(null);
   const [showPreview, setShowPreview] = useState(false);
+
+  const [blocks, setBlocks] = useState<Block[]>([]);
+  const [subSubjects, setSubSubjects] = useState<SubSubject[]>([]);
+  const [selectedBlock, setSelectedBlock] = useState<string>("");
+  const [selectedSubSubject, setSelectedSubSubject] = useState<string>("");
+  const [markAsFcpsPearl, setMarkAsFcpsPearl] = useState(false);
+
+  useEffect(() => {
+    async function fetchBlocks() {
+      try {
+        const res = await fetch("/api/blocks");
+        const data = await res.json();
+        setBlocks(data.blocks || []);
+        if (data.blocks?.length > 0) {
+          setSelectedBlock(data.blocks[0].id);
+        }
+      } catch (err) {
+        console.error("Error fetching blocks:", err);
+      }
+    }
+    fetchBlocks();
+  }, []);
+
+  useEffect(() => {
+    async function fetchSubSubjects() {
+      if (!selectedBlock) return;
+      try {
+        const res = await fetch(`/api/blocks/${selectedBlock}/sub-subjects`);
+        const data = await res.json();
+        setSubSubjects(data.sub_subjects || []);
+        setSelectedSubSubject("");
+      } catch (err) {
+        console.error("Error fetching sub-subjects:", err);
+      }
+    }
+    fetchSubSubjects();
+  }, [selectedBlock]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
@@ -124,7 +171,12 @@ export default function ImportMCQsPage() {
       const response = await fetch("/api/import/mcqs", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ mcqs }),
+        body: JSON.stringify({
+          mcqs,
+          block_id: selectedBlock,
+          sub_subject_id: selectedSubSubject || null,
+          mark_as_fcps_pearl: markAsFcpsPearl,
+        }),
       });
 
       const data = await response.json();
@@ -163,7 +215,8 @@ export default function ImportMCQsPage() {
             <Upload size={48} className="text-cyan-400" />
             <div className="text-center">
               <p className="text-white font-bold text-lg mb-2">Select your CSV file</p>
-              <p className="text-white/60 text-sm">Format: block_name,question,case_study,option_a,option_b,option_c,option_d,correct_answer,explanation_a,explanation_b,explanation_c,explanation_d,difficulty,image_url</p>
+              <p className="text-white/60 text-sm">Format: block_name,sub_subject_name,question,case_study,option_a,option_b,option_c,option_d,option_e,correct_answer,explanation_a,explanation_b,explanation_c,explanation_d,explanation_e,difficulty,image_url,references,is_fcps_pearl</p>
+              <p className="text-white/50 text-xs mt-2">Optional: sub_subject_name, option_e, explanation_e, image_url, references, and is_fcps_pearl can be left empty</p>
             </div>
             <input type="file" accept=".csv" onChange={handleFileChange} className="hidden" id="csv-input" />
             <label htmlFor="csv-input" className="cursor-pointer">
@@ -174,6 +227,60 @@ export default function ImportMCQsPage() {
             {file && <p className="text-emerald-400 text-sm font-semibold mt-4">✓ {file.name}</p>}
           </div>
         </div>
+
+        {/* ── Block & Sub-Subject Selection ── */}
+        {file && (
+          <div className="grid md:grid-cols-2 gap-6 mb-8">
+            {/* Block Selection */}
+            <div>
+              <label className="block text-white font-semibold mb-3">Select Block</label>
+              <select
+                value={selectedBlock}
+                onChange={(e) => setSelectedBlock(e.target.value)}
+                className="w-full px-4 py-3 rounded-lg bg-slate-800 text-white border border-slate-700 focus:outline-none focus:border-cyan-500"
+              >
+                <option value="">-- Choose a block --</option>
+                {blocks.map((block) => (
+                  <option key={block.id} value={block.id}>
+                    {block.title}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Sub-Subject Selection */}
+            {selectedBlock && subSubjects.length > 0 && (
+              <div>
+                <label className="block text-white font-semibold mb-3">Select Sub-Subject (Optional)</label>
+                <select
+                  value={selectedSubSubject}
+                  onChange={(e) => setSelectedSubSubject(e.target.value)}
+                  className="w-full px-4 py-3 rounded-lg bg-slate-800 text-white border border-slate-700 focus:outline-none focus:border-cyan-500"
+                >
+                  <option value="">-- All sub-subjects (auto-assign) --</option>
+                  {subSubjects.map((sub) => (
+                    <option key={sub.id} value={sub.id}>
+                      {sub.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            {/* FCPS Pearl Checkbox */}
+            <div className="flex items-end">
+              <label className="flex items-center gap-3 text-white cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={markAsFcpsPearl}
+                  onChange={(e) => setMarkAsFcpsPearl(e.target.checked)}
+                  className="w-4 h-4"
+                />
+                <span>Mark as FCPS Pearl 💎</span>
+              </label>
+            </div>
+          </div>
+        )}
 
         {result && (
           <div className="rounded-2xl p-6 border border-emerald-700/50 mb-8" style={{

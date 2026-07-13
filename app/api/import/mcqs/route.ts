@@ -3,7 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 
 export async function POST(req: NextRequest) {
   try {
-    const { mcqs } = await req.json();
+    const { mcqs, block_id, sub_subject_id, mark_as_fcps_pearl } = await req.json();
 
     if (!mcqs || !Array.isArray(mcqs) || mcqs.length === 0) {
       return NextResponse.json(
@@ -37,6 +37,22 @@ export async function POST(req: NextRequest) {
 
     console.log(`✅ Found ${Object.keys(blockNameToId).length} blocks\n`);
 
+    // Fetch all sub-subjects to create a mapping
+    const { data: allSubSubjects, error: subSubjectError } = await supabase
+      .from("sub_subjects")
+      .select("id, name, block_id");
+
+    if (subSubjectError) {
+      console.log("Note: Could not fetch sub-subjects, they will need to be created or specified by ID");
+    }
+
+    const subSubjectNameToId: Record<string, string> = {};
+    allSubSubjects?.forEach((sub: any) => {
+      subSubjectNameToId[sub.name.toLowerCase().trim()] = sub.id;
+    });
+
+    console.log(`✅ Found ${Object.keys(subSubjectNameToId).length} sub-subjects\n`);
+
     // Validate data and resolve block names to IDs
     const validatedMCQs = mcqs.map((mcq: any) => {
       if (!mcq.block_name && !mcq.block_id) {
@@ -47,8 +63,8 @@ export async function POST(req: NextRequest) {
         throw new Error("Missing required field: question");
       }
 
-      if (!["a", "b", "c", "d"].includes(mcq.correct_answer?.toLowerCase())) {
-        throw new Error(`Invalid correct_answer: ${mcq.correct_answer}`);
+      if (!["a", "b", "c", "d", "e"].includes(mcq.correct_answer?.toLowerCase())) {
+        throw new Error(`Invalid correct_answer: ${mcq.correct_answer}. Must be: a, b, c, d, or e`);
       }
 
       // Resolve block name to ID
@@ -62,21 +78,37 @@ export async function POST(req: NextRequest) {
         }
       }
 
+      // Resolve sub-subject if needed
+      let resolvedSubSubjectId = sub_subject_id || mcq.sub_subject_id || null;
+
+      // If sub_subject_name is provided, try to find the ID
+      if (mcq.sub_subject_name && !resolvedSubSubjectId) {
+        resolvedSubSubjectId = subSubjectNameToId[mcq.sub_subject_name.toLowerCase().trim()];
+        if (!resolvedSubSubjectId) {
+          console.warn(`⚠️ Sub-subject not found: "${mcq.sub_subject_name}". MCQ will be imported without sub-subject assignment.`);
+        }
+      }
+
       return {
         block_id: blockId,
+        sub_subject_id: resolvedSubSubjectId,
         question: mcq.question,
         case_study: mcq.case_study || "",
         option_a: mcq.option_a || "",
         option_b: mcq.option_b || "",
         option_c: mcq.option_c || "",
         option_d: mcq.option_d || "",
+        option_e: mcq.option_e || null,
         correct_answer: mcq.correct_answer.toLowerCase(),
         explanation_a: mcq.explanation_a || null,
         explanation_b: mcq.explanation_b || null,
         explanation_c: mcq.explanation_c || null,
         explanation_d: mcq.explanation_d || null,
+        explanation_e: mcq.explanation_e || null,
         difficulty_level: mcq.difficulty?.toLowerCase() || "medium",
         image_url: mcq.image_url || null,
+        references: mcq.references || null,
+        is_fcps_pearl: mark_as_fcps_pearl || mcq.is_fcps_pearl === "true" || mcq.is_fcps_pearl === true || false,
       };
     });
 
@@ -163,6 +195,6 @@ export async function GET(req: NextRequest) {
         },
       ],
     },
-    csv_format: "block_name,question,case_study,option_a,option_b,option_c,option_d,correct_answer,explanation_a,explanation_b,explanation_c,explanation_d,difficulty,image_url",
+    csv_format: "block_name,sub_subject_name,question,case_study,option_a,option_b,option_c,option_d,option_e,correct_answer,explanation_a,explanation_b,explanation_c,explanation_d,explanation_e,difficulty,image_url,references,is_fcps_pearl",
   });
 }

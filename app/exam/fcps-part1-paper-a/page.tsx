@@ -182,7 +182,7 @@ export default function FCPSPart1PaperAPage() {
 
                 {/* ── Action Button ── */}
                 <button
-                  onClick={() => router.push(`/block/${subject.id}`)}
+                  onClick={() => router.push(`/subject/${subject.id}/fcps-part1-paper-a`)}
                   className="w-full py-3 px-4 rounded-xl font-bold text-sm text-white transition-all duration-300 flex items-center justify-center gap-2 group/btn hover:shadow-lg"
                   style={{
                     background: `linear-gradient(135deg, ${subject.color}, ${subject.color}dd)`,
