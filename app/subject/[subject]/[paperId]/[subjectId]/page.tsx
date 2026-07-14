@@ -56,6 +56,7 @@ export default function QuizPage() {
   const [timer, setTimer] = useState(0);
   const [mode, setMode] = useState<"tutor" | "timed">("tutor");
   const [finished, setFinished] = useState(false);
+  const [showCongrats, setShowCongrats] = useState(false);
 
   const difficultyColors: Record<string, string> = {
     easy: "#10B981",
@@ -176,11 +177,70 @@ export default function QuizPage() {
     { key: "d", label: "D", text: currentMcq.option_d },
   ];
 
+  const triggerConfetti = () => {
+    // Create confetti particles
+    const confettiPieces = 30;
+    const colors = ["#06B6D4", "#10B981", "#3B82F6", "#F59E0B", "#EC4899"];
+
+    for (let i = 0; i < confettiPieces; i++) {
+      const confetti = document.createElement("div");
+      const size = Math.random() * 8 + 4;
+      const duration = Math.random() * 2 + 2.5;
+      const delay = Math.random() * 0.3;
+      const color = colors[Math.floor(Math.random() * colors.length)];
+      const rotation = Math.random() * 360;
+
+      confetti.style.position = "fixed";
+      confetti.style.pointerEvents = "none";
+      confetti.style.width = size + "px";
+      confetti.style.height = size + "px";
+      confetti.style.backgroundColor = color;
+      confetti.style.borderRadius = "50%";
+      confetti.style.left = Math.random() * 100 + "%";
+      confetti.style.top = "-10px";
+      confetti.style.opacity = "1";
+      confetti.style.zIndex = "9999";
+
+      document.body.appendChild(confetti);
+
+      const startX = parseFloat(confetti.style.left);
+      const startY = 0;
+      const velocityX = (Math.random() - 0.5) * 8;
+      const velocityY = Math.random() * 5 + 3;
+
+      let frame = 0;
+      const totalFrames = (duration * 60) / 1000;
+
+      const animate = setInterval(() => {
+        frame++;
+        const progress = frame / totalFrames;
+
+        if (progress > 1) {
+          clearInterval(animate);
+          confetti.remove();
+          return;
+        }
+
+        const y = startY + velocityY * frame - (frame * frame * 0.05);
+        const x = startX + velocityX * frame;
+
+        confetti.style.transform = `translate(${x}px, ${y}px) rotate(${rotation + frame * 8}deg)`;
+        confetti.style.opacity = String(1 - progress);
+      }, 16);
+    }
+  };
+
   const handleCheckAnswer = () => {
     if (!selected) return;
     const isCorrect = selected === currentMcq.correct_answer.toLowerCase();
     setAnswers({ ...answers, [currentIdx]: { selected, correct: isCorrect } });
     setSubmitted(true);
+
+    if (isCorrect) {
+      setShowCongrats(true);
+      triggerConfetti();
+      setTimeout(() => setShowCongrats(false), 2000);
+    }
   };
 
   const handleNext = () => {
@@ -532,12 +592,52 @@ export default function QuizPage() {
           </div>
         </div>
       </div>
+
+      {/* Congratulations Animation */}
+      {showCongrats && (
+        <div className="fixed inset-0 pointer-events-none flex items-center justify-center z-50">
+          <div
+            className="flex flex-col items-center gap-4 px-8 py-6 rounded-3xl border-2 pointer-events-auto"
+            style={{
+              background: "linear-gradient(135deg, rgba(16,185,129,0.2), rgba(6,182,212,0.2))",
+              borderColor: "rgba(16,185,129,0.5)",
+              boxShadow: "0 20px 60px rgba(16,185,129,0.3), inset 0 1px 1px rgba(255,255,255,0.1)",
+              animation: "bounceIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)",
+            }}
+          >
+            <div className="text-6xl">🎉</div>
+            <div className="text-center">
+              <h3 className="text-3xl font-black text-white mb-1">Correct!</h3>
+              <p className="text-emerald-300 font-semibold">Great job! Keep it up 🚀</p>
+            </div>
+            <div className="flex gap-2 mt-2">
+              <span className="text-2xl">✨</span>
+              <span className="text-2xl">⭐</span>
+              <span className="text-2xl">✨</span>
+            </div>
+          </div>
+        </div>
+      )}
+
       <style>{`
         @keyframes fadeIn {
           from {
             opacity: 0;
           }
           to {
+            opacity: 1;
+          }
+        }
+        @keyframes bounceIn {
+          0% {
+            transform: scale(0) translateY(-100px);
+            opacity: 0;
+          }
+          50% {
+            transform: scale(1.1);
+          }
+          100% {
+            transform: scale(1) translateY(0);
             opacity: 1;
           }
         }
