@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter, useParams } from "next/navigation";
+import { useRouter, useParams, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Clock } from "lucide-react";
 
@@ -22,6 +22,7 @@ interface MCQ {
   is_fcps_pearl?: boolean;
   difficulty_level?: string;
   references?: string;
+  fcps_pearl_content?: string;
 }
 
 interface SubSubject {
@@ -41,7 +42,9 @@ function formatTime(seconds: number) {
 export default function QuizPage() {
   const router = useRouter();
   const params = useParams();
+  const searchParams = useSearchParams();
   const subSubjectId = params.subjectId as string;
+  const modeParam = searchParams.get("mode") as "tutor" | "timed" | null;
 
   const [mcqs, setMcqs] = useState<MCQ[]>([]);
   const [subSubject, setSubSubject] = useState<SubSubject | null>(null);
@@ -51,12 +54,20 @@ export default function QuizPage() {
   const [submitted, setSubmitted] = useState(false);
   const [answers, setAnswers] = useState<Record<number, { selected: string; correct: boolean }>>({});
   const [timer, setTimer] = useState(0);
+  const [mode, setMode] = useState<"tutor" | "timed">("tutor");
+  const [finished, setFinished] = useState(false);
 
   const difficultyColors: Record<string, string> = {
     easy: "#10B981",
     medium: "#F59E0B",
     hard: "#EF4444",
   };
+
+  useEffect(() => {
+    if (modeParam) {
+      setMode(modeParam);
+    }
+  }, [modeParam]);
 
   useEffect(() => {
     if (!localStorage.getItem("medcore_user")) {
@@ -99,6 +110,57 @@ export default function QuizPage() {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ background: "#050B18" }}>
         <p className="text-white text-xl">No questions available</p>
+      </div>
+    );
+  }
+
+  // Timed Mode Results Screen
+  if (finished && mode === "timed") {
+    const correctCount = Object.values(answers).filter((a) => a.correct).length;
+    const percentage = mcqs.length > 0 ? Math.round((correctCount / mcqs.length) * 100) : 0;
+
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ background: "#050B18" }}>
+        <div className="text-center max-w-2xl px-4">
+          <div className="mb-8">
+            <div className="relative w-40 h-40 mx-auto mb-8">
+              <svg className="w-full h-full" viewBox="0 0 200 200">
+                <circle cx="100" cy="100" r="90" fill="none" stroke="rgba(99,102,241,0.2)" strokeWidth="6" />
+                <circle
+                  cx="100"
+                  cy="100"
+                  r="90"
+                  fill="none"
+                  stroke={percentage >= 60 ? "#10B981" : percentage >= 40 ? "#F59E0B" : "#EF4444"}
+                  strokeWidth="6"
+                  strokeDasharray={`${(percentage / 100) * 565} 565`}
+                  strokeLinecap="round"
+                  style={{ transition: "stroke-dasharray 1s ease", transform: "rotate(-90deg)", transformOrigin: "50% 50%" }}
+                />
+              </svg>
+              <div className="absolute inset-0 flex flex-col items-center justify-center">
+                <p className="text-6xl font-black text-white">{percentage}%</p>
+                <p className="text-white/70 text-sm mt-1">Score</p>
+              </div>
+            </div>
+          </div>
+
+          <h2 className="text-4xl font-black text-white mb-4">Quiz Completed!</h2>
+          <p className="text-white/70 text-lg mb-8">
+            You answered <span className="text-cyan-400 font-bold">{correctCount} out of {mcqs.length}</span> questions correctly.
+          </p>
+
+          <button
+            onClick={() => router.push("/dashboard")}
+            className="px-8 py-4 rounded-2xl font-bold text-white text-lg transition-all hover:scale-105"
+            style={{
+              background: "linear-gradient(135deg, #3B82F6, #8B5CF6)",
+              boxShadow: "0 8px 24px rgba(59,130,246,0.3)",
+            }}
+          >
+            Back to Dashboard
+          </button>
+        </div>
       </div>
     );
   }
@@ -155,7 +217,11 @@ export default function QuizPage() {
 
       if (res.ok) {
         window.dispatchEvent(new Event("sessionCompleted"));
-        router.push("/dashboard");
+        if (mode === "timed") {
+          setFinished(true);
+        } else {
+          router.push("/dashboard");
+        }
       }
     } catch (err) {
       console.error("Error saving quiz:", err);
@@ -334,7 +400,7 @@ export default function QuizPage() {
             </div>
 
             {/* Explanations for all options */}
-            {submitted && (
+            {submitted && mode === "tutor" && (
               <div className="space-y-3 mb-8">
                 <p className="text-cyan-400 text-sm font-bold uppercase tracking-wider">Explanation</p>
                 {options.map((opt) => {
@@ -375,57 +441,67 @@ export default function QuizPage() {
             )}
           </div>
 
-          {/* RIGHT SIDEBAR */}
-          <div className="w-72 space-y-4 pt-12">
-            {/* FCPS Pearl Box */}
-            {currentMcq.is_fcps_pearl && (
+          {/* RIGHT SIDEBAR - Only show in Tutor Mode */}
+          {mode === "tutor" && (
+            <div className="w-72 space-y-4 pt-12">
+              {/* FCPS Pearl Box */}
               <div
                 className="rounded-xl p-5"
                 style={{
-                  background: "linear-gradient(135deg, rgba(234,179,8,0.1), rgba(234,179,8,0.03))",
-                  border: "1px solid rgba(234,179,8,0.3)",
+                  background: currentMcq.is_fcps_pearl
+                    ? "linear-gradient(135deg, rgba(234,179,8,0.15), rgba(234,179,8,0.05))"
+                    : "linear-gradient(135deg, rgba(234,179,8,0.05), rgba(234,179,8,0.02))",
+                  border: currentMcq.is_fcps_pearl
+                    ? "1px solid rgba(234,179,8,0.4)"
+                    : "1px solid rgba(234,179,8,0.2)",
                 }}
               >
                 <p className="text-yellow-400 text-xs font-bold uppercase tracking-wider mb-2">💎 FCPS Pearl</p>
-                <p className="text-white/80 text-sm leading-relaxed">High-yield concept for FCPS exam</p>
+                <p className="text-white/80 text-sm leading-relaxed">
+                  {currentMcq.is_fcps_pearl && currentMcq.fcps_pearl_content
+                    ? currentMcq.fcps_pearl_content
+                    : currentMcq.is_fcps_pearl
+                    ? "High-yield concept for FCPS exam"
+                    : "Not marked as FCPS Pearl"}
+                </p>
               </div>
-            )}
 
-            {/* References Box */}
-            <div
-              className="rounded-xl p-5"
-              style={{
-                background: "linear-gradient(135deg, rgba(59,130,246,0.1), rgba(59,130,246,0.03))",
-                border: "1px solid rgba(59,130,246,0.3)",
-              }}
-            >
-              <p className="text-blue-400 text-xs font-bold uppercase tracking-wider mb-2">📚 References</p>
-              <p className="text-white/80 text-sm leading-relaxed">
-                {currentMcq.references || "Katzung, Lippincott, Rang & Dale"}
-              </p>
-            </div>
-
-            {/* Difficulty Level Box */}
-            <div
-              className="rounded-xl p-5"
-              style={{
-                background: "linear-gradient(135deg, rgba(99,102,241,0.1), rgba(99,102,241,0.03))",
-                border: "1px solid rgba(99,102,241,0.3)",
-              }}
-            >
-              <p className="text-indigo-400 text-xs font-bold uppercase tracking-wider mb-3">⚡ Difficulty</p>
+              {/* References Box */}
               <div
-                className="inline-flex px-4 py-2 rounded-lg text-sm font-semibold"
+                className="rounded-xl p-5"
                 style={{
-                  background: diffColor + "20",
-                  border: "1.5px solid " + diffColor + "40",
-                  color: diffColor,
+                  background: "linear-gradient(135deg, rgba(59,130,246,0.1), rgba(59,130,246,0.03))",
+                  border: "1px solid rgba(59,130,246,0.3)",
                 }}
               >
-                {currentMcq.difficulty_level ? currentMcq.difficulty_level.charAt(0).toUpperCase() + currentMcq.difficulty_level.slice(1) : "Medium"}
+                <p className="text-blue-400 text-xs font-bold uppercase tracking-wider mb-2">📚 References</p>
+                <p className="text-white/80 text-sm leading-relaxed">
+                  {currentMcq.references || "Katzung, Lippincott, Rang & Dale"}
+                </p>
+              </div>
+
+              {/* Difficulty Level Box */}
+              <div
+                className="rounded-xl p-5"
+                style={{
+                  background: "linear-gradient(135deg, rgba(99,102,241,0.1), rgba(99,102,241,0.03))",
+                  border: "1px solid rgba(99,102,241,0.3)",
+                }}
+              >
+                <p className="text-indigo-400 text-xs font-bold uppercase tracking-wider mb-3">⚡ Difficulty</p>
+                <div
+                  className="inline-flex px-4 py-2 rounded-lg text-sm font-semibold"
+                  style={{
+                    background: diffColor + "20",
+                    border: "1.5px solid " + diffColor + "40",
+                    color: diffColor,
+                  }}
+                >
+                  {currentMcq.difficulty_level ? currentMcq.difficulty_level.charAt(0).toUpperCase() + currentMcq.difficulty_level.slice(1) : "Medium"}
+                </div>
               </div>
             </div>
-          </div>
+          )}
         </div>
 
         {/* Bottom Bar */}

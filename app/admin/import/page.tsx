@@ -215,8 +215,8 @@ export default function ImportMCQsPage() {
             <Upload size={48} className="text-cyan-400" />
             <div className="text-center">
               <p className="text-white font-bold text-lg mb-2">Select your CSV file</p>
-              <p className="text-white/60 text-sm">Format: block_name,sub_subject_name,question,case_study,option_a,option_b,option_c,option_d,option_e,correct_answer,explanation_a,explanation_b,explanation_c,explanation_d,explanation_e,difficulty,image_url,references,is_fcps_pearl</p>
-              <p className="text-white/50 text-xs mt-2">Optional: sub_subject_name, option_e, explanation_e, image_url, references, and is_fcps_pearl can be left empty</p>
+              <p className="text-white/60 text-sm">Format: block_name,sub_subject_name,question,case_study,option_a,option_b,option_c,option_d,option_e,correct_answer,explanation_a,explanation_b,explanation_c,explanation_d,explanation_e,difficulty,image_url,references,is_fcps_pearl,fcps_pearl_content</p>
+              <p className="text-white/50 text-xs mt-2">Optional: sub_subject_name, option_e, explanation_e, image_url, references, is_fcps_pearl, and fcps_pearl_content can be left empty</p>
             </div>
             <input type="file" accept=".csv" onChange={handleFileChange} className="hidden" id="csv-input" />
             <label htmlFor="csv-input" className="cursor-pointer">

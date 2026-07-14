@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, BookOpen, Zap } from "lucide-react";
 
 interface SubSubject {
   id: string;
@@ -24,9 +24,16 @@ export default function SubSubjectsPage() {
   const [subSubjects, setSubSubjects] = useState<SubSubject[]>([]);
   const [block, setBlock] = useState<Block | null>(null);
   const [loading, setLoading] = useState(true);
+  const [selectedSubSubject, setSelectedSubSubject] = useState<SubSubject | null>(null);
 
   const subjectId = params.subject as string;
   const paperId = params.paperId as string;
+
+  const handleModeSelect = (mode: "tutor" | "timed") => {
+    if (selectedSubSubject) {
+      router.push(`/subject/${subjectId}/${paperId}/${selectedSubSubject.id}?mode=${mode}`);
+    }
+  };
 
   useEffect(() => {
     async function fetchData() {
@@ -115,10 +122,10 @@ export default function SubSubjectsPage() {
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-7">
           {subSubjects.length > 0 ? (
             subSubjects.map((subSubject, idx) => (
-              <Link
+              <button
                 key={subSubject.id}
-                href={`/subject/${subjectId}/${paperId}/${subSubject.id}`}
-                className="group relative rounded-2xl overflow-hidden transition-all duration-300 hover:scale-[1.02] cursor-pointer"
+                onClick={() => setSelectedSubSubject(subSubject)}
+                className="group relative rounded-2xl overflow-hidden transition-all duration-300 hover:scale-[1.02] cursor-pointer text-left"
                 style={{
                   animation: `fade-in 0.6s ease ${idx * 0.08}s forwards`,
                   opacity: 0,
@@ -166,11 +173,11 @@ export default function SubSubjectsPage() {
 
                   {/* ── Action Button ── */}
                   <div className="flex items-center justify-between gap-2">
-                    <span className="text-white font-semibold text-sm">Start Quiz</span>
+                    <span className="text-white font-semibold text-sm">Start Exam</span>
                     <ChevronRight size={18} className="transition-transform duration-300 group-hover:translate-x-1" />
                   </div>
                 </div>
-              </Link>
+              </button>
             ))
           ) : (
             <div className="col-span-full text-center py-12">
@@ -180,8 +187,94 @@ export default function SubSubjectsPage() {
         </div>
       </div>
 
+      {/* ── Mode Selection Modal ── */}
+      {selectedSubSubject && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4" style={{ animation: "fadeIn 0.3s ease" }}>
+          <div className="bg-slate-900 rounded-3xl p-8 md:p-10 max-w-2xl w-full border border-slate-700/50" style={{ animation: "slideUp 0.4s ease", boxShadow: "0 20px 60px rgba(0,0,0,0.5)" }}>
+            <div className="text-center mb-8">
+              <h2 className="text-3xl md:text-4xl font-black text-white mb-3">Choose Your Mode</h2>
+              <p className="text-white/70 text-base md:text-lg">Select how you want to study: <span className="font-semibold text-cyan-400">{selectedSubSubject.name}</span></p>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-6 mb-8">
+              {/* Tutor Mode */}
+              <button
+                onClick={() => handleModeSelect("tutor")}
+                className="group relative p-8 rounded-2xl border-2 border-transparent transition-all duration-300 hover:scale-105 cursor-pointer"
+                style={{
+                  background: "linear-gradient(135deg, rgba(59,130,246,0.15), rgba(30,27,75,0.4))",
+                  borderColor: "rgba(59,130,246,0.5)",
+                  boxShadow: "0 8px 32px rgba(59,130,246,0.1)",
+                }}
+              >
+                <div className="flex flex-col items-center gap-4">
+                  <div className="w-16 h-16 rounded-2xl flex items-center justify-center" style={{ background: "linear-gradient(135deg, rgba(59,130,246,0.3), rgba(59,130,246,0.1))" }}>
+                    <BookOpen size={32} className="text-blue-400" />
+                  </div>
+                  <div className="text-center">
+                    <h3 className="text-xl font-bold text-white mb-2">Tutor Mode</h3>
+                    <p className="text-white/70 text-sm leading-relaxed">
+                      Learn with detailed explanations, references, difficulty levels, and FCPS Pearl insights. Perfect for deep learning.
+                    </p>
+                  </div>
+                </div>
+              </button>
+
+              {/* Timed Mode */}
+              <button
+                onClick={() => handleModeSelect("timed")}
+                className="group relative p-8 rounded-2xl border-2 border-transparent transition-all duration-300 hover:scale-105 cursor-pointer"
+                style={{
+                  background: "linear-gradient(135deg, rgba(239,68,68,0.15), rgba(30,27,75,0.4))",
+                  borderColor: "rgba(239,68,68,0.5)",
+                  boxShadow: "0 8px 32px rgba(239,68,68,0.1)",
+                }}
+              >
+                <div className="flex flex-col items-center gap-4">
+                  <div className="w-16 h-16 rounded-2xl flex items-center justify-center" style={{ background: "linear-gradient(135deg, rgba(239,68,68,0.3), rgba(239,68,68,0.1))" }}>
+                    <Zap size={32} className="text-red-400" />
+                  </div>
+                  <div className="text-center">
+                    <h3 className="text-xl font-bold text-white mb-2">Timed Mode</h3>
+                    <p className="text-white/70 text-sm leading-relaxed">
+                      Rapid-fire questions without explanations. Test yourself and see your score at the end.
+                    </p>
+                  </div>
+                </div>
+              </button>
+            </div>
+
+            <button
+              onClick={() => setSelectedSubSubject(null)}
+              className="w-full px-6 py-3 rounded-xl font-semibold text-white/70 hover:text-white transition-all duration-300"
+              style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)" }}
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+
       <style>{`
         @keyframes fade-in {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+          }
+          to {
+            opacity: 1;
+          }
+        }
+        @keyframes slideUp {
           from {
             opacity: 0;
             transform: translateY(20px);

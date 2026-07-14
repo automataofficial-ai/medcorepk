@@ -109,6 +109,7 @@ export async function POST(req: NextRequest) {
         image_url: mcq.image_url || null,
         references: mcq.references || null,
         is_fcps_pearl: mark_as_fcps_pearl || mcq.is_fcps_pearl === "true" || mcq.is_fcps_pearl === true || false,
+        fcps_pearl_content: mcq.fcps_pearl_content || null,
       };
     });
 
@@ -195,6 +196,6 @@ export async function GET(req: NextRequest) {
         },
       ],
     },
-    csv_format: "block_name,sub_subject_name,question,case_study,option_a,option_b,option_c,option_d,option_e,correct_answer,explanation_a,explanation_b,explanation_c,explanation_d,explanation_e,difficulty,image_url,references,is_fcps_pearl",
+    csv_format: "block_name,sub_subject_name,question,case_study,option_a,option_b,option_c,option_d,option_e,correct_answer,explanation_a,explanation_b,explanation_c,explanation_d,explanation_e,difficulty,image_url,references,is_fcps_pearl,fcps_pearl_content",
   });
 }
