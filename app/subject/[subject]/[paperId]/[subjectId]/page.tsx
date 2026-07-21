@@ -13,11 +13,13 @@ interface MCQ {
   option_b: string;
   option_c: string;
   option_d: string;
+  option_e?: string;
   correct_answer: string;
   explanation_a: string;
   explanation_b: string;
   explanation_c: string;
   explanation_d: string;
+  explanation_e?: string;
   image_url?: string;
   is_fcps_pearl?: boolean;
   difficulty_level?: string;
@@ -175,6 +177,7 @@ export default function QuizPage() {
     { key: "b", label: "B", text: currentMcq.option_b },
     { key: "c", label: "C", text: currentMcq.option_c },
     { key: "d", label: "D", text: currentMcq.option_d },
+    ...(currentMcq.option_e ? [{ key: "e", label: "E", text: currentMcq.option_e }] : []),
   ];
 
   const triggerConfetti = () => {
@@ -370,10 +373,12 @@ export default function QuizPage() {
           <Link href="/" className="text-white/70 hover:text-white transition-colors font-semibold">
             ← Back
           </Link>
-          <div className="flex items-center gap-3 text-white">
-            <Clock size={18} />
-            <span className="font-mono text-sm font-semibold">{formatTime(timer)}</span>
-          </div>
+          {mode === "timed" && (
+            <div className="flex items-center gap-3 text-white">
+              <Clock size={18} />
+              <span className="font-mono text-sm font-semibold">{formatTime(timer)}</span>
+            </div>
+          )}
         </div>
 
         {/* Content */}
