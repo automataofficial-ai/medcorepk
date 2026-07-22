@@ -47,12 +47,17 @@ export async function GET(
 
     if (mcqError) throw mcqError;
 
+    // Remove duplicate MCQs by ID
+    const uniqueMcqs = Array.from(
+      new Map((mcqs || []).map((mcq) => [mcq.id, mcq])).values()
+    );
+
     return NextResponse.json({
       sub_subject: {
         ...subSubject,
         block_title: block.title,
       },
-      mcqs: mcqs || [],
+      mcqs: uniqueMcqs,
     });
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 });

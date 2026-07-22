@@ -1,5 +1,5 @@
-import { createClient } from "@supabase/supabase-js";
 import { NextRequest, NextResponse } from "next/server";
+import { createClient } from "@supabase/supabase-js";
 
 function getServiceRoleClient() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -14,49 +14,36 @@ function getServiceRoleClient() {
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = await params;
+    const params = await context.params;
+    const blockId = params.id;
+
     const supabase = getServiceRoleClient();
 
-    const { data, error } = await supabase
+    const { data: subSubjects, error } = await supabase
       .from("sub_subjects")
       .select("*")
-      .eq("block_id", id)
+      .eq("block_id", blockId)
       .order("order_index", { ascending: true });
 
-    if (error) throw error;
+    if (error) {
+      return NextResponse.json(
+        { error: "Failed to fetch sub-subjects", detail: error.message },
+        { status: 400 }
+      );
+    }
 
-    return NextResponse.json({ sub_subjects: data || [] });
+    return NextResponse.json({
+      success: true,
+      sub_subjects: subSubjects || [],
+    });
   } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
-  }
-}
-
-export async function POST(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  try {
-    const { id } = await params;
-    const body = await req.json();
-    const supabase = getServiceRoleClient();
-
-    const { data, error } = await supabase
-      .from("sub_subjects")
-      .insert([
-        {
-          ...body,
-          block_id: id,
-        },
-      ])
-      .select();
-
-    if (error) throw error;
-
-    return NextResponse.json({ sub_subject: data[0] }, { status: 201 });
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    console.error("Error fetching sub-subjects:", err);
+    return NextResponse.json(
+      { error: err.message || "Failed to fetch sub-subjects" },
+      { status: 500 }
+    );
   }
 }
