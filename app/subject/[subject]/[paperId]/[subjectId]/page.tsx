@@ -509,27 +509,29 @@ export default function QuizPage() {
           {/* RIGHT SIDEBAR - Only show in Tutor Mode */}
           {mode === "tutor" && (
             <div className="w-72 space-y-4 pt-12">
-              {/* FCPS Pearl Box */}
-              <div
-                className="rounded-xl p-5"
-                style={{
-                  background: currentMcq.is_fcps_pearl
-                    ? "linear-gradient(135deg, rgba(234,179,8,0.15), rgba(234,179,8,0.05))"
-                    : "linear-gradient(135deg, rgba(234,179,8,0.05), rgba(234,179,8,0.02))",
-                  border: currentMcq.is_fcps_pearl
-                    ? "1px solid rgba(234,179,8,0.4)"
-                    : "1px solid rgba(234,179,8,0.2)",
-                }}
-              >
-                <p className="text-yellow-400 text-xs font-bold uppercase tracking-wider mb-2">💎 FCPS Pearl</p>
-                <p className="text-white/80 text-sm leading-relaxed">
-                  {currentMcq.is_fcps_pearl && currentMcq.fcps_pearl_content
-                    ? currentMcq.fcps_pearl_content
-                    : currentMcq.is_fcps_pearl
-                    ? "High-yield concept for FCPS exam"
-                    : "Not marked as FCPS Pearl"}
-                </p>
-              </div>
+              {/* FCPS Pearl Box - Only show after question is submitted */}
+              {submitted && (
+                <div
+                  className="rounded-xl p-5"
+                  style={{
+                    background: currentMcq.is_fcps_pearl
+                      ? "linear-gradient(135deg, rgba(234,179,8,0.15), rgba(234,179,8,0.05))"
+                      : "linear-gradient(135deg, rgba(234,179,8,0.05), rgba(234,179,8,0.02))",
+                    border: currentMcq.is_fcps_pearl
+                      ? "1px solid rgba(234,179,8,0.4)"
+                      : "1px solid rgba(234,179,8,0.2)",
+                  }}
+                >
+                  <p className="text-yellow-400 text-xs font-bold uppercase tracking-wider mb-2">💎 FCPS Pearl</p>
+                  <p className="text-white/80 text-sm leading-relaxed">
+                    {currentMcq.is_fcps_pearl && currentMcq.fcps_pearl_content
+                      ? currentMcq.fcps_pearl_content
+                      : currentMcq.is_fcps_pearl
+                      ? "High-yield concept for FCPS exam"
+                      : "Not marked as FCPS Pearl"}
+                  </p>
+                </div>
+              )}
 
               {/* References Box */}
               <div
