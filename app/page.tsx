@@ -23,22 +23,28 @@ function TestimonialCarousel() {
   const [current, setCurrent] = useState(0);
   const testimonials = [
     {
-      name: "Dr. Fatima Khan",
-      title: "Senior Vice Dean (Education), UNSW Medicine & Health",
-      review: "MedCore combines high-quality material and robust peer review with a uniquely clinical focus. Students value the confidence they can place in learning relevant information for their future practice. I recommend this excellent resource.",
-      avatar: "👩‍⚕️"
+      name: "Dr. Mahnoor",
+      title: "Khyber Medical College",
+      review: "MedCore is an outstanding platform for medical exam preparation. The case based MCQs, concise explanations, and high-quality diagrams make complex topics easy to understand. I highly recommend it to every medical student and FCPS aspirant.",
+      avatar: "/images/review-1.png"
     },
     {
-      name: "Dr. Ahmed Hassan",
-      title: "Clinical Educator, Aga Khan University",
-      review: "The analytics dashboard showed exactly where I was weak. Focused my study on those areas and it paid off immensely. Students appreciate the structured learning with instant feedback and comprehensive coverage.",
-      avatar: "👨‍⚕️"
+      name: "Dr. Ayesha",
+      title: "Aga Khan University",
+      review: "MedCore is an excellent educational platform that combines clinical reasoning with high-quality learning resources. The structured content, clear explanations, and exam-focused approach make it an outstanding choice for medical students and postgraduate trainees. I highly recommend MedCore for anyone aiming for success in competitive medical examinations.",
+      avatar: "/images/review-2.png"
     },
     {
-      name: "Dr. Aisha Malik",
-      title: "Program Director, Surgical Training",
-      review: "MedCore combines high-quality material and robust peer review with a uniquely clinical focus. The medical images with explanations are game-changing. I recommend this excellent resource to all my trainees.",
-      avatar: "👩‍⚕️"
+      name: "Dr. Safeena Jabar",
+      title: "Medical Professional",
+      review: "MedCore is an exceptional medical learning platform with clinically relevant MCQs, clear explanations, and outstanding educational content. It has become an invaluable resource for exam preparation and concept building. I strongly recommend MedCore to all medical students and postgraduate trainees.",
+      avatar: "/images/review-3.png"
+    },
+    {
+      name: "Dr. Ahmad",
+      title: "NHS, United Kingdom",
+      review: "MedCore FCPS is an outstanding learning platform for postgraduate medical exam preparation. The clinical case-based MCQs, concept-focused explanations, and exam-oriented content make it one of the most effective resources for FCPS candidates. I highly recommend MedCore to every doctor preparing for postgraduate examinations.",
+      avatar: "/images/review-4.png"
     }
   ];
 
@@ -57,8 +63,15 @@ function TestimonialCarousel() {
 
           {/* Avatar - Left */}
           <div className="flex-shrink-0 pt-2 mx-auto md:mx-0">
-            <div className="w-28 h-28 sm:w-32 sm:h-32 md:w-40 md:h-40 rounded-full bg-cyan-500 flex items-center justify-center text-5xl sm:text-6xl md:text-7xl border-4 border-cyan-400">
-              {testimonials[current].avatar}
+            <div className="w-28 h-28 sm:w-32 sm:h-32 md:w-40 md:h-40 rounded-full bg-cyan-500 flex items-center justify-center text-5xl sm:text-6xl md:text-7xl border-4 border-cyan-400 overflow-hidden">
+              <img
+                src={testimonials[current].avatar}
+                alt={testimonials[current].name}
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).style.display = 'none';
+                }}
+              />
             </div>
           </div>
 
