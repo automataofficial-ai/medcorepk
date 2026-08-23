@@ -47,3 +47,40 @@ export async function GET(
     );
   }
 }
+
+export async function POST(
+  req: NextRequest,
+  context: { params: Promise<{ id: string }> }
+) {
+  try {
+    const params = await context.params;
+    const blockId = params.id;
+    const body = await req.json();
+
+    const supabase = getServiceRoleClient();
+
+    const { data: subSubject, error } = await supabase
+      .from("sub_subjects")
+      .insert([{ ...body, block_id: blockId }])
+      .select()
+      .single();
+
+    if (error) {
+      return NextResponse.json(
+        { error: "Failed to create sub-subject", detail: error.message },
+        { status: 400 }
+      );
+    }
+
+    return NextResponse.json(
+      { success: true, sub_subject: subSubject },
+      { status: 201 }
+    );
+  } catch (err: any) {
+    console.error("Error creating sub-subject:", err);
+    return NextResponse.json(
+      { error: err.message || "Failed to create sub-subject" },
+      { status: 500 }
+    );
+  }
+}
