@@ -9,6 +9,7 @@ interface SubSubject {
   id: string;
   name: string;
   description: string;
+  icon?: string;
   order_index: number;
 }
 
@@ -244,7 +245,7 @@ export default function SubSubjectsPage() {
                           boxShadow: `0 12px 32px ${colors.primary}40, inset 0 1px 1px rgba(255,255,255,0.1)`,
                         }}
                       >
-                        {getSubjectIcon(subSubject.name)}
+                        {subSubject.icon || getSubjectIcon(subSubject.name)}
                       </div>
                       <div
                         className="w-10 h-10 rounded-xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-500 flex-shrink-0"

@@ -14,8 +14,56 @@ interface SubSubject {
   id: string;
   name: string;
   description: string;
+  icon: string;
   block_id: string;
   order_index: number;
+}
+
+const ICON_SUGGESTIONS: Record<string, string> = {
+  "general pharmacology": "💊",
+  "cns": "🧠",
+  "central nervous": "🧠",
+  "ans": "🔄",
+  "autonomic": "🔄",
+  "respiratory": "💨",
+  "lung": "💨",
+  "cardiovascular": "❤️",
+  "heart": "❤️",
+  "antibiotic": "🦠",
+  "infection": "🦠",
+  "endocrine": "🔬",
+  "reproductive": "👶",
+  "renal": "🫘",
+  "kidney": "🫘",
+  "git": "🫀",
+  "gastrointestinal": "🫀",
+  "liver": "🧬",
+  "hepatology": "🧬",
+  "immunology": "🛡️",
+  "neurology": "🧠",
+  "dermatology": "🩹",
+  "oncology": "⚕️",
+  "surgery": "🔪",
+  "anesthesia": "💉",
+  "pediatric": "👶",
+  "geriatric": "👴",
+  "psychiatry": "🧠",
+  "ophthalmology": "👁️",
+  "otolaryngology": "👂",
+  "rheumatology": "🦴",
+  "orthopedic": "🦴",
+  "urology": "🚽",
+  "obstetric": "🤰",
+};
+
+function getSuggestedIcon(name: string): string {
+  const lowerName = name.toLowerCase();
+  for (const [key, icon] of Object.entries(ICON_SUGGESTIONS)) {
+    if (lowerName.includes(key)) {
+      return icon;
+    }
+  }
+  return "📚";
 }
 
 export default function SubSubjectsAdminPage() {
@@ -32,6 +80,7 @@ export default function SubSubjectsAdminPage() {
   const [formData, setFormData] = useState({
     name: "",
     description: "",
+    icon: "📚",
   });
 
   useEffect(() => {
@@ -72,6 +121,7 @@ export default function SubSubjectsAdminPage() {
     await fetchSubSubjects(blockId);
     setShowForm(false);
     setEditingId(null);
+    setFormData({ name: "", description: "", icon: "📚" });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -109,7 +159,7 @@ export default function SubSubjectsAdminPage() {
       }
 
       await fetchSubSubjects(selectedBlock);
-      setFormData({ name: "", description: "" });
+      setFormData({ name: "", description: "", icon: "📚" });
       setShowForm(false);
       setEditingId(null);
     } catch (err: any) {
@@ -132,7 +182,11 @@ export default function SubSubjectsAdminPage() {
   };
 
   const handleEdit = (subSubject: SubSubject) => {
-    setFormData({ name: subSubject.name, description: subSubject.description });
+    setFormData({
+      name: subSubject.name,
+      description: subSubject.description,
+      icon: subSubject.icon || "📚"
+    });
     setEditingId(subSubject.id);
     setShowForm(true);
   };
@@ -173,7 +227,7 @@ export default function SubSubjectsAdminPage() {
         {!showForm && (
           <button
             onClick={() => {
-              setFormData({ name: "", description: "" });
+              setFormData({ name: "", description: "", icon: "📚" });
               setEditingId(null);
               setShowForm(true);
             }}
@@ -220,6 +274,34 @@ export default function SubSubjectsAdminPage() {
                 />
               </div>
 
+              <div>
+                <label className="block text-white text-sm font-semibold mb-2">
+                  Icon (or suggested: {getSuggestedIcon(formData.name)})
+                </label>
+                <div className="flex gap-3 mb-3">
+                  <input
+                    type="text"
+                    maxLength={2}
+                    value={formData.icon}
+                    onChange={(e) =>
+                      setFormData({ ...formData, icon: e.target.value || "📚" })
+                    }
+                    className="w-20 px-4 py-2 rounded-lg bg-slate-900 text-white border border-slate-700 text-center text-2xl"
+                    placeholder="📚"
+                  />
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setFormData({ ...formData, icon: getSuggestedIcon(formData.name) })
+                    }
+                    className="px-4 py-2 rounded-lg bg-blue-600/20 text-blue-400 hover:bg-blue-600/40 font-semibold text-sm transition-all"
+                  >
+                    Use Suggested
+                  </button>
+                </div>
+                <p className="text-white/60 text-xs">Enter any emoji or click "Use Suggested" for an auto-matched icon based on the name.</p>
+              </div>
+
               <div className="flex gap-3">
                 <button
                   type="submit"
@@ -251,11 +333,16 @@ export default function SubSubjectsAdminPage() {
                 key={sub.id}
                 className="rounded-xl p-4 bg-slate-800/50 border border-slate-700 flex items-center justify-between"
               >
-                <div>
-                  <h4 className="text-white font-semibold">{sub.name}</h4>
-                  {sub.description && (
-                    <p className="text-white/60 text-sm mt-1">{sub.description}</p>
-                  )}
+                <div className="flex items-start gap-4 flex-1">
+                  <div className="text-3xl flex-shrink-0 w-12 h-12 flex items-center justify-center">
+                    {sub.icon || "📚"}
+                  </div>
+                  <div>
+                    <h4 className="text-white font-semibold">{sub.name}</h4>
+                    {sub.description && (
+                      <p className="text-white/60 text-sm mt-1">{sub.description}</p>
+                    )}
+                  </div>
                 </div>
                 <div className="flex gap-2">
                   <button
