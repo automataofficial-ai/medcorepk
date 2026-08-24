@@ -21,11 +21,13 @@ yarn-error.log*
 .DS_Store
 *.pem
 
-# MCQ Import Files (data uploads - not part of codebase)
+# Data Files (uploads and test data - keep locally, don't commit)
 *_Upload.csv
 *_CLEAN.csv
 *_FIXED.csv
-Blood_Physiology_MCQs_Upload.csv
+Blood_Physiology_MCQs_*.csv
 
-# Formatted Files Folder (templates and reference files - keep locally, don't commit)
+# Template & Formatted Files (local templates - don't commit)
 formatted_files/
+MCQ_TEMPLATE_*.csv
+MCQ_TEMPLATE_*.md
