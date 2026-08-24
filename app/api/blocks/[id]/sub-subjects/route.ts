@@ -1,16 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
-
-function getServiceRoleClient() {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-  if (!supabaseUrl || !serviceRoleKey) {
-    throw new Error("Missing Supabase environment variables");
-  }
-
-  return createClient(supabaseUrl, serviceRoleKey);
-}
+import {
+  buildSubSubjectPayload,
+  getServiceRoleClient,
+  isMissingIconColumnError,
+  withoutIcon,
+} from "@/lib/sub-subjects";
 
 export async function GET(
   req: NextRequest,
@@ -55,15 +49,69 @@ export async function POST(
   try {
     const params = await context.params;
     const blockId = params.id;
-    const body = await req.json();
+
+    let body: any;
+    try {
+      body = await req.json();
+    } catch {
+      return NextResponse.json(
+        { error: "Invalid JSON body" },
+        { status: 400 }
+      );
+    }
+
+    const { payload, error: validationError } = buildSubSubjectPayload(body, {
+      requireName: true,
+    });
+
+    if (validationError) {
+      return NextResponse.json({ error: validationError }, { status: 400 });
+    }
 
     const supabase = getServiceRoleClient();
 
-    const { data: subSubject, error } = await supabase
-      .from("sub_subjects")
-      .insert([{ ...body, block_id: blockId }])
-      .select()
-      .single();
+    // Confirm the block exists so a bad id gives a clear message instead of a
+    // raw foreign-key violation.
+    const { data: block, error: blockError } = await supabase
+      .from("blocks")
+      .select("id")
+      .eq("id", blockId)
+      .maybeSingle();
+
+    if (blockError) {
+      return NextResponse.json(
+        { error: "Failed to verify block", detail: blockError.message },
+        { status: 400 }
+      );
+    }
+
+    if (!block) {
+      return NextResponse.json(
+        { error: `Block not found: ${blockId}` },
+        { status: 404 }
+      );
+    }
+
+    const insert = (row: Record<string, any>) =>
+      supabase.from("sub_subjects").insert([row]).select().single();
+
+    let { data: subSubject, error } = await insert({
+      ...payload,
+      block_id: blockId,
+    });
+
+    // The icon column is added by migration 20260824000001. If that migration
+    // has not been applied yet, save the sub-subject without it rather than
+    // failing the whole request.
+    if (isMissingIconColumnError(error)) {
+      console.warn(
+        "sub_subjects.icon is missing - apply supabase/migrations/20260824000001_add_sub_subject_icon.sql"
+      );
+      ({ data: subSubject, error } = await insert({
+        ...withoutIcon(payload),
+        block_id: blockId,
+      }));
+    }
 
     if (error) {
       return NextResponse.json(

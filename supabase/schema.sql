@@ -37,6 +37,7 @@ CREATE TABLE IF NOT EXISTS public.sub_subjects (
   block_id UUID NOT NULL REFERENCES public.blocks(id) ON DELETE CASCADE,
   name TEXT NOT NULL,
   description TEXT,
+  icon TEXT DEFAULT '📚',
   order_index INTEGER DEFAULT 0,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()

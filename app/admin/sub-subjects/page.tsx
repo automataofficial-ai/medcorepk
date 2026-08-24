@@ -13,8 +13,8 @@ interface Block {
 interface SubSubject {
   id: string;
   name: string;
-  description: string;
-  icon: string;
+  description: string | null;
+  icon: string | null;
   block_id: string;
   order_index: number;
 }
@@ -106,13 +106,26 @@ export default function SubSubjectsAdminPage() {
     fetchData();
   }, [error]);
 
+  async function readError(res: Response, fallback: string) {
+    try {
+      const data = await res.json();
+      return [data?.error, data?.detail].filter(Boolean).join(": ") || fallback;
+    } catch {
+      return fallback;
+    }
+  }
+
   async function fetchSubSubjects(blockId: string) {
     try {
       const res = await fetch(`/api/blocks/${blockId}/sub-subjects`);
+      if (!res.ok) {
+        throw new Error(await readError(res, "Failed to load sub-subjects"));
+      }
       const data = await res.json();
       setSubSubjects(data.sub_subjects || []);
-    } catch (err) {
+    } catch (err: any) {
       console.error("Error fetching sub-subjects:", err);
+      error("Error", err.message || "Failed to load sub-subjects");
     }
   }
 
@@ -132,16 +145,29 @@ export default function SubSubjectsAdminPage() {
       return;
     }
 
+    if (!editingId && !selectedBlock) {
+      error("Validation", "Select a block first");
+      return;
+    }
+
+    const payload = {
+      name: formData.name.trim(),
+      description: formData.description.trim(),
+      icon: formData.icon.trim() || "📚",
+    };
+
     try {
       if (editingId) {
         // Update
         const res = await fetch(`/api/sub-subjects/${editingId}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(formData),
+          body: JSON.stringify(payload),
         });
 
-        if (!res.ok) throw new Error("Failed to update");
+        if (!res.ok) {
+          throw new Error(await readError(res, "Failed to update sub-subject"));
+        }
         success("Success", "Sub-subject updated!");
       } else {
         // Create
@@ -149,12 +175,14 @@ export default function SubSubjectsAdminPage() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            ...formData,
+            ...payload,
             order_index: subSubjects.length,
           }),
         });
 
-        if (!res.ok) throw new Error("Failed to create");
+        if (!res.ok) {
+          throw new Error(await readError(res, "Failed to create sub-subject"));
+        }
         success("Success", "Sub-subject created!");
       }
 
@@ -173,7 +201,9 @@ export default function SubSubjectsAdminPage() {
 
     try {
       const res = await fetch(`/api/sub-subjects/${id}`, { method: "DELETE" });
-      if (!res.ok) throw new Error("Failed to delete");
+      if (!res.ok) {
+        throw new Error(await readError(res, "Failed to delete sub-subject"));
+      }
       success("Success", "Sub-subject deleted!");
       await fetchSubSubjects(selectedBlock);
     } catch (err: any) {
@@ -183,8 +213,8 @@ export default function SubSubjectsAdminPage() {
 
   const handleEdit = (subSubject: SubSubject) => {
     setFormData({
-      name: subSubject.name,
-      description: subSubject.description,
+      name: subSubject.name ?? "",
+      description: subSubject.description ?? "",
       icon: subSubject.icon || "📚"
     });
     setEditingId(subSubject.id);
@@ -281,7 +311,7 @@ export default function SubSubjectsAdminPage() {
                 <div className="flex gap-3 mb-3">
                   <input
                     type="text"
-                    maxLength={2}
+                    maxLength={8}
                     value={formData.icon}
                     onChange={(e) =>
                       setFormData({ ...formData, icon: e.target.value || "📚" })
