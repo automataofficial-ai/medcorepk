@@ -46,12 +46,22 @@ export async function POST(req: NextRequest) {
       console.log("Note: Could not fetch sub-subjects, they will need to be created or specified by ID");
     }
 
+    // Key sub-subjects by "<block_id>::<name>" so a name that exists under more
+    // than one block (e.g. "Cardiovascular" in both Physiology and Pharmacology)
+    // can never be matched against the wrong block.
     const subSubjectNameToId: Record<string, string> = {};
+    const subSubjectNamesByBlock: Record<string, string[]> = {};
     allSubSubjects?.forEach((sub: any) => {
-      subSubjectNameToId[sub.name.toLowerCase().trim()] = sub.id;
+      const name = sub.name.toLowerCase().trim();
+      subSubjectNameToId[`${sub.block_id}::${name}`] = sub.id;
+      (subSubjectNamesByBlock[sub.block_id] ??= []).push(sub.name.trim());
     });
 
-    console.log(`✅ Found ${Object.keys(subSubjectNameToId).length} sub-subjects\n`);
+    console.log(`✅ Found ${allSubSubjects?.length ?? 0} sub-subjects\n`);
+
+    // Sub-subject names in the CSV that matched no row, reported back to the user
+    // instead of only being written to the server console.
+    const unmatchedSubSubjects = new Set<string>();
 
     // Validate data and resolve block names to IDs
     const validatedMCQs = mcqs.map((mcq: any) => {
@@ -81,10 +91,12 @@ export async function POST(req: NextRequest) {
       // Resolve sub-subject if needed
       let resolvedSubSubjectId = sub_subject_id || mcq.sub_subject_id || null;
 
-      // If sub_subject_name is provided, try to find the ID
+      // If sub_subject_name is provided, look it up within this block only
       if (mcq.sub_subject_name && !resolvedSubSubjectId) {
-        resolvedSubSubjectId = subSubjectNameToId[mcq.sub_subject_name.toLowerCase().trim()];
+        const wanted = mcq.sub_subject_name.toLowerCase().trim();
+        resolvedSubSubjectId = subSubjectNameToId[`${blockId}::${wanted}`];
         if (!resolvedSubSubjectId) {
+          unmatchedSubSubjects.add(mcq.sub_subject_name.trim());
           console.warn(`⚠️ Sub-subject not found: "${mcq.sub_subject_name}". MCQ will be imported without sub-subject assignment.`);
         }
       }
@@ -155,11 +167,24 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    const warnings: string[] = [];
+    if (unmatchedSubSubjects.size > 0) {
+      const available = blockIds
+        .flatMap((id: any) => subSubjectNamesByBlock[id] ?? [])
+        .join(", ");
+      warnings.push(
+        `These sub_subject_name values did not match any sub-subject in the target block, so those MCQs were imported without a sub-subject: ${[
+          ...unmatchedSubSubjects,
+        ].join(", ")}. Available for this block: ${available || "(none)"}`
+      );
+    }
+
     return NextResponse.json({
       success: true,
       message: `✅ Successfully imported ${insertedCount} MCQs`,
       inserted: insertedCount,
       blocks_updated: blockIds.length,
+      ...(warnings.length > 0 ? { warnings } : {}),
     });
   } catch (error: any) {
     console.error("❌ Import error:", error);
