@@ -20,3 +20,22 @@ yarn-error.log*
 # os
 .DS_Store
 *.pem
+
+# MCQ Import Files (data uploads - not part of codebase)
+*_Upload.csv
+*_CLEAN.csv
+*_FIXED.csv
+Blood_Physiology_MCQs_Upload.csv
+
+# Template Files (reference only, don't commit)
+MCQ_BLANK_TEMPLATE.csv
+MCQ_UPLOAD_TEMPLATE.csv
+MCQ_IMPORT_TEMPLATE_FINAL.csv
+MCQ_TEMPLATE_BLANK.csv
+MCQ_TEMPLATE_GUIDE.md
+
+# Documentation duplicates
+MCQ_UPLOAD_CHECKLIST.md
+MCQ_UPLOAD_GUIDE.md
+CSV_FORMAT_SUMMARY.md
+FORMAT_COMPARISON.md
