@@ -68,16 +68,35 @@ export async function POST(req: NextRequest) {
         warnings: []
       });
 
-      // Validate correct_answer
-      if (mcq.correct_answer && !["a", "b", "c", "d"].includes(mcq.correct_answer?.toLowerCase())) {
-        preview[preview.length - 1].warnings.push(
-          `Invalid correct_answer: "${mcq.correct_answer}" (expected: a, b, c, or d)`
+      const warnings = preview[preview.length - 1].warnings;
+
+      // Column count must match the header, or every later field is shifted
+      if (values.length !== headers.length) {
+        warnings.push(
+          `Row has ${values.length} columns but the header has ${headers.length}. ` +
+          `A comma inside an unquoted field shifts every later column.`
         );
+      }
+
+      // Validate correct_answer (the importer accepts a-e)
+      if (mcq.correct_answer && !["a", "b", "c", "d", "e"].includes(mcq.correct_answer?.toLowerCase())) {
+        warnings.push(
+          `Invalid correct_answer: "${mcq.correct_answer}" (expected: a, b, c, d, or e)`
+        );
+      }
+
+      if (!mcq.correct_answer) {
+        warnings.push("Missing correct_answer");
+      }
+
+      // block_name is what the importer resolves the block from
+      if (!mcq.block_name && !mcq.block_id) {
+        warnings.push("Missing block_name");
       }
 
       // Check for misaligned columns
       if (!mcq.question || !mcq.option_a) {
-        preview[preview.length - 1].warnings.push(
+        warnings.push(
           `Missing critical fields: question="${mcq.question}", option_a="${mcq.option_a}"`
         );
       }

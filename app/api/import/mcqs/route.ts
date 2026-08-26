@@ -65,7 +65,9 @@ export async function POST(req: NextRequest) {
 
     // Validate data and resolve block names to IDs
     const validatedMCQs = mcqs.map((mcq: any) => {
-      if (!mcq.block_name && !mcq.block_id) {
+      // block_id here is the block chosen in the import UI dropdown; it acts as a
+      // fallback for rows that carry no block_name/block_id of their own.
+      if (!mcq.block_name && !mcq.block_id && !block_id) {
         throw new Error("Missing required field: block_name (or block_id)");
       }
 
@@ -77,8 +79,8 @@ export async function POST(req: NextRequest) {
         throw new Error(`Invalid correct_answer: ${mcq.correct_answer}. Must be: a, b, c, d, or e`);
       }
 
-      // Resolve block name to ID
-      let blockId = mcq.block_id;
+      // Resolve block name to ID (CSV value wins; UI selection is the fallback)
+      let blockId = mcq.block_id || block_id;
       if (mcq.block_name) {
         blockId = blockNameToId[mcq.block_name.toLowerCase().trim()];
         if (!blockId) {
