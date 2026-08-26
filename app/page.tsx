@@ -230,7 +230,7 @@ export default function HomePage() {
 
 
       {/* ──────────────────── HERO ──────────────────────────────── */}
-      <section className="relative z-10 pt-20 pb-24 overflow-hidden">
+      <section className="relative z-10 pt-6 sm:pt-12 md:pt-20 pb-16 md:pb-24 overflow-hidden">
 
         {/* Professional Background with Slider */}
         <div className="absolute inset-0 -z-10 overflow-hidden bg-slate-950">
@@ -296,9 +296,10 @@ export default function HomePage() {
             }}
           />
 
-          {/* Gradient overlays */}
-          <div className="absolute inset-0 bg-gradient-to-b from-[#050B18]/40 via-[#050B18]/50 to-[#050B18]/85" style={{ zIndex: -1 }} />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#050B18]/70 via-transparent to-transparent" style={{ zIndex: -1 }} />
+          {/* Gradient overlays - heavier on small screens, where the artwork sits
+              directly behind the copy instead of beside it */}
+          <div className="absolute inset-0 bg-gradient-to-b from-[#050B18]/75 via-[#050B18]/70 to-[#050B18]/90 md:from-[#050B18]/40 md:via-[#050B18]/50 md:to-[#050B18]/85" style={{ zIndex: -1 }} />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#050B18]/85 via-[#050B18]/30 to-transparent md:from-[#050B18]/70 md:via-transparent" style={{ zIndex: -1 }} />
 
           {/* Subtle glow */}
           <div
@@ -334,7 +335,7 @@ export default function HomePage() {
 
         {/* Hero Container - Full Width */}
         <div className="px-4 sm:px-6 md:px-12 lg:px-20">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 lg:gap-24 items-center min-h-[100vh] lg:min-h-auto py-12 md:py-0">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 lg:gap-24 items-center lg:min-h-auto py-10 sm:py-12 md:py-0">
 
             {/* LEFT COLUMN - TEXT CONTENT */}
             <div className="relative z-20">
@@ -407,9 +408,13 @@ export default function HomePage() {
             </div>
 
             {/* RIGHT COLUMN - COMPACT PHONE MOCKUP WITH OVERLAID IMAGE */}
-            <div className="relative flex items-center justify-center h-80 sm:h-96 md:h-[400px] lg:h-96 order-last lg:order-none mt-20 sm:mt-24 md:mt-0">
+            <div className="relative flex items-center justify-center h-[330px] sm:h-[430px] md:h-[400px] lg:h-96 order-last lg:order-none mt-8 sm:mt-12 md:mt-0 overflow-hidden lg:overflow-visible">
+              {/* The mockup is a fixed 360x560 block. The `float` keyframes animate
+                  `transform`, which would override a scale-* utility on the same
+                  element - so the responsive scaling lives on this wrapper instead. */}
+              <div className="absolute scale-[0.55] sm:scale-[0.72] md:scale-90 lg:scale-100 origin-center">
               <div
-                className="float-animation absolute"
+                className="float-animation"
                 style={{ animation: "fade-in 0.8s ease 0.4s forwards, float 5s ease-in-out infinite", opacity: 0 }}
               >
                 {/* Phone Frame - Larger */}
@@ -559,7 +564,7 @@ export default function HomePage() {
                 </div>
 
                 {/* Overlaid X-ray Image */}
-                <div className="absolute -top-16 -right-20 w-64 h-64 rounded-lg overflow-hidden shadow-2xl border-4 border-slate-800 bg-gray-800">
+                <div className="hidden sm:block absolute -top-16 -right-20 w-64 h-64 rounded-lg overflow-hidden shadow-2xl border-4 border-slate-800 bg-gray-800">
                   {/* Real X-ray simulation */}
                   <div className="w-full h-full bg-gradient-to-br from-gray-700 to-gray-900 flex items-center justify-center relative overflow-hidden">
                     <div className="text-7xl opacity-60">🫁</div>
@@ -575,6 +580,7 @@ export default function HomePage() {
                     </div>
                   </div>
                 </div>
+              </div>
               </div>
             </div>
           </div>
