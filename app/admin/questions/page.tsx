@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/context/ToastContext";
 
@@ -91,6 +91,10 @@ export default function MCQManagementPage() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState({ ...EMPTY_FORM });
 
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [bulkDeleting, setBulkDeleting] = useState(false);
+  const selectAllRef = useRef<HTMLInputElement>(null);
+
   useEffect(() => {
     const adminToken = localStorage.getItem("admin_token");
     if (!adminToken) {
@@ -167,6 +171,8 @@ export default function MCQManagementPage() {
       setMCQs([]);
       showError("Error", err.message || "Failed to load questions");
     } finally {
+      // A different set of questions is on screen, so any selection is stale
+      setSelectedIds(new Set());
       setLoadingMcqs(false);
     }
   }, [selectedBlock, selectedSubSubject, showError]);
@@ -177,6 +183,70 @@ export default function MCQManagementPage() {
 
   const subSubjectName = (id: string | null) =>
     id ? subSubjects.find((s) => s.id === id)?.name ?? "Other sub-subject" : null;
+
+  const selectedBlockTitle = blocks.find((b) => b.id === selectedBlock)?.title ?? "";
+
+  // ── Selection ─────────────────────────────────────────────
+  // Select-all covers exactly the questions currently listed under the chosen
+  // subject and sub-subject, never the whole database.
+  const allSelected = mcqs.length > 0 && selectedIds.size === mcqs.length;
+  const someSelected = selectedIds.size > 0 && !allSelected;
+
+  useEffect(() => {
+    if (selectAllRef.current) selectAllRef.current.indeterminate = someSelected;
+  }, [someSelected]);
+
+  const toggleAll = () => {
+    setSelectedIds(allSelected ? new Set() : new Set(mcqs.map((m) => m.id)));
+  };
+
+  const toggleOne = (id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  };
+
+  const handleBulkDelete = async () => {
+    const ids = [...selectedIds];
+    if (ids.length === 0) return;
+
+    const scope =
+      selectedSubSubject === ALL
+        ? selectedBlockTitle
+        : `${selectedBlockTitle} → ${
+            selectedSubSubject === UNASSIGNED
+              ? "Unassigned"
+              : subSubjectName(selectedSubSubject) ?? ""
+          }`;
+
+    if (
+      !confirm(
+        `Delete ${ids.length} question${ids.length === 1 ? "" : "s"} from ${scope}?\n\nThis cannot be undone.`
+      )
+    )
+      return;
+
+    setBulkDeleting(true);
+    try {
+      const res = await fetch("/api/admin/questions", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ids }),
+      });
+      if (!res.ok) throw new Error(await readError(res, "Failed to delete questions"));
+      const data = await res.json();
+
+      setMCQs((prev) => prev.filter((m) => !selectedIds.has(m.id)));
+      setSelectedIds(new Set());
+      success("Deleted", `${data.deleted} question${data.deleted === 1 ? "" : "s"} deleted`);
+    } catch (err: any) {
+      showError("Error", err?.message || "Failed to delete questions");
+    } finally {
+      setBulkDeleting(false);
+    }
+  };
 
   const resetForm = () => {
     setFormData({
@@ -284,7 +354,6 @@ export default function MCQManagementPage() {
   if (!admin) return null;
 
   const inputClass = "w-full px-4 py-2 rounded-lg bg-slate-700 text-white";
-  const selectedBlockTitle = blocks.find((b) => b.id === selectedBlock)?.title ?? "";
 
   return (
     <div className="min-h-screen" style={{ background: "#050B18" }}>
@@ -566,7 +635,21 @@ export default function MCQManagementPage() {
           style={{ background: "rgba(30,27,75,0.4)", border: "1px solid rgba(255,255,255,0.1)" }}
         >
           <div className="px-6 py-4 border-b border-slate-700 flex items-center justify-between gap-4 flex-wrap">
-            <h2 className="text-xl font-bold text-white">Questions ({mcqs.length})</h2>
+            <div className="flex items-center gap-3">
+              <input
+                ref={selectAllRef}
+                type="checkbox"
+                className="w-4 h-4 accent-cyan-500 cursor-pointer"
+                checked={allSelected}
+                onChange={toggleAll}
+                disabled={mcqs.length === 0}
+                aria-label={allSelected ? "Clear selection" : "Select all listed questions"}
+                id="select-all-mcqs"
+              />
+              <label htmlFor="select-all-mcqs" className="text-xl font-bold text-white cursor-pointer">
+                Questions ({mcqs.length})
+              </label>
+            </div>
             <p className="text-slate-400 text-sm">
               {selectedBlockTitle}
               {selectedSubSubject === ALL
@@ -576,6 +659,44 @@ export default function MCQManagementPage() {
                 : ` · ${subSubjectName(selectedSubSubject) ?? ""}`}
             </p>
           </div>
+
+          {/* ── Bulk action bar ── */}
+          {selectedIds.size > 0 && (
+            <div
+              className="px-6 py-3 border-b border-slate-700 flex items-center justify-between gap-4 flex-wrap"
+              style={{ background: "rgba(6,182,212,0.08)" }}
+            >
+              <div className="flex items-center gap-3 flex-wrap">
+                <span className="text-white font-semibold">
+                  {selectedIds.size} selected
+                </span>
+                {!allSelected && mcqs.length > selectedIds.size && (
+                  <button
+                    onClick={toggleAll}
+                    className="text-cyan-400 text-sm font-semibold hover:underline"
+                  >
+                    Select all {mcqs.length} shown
+                  </button>
+                )}
+                <button
+                  onClick={() => setSelectedIds(new Set())}
+                  className="text-slate-300 text-sm font-semibold hover:underline"
+                >
+                  Clear
+                </button>
+              </div>
+              <button
+                onClick={handleBulkDelete}
+                disabled={bulkDeleting}
+                className="px-4 py-2 rounded-lg text-sm font-bold text-white disabled:opacity-50"
+                style={{ background: "linear-gradient(135deg, #DC2626, #B91C1C)" }}
+              >
+                {bulkDeleting
+                  ? "Deleting…"
+                  : `Delete ${selectedIds.size} selected`}
+              </button>
+            </div>
+          )}
 
           {loadingMcqs ? (
             <div className="p-6 text-center text-slate-400">Loading…</div>
@@ -587,9 +708,21 @@ export default function MCQManagementPage() {
             <div className="divide-y divide-slate-700">
               {mcqs.map((mcq, idx) => {
                 const subName = subSubjectName(mcq.sub_subject_id);
+                const checked = selectedIds.has(mcq.id);
                 return (
-                  <div key={mcq.id} className="p-6 hover:bg-slate-900/30">
+                  <div
+                    key={mcq.id}
+                    className="p-6 hover:bg-slate-900/30"
+                    style={checked ? { background: "rgba(6,182,212,0.07)" } : undefined}
+                  >
                     <div className="flex items-start justify-between gap-4">
+                      <input
+                        type="checkbox"
+                        className="w-4 h-4 mt-1 accent-cyan-500 cursor-pointer flex-shrink-0"
+                        checked={checked}
+                        onChange={() => toggleOne(mcq.id)}
+                        aria-label={`Select question ${idx + 1}`}
+                      />
                       <div className="flex-1 min-w-0">
                         <p className="text-white font-semibold mb-2">
                           {idx + 1}. {mcq.question}

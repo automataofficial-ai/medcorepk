@@ -66,6 +66,63 @@ export async function GET(req: NextRequest) {
   }
 }
 
+/**
+ * Bulk delete. Body: { ids: string[] }
+ * Used by the select-all / multi-select controls in the question manager.
+ */
+export async function DELETE(req: NextRequest) {
+  try {
+    let body: any;
+    try {
+      body = await req.json();
+    } catch {
+      return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+    }
+
+    const ids = body?.ids;
+
+    if (!Array.isArray(ids) || ids.length === 0) {
+      return NextResponse.json(
+        { error: "ids must be a non-empty array" },
+        { status: 400 }
+      );
+    }
+
+    if (!ids.every((id) => typeof id === "string" && id.trim())) {
+      return NextResponse.json(
+        { error: "ids must all be strings" },
+        { status: 400 }
+      );
+    }
+
+    const supabase = getServiceRoleClient();
+
+    const { data: deleted, error } = await supabase
+      .from("mcqs")
+      .delete()
+      .in("id", ids)
+      .select("id");
+
+    if (error) {
+      return NextResponse.json(
+        { error: "Failed to delete questions", detail: error.message },
+        { status: 400 }
+      );
+    }
+
+    return NextResponse.json({
+      success: true,
+      deleted: deleted?.length ?? 0,
+      requested: ids.length,
+    });
+  } catch (error: any) {
+    return NextResponse.json(
+      { error: error.message || "Failed to delete questions" },
+      { status: 500 }
+    );
+  }
+}
+
 export async function POST(req: NextRequest) {
   try {
     const data = await req.json();
