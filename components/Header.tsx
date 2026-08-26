@@ -10,8 +10,18 @@ export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
 
-  // Hide header on dashboard and block pages only
-  if (pathname.startsWith("/dashboard") || pathname.startsWith("/block")) {
+  // Hide header on full-screen pages: dashboard, blocks, and the quiz itself
+  // (/subject/<subject>/<paperId>/<subSubjectId> - the sub-subject listing above
+  // it keeps the header).
+  const isQuizPage =
+    pathname.startsWith("/subject/") &&
+    pathname.split("/").filter(Boolean).length === 4;
+
+  if (
+    pathname.startsWith("/dashboard") ||
+    pathname.startsWith("/block") ||
+    isQuizPage
+  ) {
     return null;
   }
 

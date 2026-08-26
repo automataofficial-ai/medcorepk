@@ -233,10 +233,13 @@ export default function QuizPage() {
     }
   };
 
-  const handleCheckAnswer = () => {
-    if (!selected) return;
-    const isCorrect = selected === currentMcq.correct_answer.toLowerCase();
-    setAnswers({ ...answers, [currentIdx]: { selected, correct: isCorrect } });
+  // Choosing an option grades it immediately - there is no separate check step
+  const handleSelectOption = (key: string) => {
+    if (submitted) return;
+
+    const isCorrect = key === currentMcq.correct_answer.toLowerCase();
+    setSelected(key);
+    setAnswers({ ...answers, [currentIdx]: { selected: key, correct: isCorrect } });
     setSubmitted(true);
 
     if (isCorrect) {
@@ -246,11 +249,17 @@ export default function QuizPage() {
     }
   };
 
+  // Moving between questions restores whatever was already answered there
+  const goTo = (idx: number) => {
+    const previous = answers[idx];
+    setCurrentIdx(idx);
+    setSelected(previous?.selected ?? null);
+    setSubmitted(Boolean(previous));
+  };
+
   const handleNext = () => {
     if (currentIdx < mcqs.length - 1) {
-      setCurrentIdx(currentIdx + 1);
-      setSelected(null);
-      setSubmitted(false);
+      goTo(currentIdx + 1);
     } else {
       handleFinish();
     }
@@ -294,11 +303,11 @@ export default function QuizPage() {
   const diffColor = difficultyColors[currentMcq.difficulty_level?.toLowerCase() || "medium"];
 
   return (
-    <div className="flex min-h-screen" style={{ background: "#050B18" }}>
+    <div className="flex h-screen overflow-hidden" style={{ background: "#050B18" }}>
       {/* LEFT SIDEBAR */}
-      <div className="w-80 border-r border-slate-800/50 p-8 flex flex-col" style={{ background: "rgba(15,23,42,0.4)" }}>
-        <div className="mb-8 flex flex-col items-center">
-          <div className="relative w-28 h-28 mb-4">
+      <div className="w-80 flex-shrink-0 border-r border-slate-800/50 px-6 py-6 flex flex-col min-h-0" style={{ background: "rgba(15,23,42,0.4)" }}>
+        <div className="mb-5 flex flex-col items-center flex-shrink-0">
+          <div className="relative w-24 h-24 mb-3">
             <svg className="w-full h-full transform -rotate-90" viewBox="0 0 120 120">
               <circle cx="60" cy="60" r="54" fill="none" stroke="rgba(99,102,241,0.2)" strokeWidth="8" />
               <circle
@@ -322,12 +331,13 @@ export default function QuizPage() {
           </p>
         </div>
 
-        <button className="w-full px-4 py-3 rounded-xl bg-slate-800/50 border border-slate-700/50 text-white font-semibold mb-8 hover:bg-slate-800 transition-colors flex items-center justify-center gap-2">
+        <button className="w-full px-4 py-2.5 rounded-xl bg-slate-800/50 border border-slate-700/50 text-white font-semibold mb-5 hover:bg-slate-800 transition-colors flex items-center justify-center gap-2 flex-shrink-0">
           📋 Summary
         </button>
 
-        <div className="space-y-2">
-          <div className="flex flex-wrap gap-3">
+        {/* Question grid scrolls inside the sidebar rather than growing the page */}
+        <div className="flex-1 min-h-0 overflow-y-auto -mr-2 pr-2">
+          <div className="flex flex-wrap gap-2.5">
             {mcqs.map((_, idx) => {
               const isAnswered = idx in answers;
               const isCurrent = idx === currentIdx;
@@ -337,14 +347,10 @@ export default function QuizPage() {
                 <button
                   key={idx}
                   onClick={() => {
-                    if (isCurrent || isAnswered || idx === 0) {
-                      setCurrentIdx(idx);
-                      setSelected(null);
-                      setSubmitted(false);
-                    }
+                    if (isCurrent || isAnswered || idx === 0) goTo(idx);
                   }}
                   disabled={!isCurrent && !isAnswered && idx !== 0}
-                  className="w-12 h-12 rounded-full flex items-center justify-center font-bold text-sm transition-all disabled:cursor-not-allowed"
+                  className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-all disabled:cursor-not-allowed flex-shrink-0"
                   style={{
                     background: isCurrent
                       ? "#3B82F6"
@@ -367,9 +373,9 @@ export default function QuizPage() {
       </div>
 
       {/* MAIN CONTENT */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col min-w-0 min-h-0">
         {/* Top Bar */}
-        <div className="border-b border-slate-800/50 px-8 py-4 flex items-center justify-between" style={{ background: "rgba(15,23,42,0.3)" }}>
+        <div className="border-b border-slate-800/50 px-8 py-3 flex items-center justify-between flex-shrink-0" style={{ background: "rgba(15,23,42,0.3)" }}>
           <Link href="/" className="text-white/70 hover:text-white transition-colors font-semibold">
             ← Back
           </Link>
@@ -381,20 +387,20 @@ export default function QuizPage() {
           )}
         </div>
 
-        {/* Content */}
-        <div className="flex-1 overflow-y-auto px-8 py-8 flex gap-8" style={{ animation: "fadeIn 0.3s ease-in" }}>
-          <div className="flex-1 max-w-3xl">
+        {/* Content - only these panes scroll, never the page itself */}
+        <div className="flex-1 min-h-0 overflow-hidden px-8 py-5 flex gap-6" style={{ animation: "fadeIn 0.3s ease-in" }}>
+          <div className="flex-1 max-w-3xl min-w-0 overflow-y-auto -mr-3 pr-3">
             {/* Question Header */}
-            <p className="text-cyan-400 text-sm font-bold uppercase tracking-wider mb-4">Question {currentIdx + 1}</p>
+            <p className="text-cyan-400 text-xs font-bold uppercase tracking-wider mb-2">Question {currentIdx + 1} of {mcqs.length}</p>
 
             {/* Question Text */}
-            <h2 className="text-xl font-semibold text-white mb-2">{currentMcq.question}</h2>
-            <p className="text-white/60 text-sm mb-8">Choose the single best answer.</p>
+            <h2 className="text-xl font-semibold text-white mb-1">{currentMcq.question}</h2>
+            <p className="text-white/60 text-sm mb-5">Choose the single best answer.</p>
 
             {/* Case Study */}
             {currentMcq.case_study && (
               <div
-                className="rounded-xl p-5 mb-8"
+                className="rounded-xl p-4 mb-5"
                 style={{
                   background: "linear-gradient(135deg, rgba(6,182,212,0.1), rgba(6,182,212,0.03))",
                   border: "1px solid rgba(6,182,212,0.25)",
@@ -405,7 +411,7 @@ export default function QuizPage() {
             )}
 
             {/* Options */}
-            <div className="space-y-3 mb-8">
+            <div className="space-y-2.5 mb-6">
               {options.map((opt) => {
                 const isSelected = selected === opt.key;
                 const isCorrect = opt.key === currentMcq.correct_answer.toLowerCase();
@@ -414,9 +420,9 @@ export default function QuizPage() {
                 return (
                   <button
                     key={opt.key}
-                    onClick={() => !submitted && setSelected(opt.key)}
+                    onClick={() => handleSelectOption(opt.key)}
                     disabled={submitted}
-                    className="w-full text-left p-5 rounded-xl border-2 transition-all"
+                    className="w-full text-left p-4 rounded-xl border-2 transition-all"
                     style={{
                       background: showResult
                         ? isCorrect
@@ -443,12 +449,24 @@ export default function QuizPage() {
                       <div
                         className="w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 mt-0.5 font-bold text-sm"
                         style={{
-                          borderColor: isSelected ? "#3B82F6" : "rgba(99,102,241,0.4)",
-                          background: isSelected ? "#3B82F6" : "transparent",
-                          color: isSelected ? "white" : "transparent",
+                          borderColor: showResult
+                            ? isCorrect
+                              ? "#10B981"
+                              : "#EF4444"
+                            : isSelected
+                            ? "#3B82F6"
+                            : "rgba(99,102,241,0.4)",
+                          background: showResult
+                            ? isCorrect
+                              ? "#10B981"
+                              : "#EF4444"
+                            : isSelected
+                            ? "#3B82F6"
+                            : "transparent",
+                          color: showResult || isSelected ? "white" : "transparent",
                         }}
                       >
-                        ✓
+                        {showResult ? (isCorrect ? "✓" : "✗") : "✓"}
                       </div>
                       <div className="flex-1">
                         <p className="text-white text-base leading-relaxed">{opt.label}. {opt.text}</p>
@@ -466,8 +484,8 @@ export default function QuizPage() {
 
             {/* Explanations for all options */}
             {submitted && mode === "tutor" && (
-              <div className="space-y-3 mb-8">
-                <p className="text-cyan-400 text-sm font-bold uppercase tracking-wider">Explanation</p>
+              <div className="space-y-2.5 pb-4">
+                <p className="text-cyan-400 text-xs font-bold uppercase tracking-wider">Explanation</p>
                 {options.map((opt) => {
                   const isCorrect = opt.key === currentMcq.correct_answer.toLowerCase();
                   const exp = currentMcq[`explanation_${opt.key}` as keyof MCQ];
@@ -508,45 +526,7 @@ export default function QuizPage() {
 
           {/* RIGHT SIDEBAR - Only show in Tutor Mode */}
           {mode === "tutor" && (
-            <div className="w-72 space-y-4 pt-12">
-              {/* FCPS Pearl Box - Only show after question is submitted */}
-              {submitted && (
-                <div
-                  className="rounded-xl p-5"
-                  style={{
-                    background: currentMcq.is_fcps_pearl
-                      ? "linear-gradient(135deg, rgba(234,179,8,0.15), rgba(234,179,8,0.05))"
-                      : "linear-gradient(135deg, rgba(234,179,8,0.05), rgba(234,179,8,0.02))",
-                    border: currentMcq.is_fcps_pearl
-                      ? "1px solid rgba(234,179,8,0.4)"
-                      : "1px solid rgba(234,179,8,0.2)",
-                  }}
-                >
-                  <p className="text-yellow-400 text-xs font-bold uppercase tracking-wider mb-2">💎 FCPS Pearl</p>
-                  <p className="text-white/80 text-sm leading-relaxed">
-                    {currentMcq.is_fcps_pearl && currentMcq.fcps_pearl_content
-                      ? currentMcq.fcps_pearl_content
-                      : currentMcq.is_fcps_pearl
-                      ? "High-yield concept for FCPS exam"
-                      : "Not marked as FCPS Pearl"}
-                  </p>
-                </div>
-              )}
-
-              {/* References Box */}
-              <div
-                className="rounded-xl p-5"
-                style={{
-                  background: "linear-gradient(135deg, rgba(59,130,246,0.1), rgba(59,130,246,0.03))",
-                  border: "1px solid rgba(59,130,246,0.3)",
-                }}
-              >
-                <p className="text-blue-400 text-xs font-bold uppercase tracking-wider mb-2">📚 References</p>
-                <p className="text-white/80 text-sm leading-relaxed">
-                  {currentMcq.references || "Katzung, Lippincott, Rang & Dale"}
-                </p>
-              </div>
-
+            <div className="w-72 flex-shrink-0 space-y-4 overflow-y-auto pb-4">
               {/* Difficulty Level Box */}
               <div
                 className="rounded-xl p-5"
@@ -567,60 +547,103 @@ export default function QuizPage() {
                   {currentMcq.difficulty_level ? currentMcq.difficulty_level.charAt(0).toUpperCase() + currentMcq.difficulty_level.slice(1) : "Medium"}
                 </div>
               </div>
+
+              {/* References Box */}
+              <div
+                className="rounded-xl p-5"
+                style={{
+                  background: "linear-gradient(135deg, rgba(59,130,246,0.1), rgba(59,130,246,0.03))",
+                  border: "1px solid rgba(59,130,246,0.3)",
+                }}
+              >
+                <p className="text-blue-400 text-xs font-bold uppercase tracking-wider mb-2">📚 References</p>
+                <p className="text-white/80 text-sm leading-relaxed">
+                  {currentMcq.references || <span className="text-white/40">No reference provided</span>}
+                </p>
+              </div>
+
+              {/* FCPS Pearl Box - revealed only once the question is answered.
+                  Kept last so the panels above it do not shift when it appears. */}
+              {submitted && (
+                <div
+                  className="rounded-xl p-5"
+                  style={{
+                    background: currentMcq.is_fcps_pearl
+                      ? "linear-gradient(135deg, rgba(234,179,8,0.15), rgba(234,179,8,0.05))"
+                      : "linear-gradient(135deg, rgba(234,179,8,0.05), rgba(234,179,8,0.02))",
+                    border: currentMcq.is_fcps_pearl
+                      ? "1px solid rgba(234,179,8,0.4)"
+                      : "1px solid rgba(234,179,8,0.2)",
+                    animation: "fadeIn 0.3s ease-in",
+                  }}
+                >
+                  <p className="text-yellow-400 text-xs font-bold uppercase tracking-wider mb-2">💎 FCPS Pearl</p>
+                  <p className="text-white/80 text-sm leading-relaxed">
+                    {currentMcq.is_fcps_pearl && currentMcq.fcps_pearl_content
+                      ? currentMcq.fcps_pearl_content
+                      : currentMcq.is_fcps_pearl
+                      ? "High-yield concept for FCPS exam"
+                      : "Not marked as FCPS Pearl"}
+                  </p>
+                </div>
+              )}
             </div>
           )}
         </div>
 
         {/* Bottom Bar */}
-        <div className="border-t border-slate-800/50 px-8 py-6" style={{ background: "rgba(15,23,42,0.3)" }}>
-          <div className="flex items-center justify-center gap-4 max-w-3xl mx-auto">
-            {!submitted ? (
-              <>
-                <button
-                  onClick={handleCheckAnswer}
-                  disabled={!selected}
-                  className="px-12 py-3 rounded-2xl font-bold text-white text-lg transition-all disabled:opacity-50"
-                  style={{
-                    background: selected ? "linear-gradient(135deg, #06B6D4, #0891B2)" : "rgba(6,182,212,0.2)",
-                  }}
-                >
-                  Check Answer
-                </button>
-              </>
-            ) : (
+        <div className="border-t border-slate-800/50 px-8 py-4 flex-shrink-0" style={{ background: "rgba(15,23,42,0.3)" }}>
+          <div className="flex items-center justify-between gap-4 max-w-3xl mx-auto">
+            <button
+              onClick={() => goTo(currentIdx - 1)}
+              disabled={currentIdx === 0}
+              className="px-6 py-3 rounded-2xl font-semibold text-white/70 transition-all disabled:opacity-30 disabled:cursor-not-allowed hover:text-white"
+              style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)" }}
+            >
+              ← Previous
+            </button>
+
+            {submitted ? (
               <button
                 onClick={handleNext}
                 className="px-12 py-3 rounded-2xl font-bold text-white text-lg"
                 style={{ background: "linear-gradient(135deg, #3B82F6, #8B5CF6)" }}
               >
-                {currentIdx === mcqs.length - 1 ? "Finish Quiz" : "Next Question"}
+                {currentIdx === mcqs.length - 1 ? "Finish Quiz" : "Next Question →"}
               </button>
+            ) : (
+              <p className="text-white/50 text-sm font-medium">
+                Select an answer to continue
+              </p>
             )}
+
+            <button
+              onClick={handleFinish}
+              className="px-6 py-3 rounded-2xl font-semibold text-white/70 transition-all hover:text-white"
+              style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)" }}
+            >
+              Finish
+            </button>
           </div>
         </div>
       </div>
 
       {/* Congratulations Animation */}
       {showCongrats && (
-        <div className="fixed inset-0 pointer-events-none flex items-center justify-center z-50">
+        <div className="fixed top-6 left-1/2 -translate-x-1/2 pointer-events-none z-50">
           <div
-            className="flex flex-col items-center gap-4 px-8 py-6 rounded-3xl border-2 pointer-events-auto"
+            className="flex items-center gap-3 px-6 py-3 rounded-2xl border"
             style={{
-              background: "linear-gradient(135deg, rgba(16,185,129,0.2), rgba(6,182,212,0.2))",
-              borderColor: "rgba(16,185,129,0.5)",
-              boxShadow: "0 20px 60px rgba(16,185,129,0.3), inset 0 1px 1px rgba(255,255,255,0.1)",
-              animation: "bounceIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)",
+              background: "linear-gradient(135deg, rgba(16,185,129,0.95), rgba(6,182,212,0.9))",
+              borderColor: "rgba(16,185,129,0.6)",
+              boxShadow: "0 12px 32px rgba(16,185,129,0.35)",
+              animation: "bounceIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)",
             }}
           >
-            <div className="text-6xl">🎉</div>
-            <div className="text-center">
-              <h3 className="text-3xl font-black text-white mb-1">Correct!</h3>
-              <p className="text-emerald-300 font-semibold">Great job! Keep it up 🚀</p>
-            </div>
-            <div className="flex gap-2 mt-2">
-              <span className="text-2xl">✨</span>
-              <span className="text-2xl">⭐</span>
-              <span className="text-2xl">✨</span>
+            <span className="text-2xl">🎉</span>
+            <div>
+              <p className="text-white font-black leading-tight">Correct!</p>
+              <p className="text-white/85 text-xs font-semibold">Great job! Keep it up 🚀</p>
             </div>
           </div>
         </div>
@@ -637,14 +660,15 @@ export default function QuizPage() {
         }
         @keyframes bounceIn {
           0% {
-            transform: scale(0) translateY(-100px);
+            transform: translateY(-24px) scale(0.9);
             opacity: 0;
           }
-          50% {
-            transform: scale(1.1);
+          60% {
+            transform: translateY(0) scale(1.04);
+            opacity: 1;
           }
           100% {
-            transform: scale(1) translateY(0);
+            transform: translateY(0) scale(1);
             opacity: 1;
           }
         }
