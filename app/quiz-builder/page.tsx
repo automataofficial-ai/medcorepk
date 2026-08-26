@@ -209,9 +209,9 @@ export default function QuizBuilderPage() {
   };
 
   return (
-    <div className="min-h-screen flex" style={{ background: "#050B18" }}>
-      {/* ── Sidebar ── */}
-      <div className="w-80 border-r border-slate-800/50 p-6 overflow-y-auto" style={{ maxHeight: "100vh" }}>
+    <div className="min-h-screen flex flex-col lg:flex-row" style={{ background: "#050B18" }}>
+      {/* ── Sidebar ── stacks above the content below lg */}
+      <div className="w-full lg:w-80 flex-shrink-0 border-b lg:border-b-0 lg:border-r border-slate-800/50 p-4 sm:p-6 lg:overflow-y-auto lg:max-h-screen">
         {/* Course Card */}
         <div className="rounded-2xl p-6 mb-8 overflow-hidden relative" style={{
           background: "linear-gradient(135deg, rgba(16,185,129,0.15), rgba(16,185,129,0.05))",
@@ -261,7 +261,7 @@ export default function QuizBuilderPage() {
       </div>
 
       {/* ── Main Content ── */}
-      <div className="flex-1 p-8 overflow-y-auto">
+      <div className="flex-1 min-w-0 p-4 sm:p-6 lg:p-8 lg:overflow-y-auto">
         {/* Header */}
         <div className="mb-8 flex items-center justify-between">
           <h1 className="text-4xl font-black text-white">Question Bank</h1>
@@ -293,7 +293,7 @@ export default function QuizBuilderPage() {
         </div>
 
         {/* Chart and Stats Grid */}
-        <div className="grid grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-8">
           {/* Chart */}
           <div className="col-span-2 rounded-2xl p-6 border border-slate-800/50" style={{
             background: "linear-gradient(135deg, rgba(15,23,42,0.5), rgba(30,27,75,0.3))",
@@ -324,7 +324,7 @@ export default function QuizBuilderPage() {
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-8">
           <div className="rounded-xl p-4 border border-slate-800/50" style={{
             background: "rgba(15,23,42,0.4)",
           }}>
@@ -352,7 +352,7 @@ export default function QuizBuilderPage() {
         </div>
 
         {/* New Session & Recent Sessions */}
-        <div className="grid grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {/* New Session */}
           <div className="col-span-2 rounded-2xl p-6 border border-slate-800/50" style={{
             background: "linear-gradient(135deg, rgba(15,23,42,0.5), rgba(30,27,75,0.3))",

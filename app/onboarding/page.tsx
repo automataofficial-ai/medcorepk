@@ -93,7 +93,7 @@ export default function OnboardingPage() {
   if (!user) return null;
 
   return (
-    <div className="min-h-screen" style={{ background: "#050B18" }}>
+    <div className="min-h-screen relative overflow-hidden" style={{ background: "#050B18" }}>
       {/* Orbs */}
       <div className="orb w-96 h-96 bg-blue-700 top-[-100px] left-[-100px]" style={{ animationDuration: "12s" }} />
       <div className="orb w-72 h-72 bg-violet-700 bottom-0 right-[-60px]" style={{ animationDuration: "15s", animationDelay: "4s" }} />

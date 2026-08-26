@@ -304,8 +304,8 @@ export default function QuizPage() {
 
   return (
     <div className="flex h-screen overflow-hidden" style={{ background: "#050B18" }}>
-      {/* LEFT SIDEBAR */}
-      <div className="w-80 flex-shrink-0 border-r border-slate-800/50 px-6 py-6 flex flex-col min-h-0" style={{ background: "rgba(15,23,42,0.4)" }}>
+      {/* LEFT SIDEBAR - desktop only; mobile gets the compact strip in the top bar */}
+      <div className="hidden lg:flex w-80 flex-shrink-0 border-r border-slate-800/50 px-6 py-6 flex-col min-h-0" style={{ background: "rgba(15,23,42,0.4)" }}>
         <div className="mb-5 flex flex-col items-center flex-shrink-0">
           <div className="relative w-24 h-24 mb-3">
             <svg className="w-full h-full transform -rotate-90" viewBox="0 0 120 120">
@@ -375,21 +375,54 @@ export default function QuizPage() {
       {/* MAIN CONTENT */}
       <div className="flex-1 flex flex-col min-w-0 min-h-0">
         {/* Top Bar */}
-        <div className="border-b border-slate-800/50 px-8 py-3 flex items-center justify-between flex-shrink-0" style={{ background: "rgba(15,23,42,0.3)" }}>
-          <Link href="/" className="text-white/70 hover:text-white transition-colors font-semibold">
+        <div className="border-b border-slate-800/50 px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-3 flex-shrink-0" style={{ background: "rgba(15,23,42,0.3)" }}>
+          <Link href="/" className="text-white/70 hover:text-white transition-colors font-semibold whitespace-nowrap">
             ← Back
           </Link>
-          {mode === "timed" && (
-            <div className="flex items-center gap-3 text-white">
-              <Clock size={18} />
-              <span className="font-mono text-sm font-semibold">{formatTime(timer)}</span>
-            </div>
-          )}
+          <div className="flex items-center gap-4">
+            {/* Progress replaces the hidden sidebar ring on small screens */}
+            <span className="lg:hidden text-white/60 text-xs font-semibold whitespace-nowrap">
+              {answeredCount}/{mcqs.length} · {progress}%
+            </span>
+            {mode === "timed" && (
+              <div className="flex items-center gap-2 text-white">
+                <Clock size={16} />
+                <span className="font-mono text-sm font-semibold">{formatTime(timer)}</span>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Mobile question strip - scrolls horizontally in place of the sidebar */}
+        <div className="lg:hidden border-b border-slate-800/50 px-4 py-2 flex gap-2 overflow-x-auto flex-shrink-0" style={{ background: "rgba(15,23,42,0.2)" }}>
+          {mcqs.map((_, idx) => {
+            const isAnswered = idx in answers;
+            const isCurrent = idx === currentIdx;
+            const isCorrect = answers[idx]?.correct;
+            return (
+              <button
+                key={idx}
+                onClick={() => { if (isCurrent || isAnswered || idx === 0) goTo(idx); }}
+                disabled={!isCurrent && !isAnswered && idx !== 0}
+                className="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs flex-shrink-0 disabled:cursor-not-allowed"
+                style={{
+                  background: isCurrent ? "#3B82F6" : isAnswered ? (isCorrect ? "rgba(16,185,129,0.3)" : "rgba(239,68,68,0.3)") : "rgba(99,102,241,0.2)",
+                  color: isCurrent || isAnswered ? "#fff" : "rgba(255,255,255,0.5)",
+                  opacity: (!isCurrent && !isAnswered && idx !== 0) ? 0.4 : 1,
+                }}
+              >
+                {isAnswered && !isCurrent ? (isCorrect ? "✓" : "✗") : idx + 1}
+              </button>
+            );
+          })}
         </div>
 
         {/* Content - only these panes scroll, never the page itself */}
-        <div className="flex-1 min-h-0 overflow-hidden px-8 py-5 flex gap-6" style={{ animation: "fadeIn 0.3s ease-in" }}>
-          <div className="flex-1 max-w-3xl min-w-0 overflow-y-auto -mr-3 pr-3">
+        <div
+          className="flex-1 min-h-0 overflow-y-auto lg:overflow-hidden px-4 sm:px-6 lg:px-8 py-4 lg:py-5 flex flex-col lg:flex-row gap-5 lg:gap-6"
+          style={{ animation: "fadeIn 0.3s ease-in" }}
+        >
+          <div className="flex-1 lg:max-w-3xl min-w-0 lg:overflow-y-auto lg:-mr-3 lg:pr-3">
             {/* Question Header */}
             <p className="text-cyan-400 text-xs font-bold uppercase tracking-wider mb-2">Question {currentIdx + 1} of {mcqs.length}</p>
 
@@ -526,7 +559,7 @@ export default function QuizPage() {
 
           {/* RIGHT SIDEBAR - Only show in Tutor Mode */}
           {mode === "tutor" && (
-            <div className="w-72 flex-shrink-0 space-y-4 overflow-y-auto pb-4">
+            <div className="w-full lg:w-72 flex-shrink-0 space-y-4 lg:overflow-y-auto pb-4">
               {/* Difficulty Level Box */}
               <div
                 className="rounded-xl p-5"
@@ -592,34 +625,35 @@ export default function QuizPage() {
         </div>
 
         {/* Bottom Bar */}
-        <div className="border-t border-slate-800/50 px-8 py-4 flex-shrink-0" style={{ background: "rgba(15,23,42,0.3)" }}>
-          <div className="flex items-center justify-between gap-4 max-w-3xl mx-auto">
+        <div className="border-t border-slate-800/50 px-4 sm:px-6 lg:px-8 py-3 sm:py-4 flex-shrink-0" style={{ background: "rgba(15,23,42,0.3)" }}>
+          <div className="flex items-center justify-between gap-2 sm:gap-4 max-w-3xl mx-auto">
             <button
               onClick={() => goTo(currentIdx - 1)}
               disabled={currentIdx === 0}
-              className="px-6 py-3 rounded-2xl font-semibold text-white/70 transition-all disabled:opacity-30 disabled:cursor-not-allowed hover:text-white"
+              className="px-3 sm:px-6 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl font-semibold text-white/70 text-sm transition-all disabled:opacity-30 disabled:cursor-not-allowed hover:text-white whitespace-nowrap"
               style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)" }}
             >
-              ← Previous
+              <span className="hidden sm:inline">← Previous</span>
+              <span className="sm:hidden">←</span>
             </button>
 
             {submitted ? (
               <button
                 onClick={handleNext}
-                className="px-12 py-3 rounded-2xl font-bold text-white text-lg"
+                className="flex-1 sm:flex-none px-4 sm:px-12 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl font-bold text-white text-sm sm:text-lg whitespace-nowrap"
                 style={{ background: "linear-gradient(135deg, #3B82F6, #8B5CF6)" }}
               >
                 {currentIdx === mcqs.length - 1 ? "Finish Quiz" : "Next Question →"}
               </button>
             ) : (
-              <p className="text-white/50 text-sm font-medium">
+              <p className="flex-1 sm:flex-none text-center text-white/50 text-xs sm:text-sm font-medium">
                 Select an answer to continue
               </p>
             )}
 
             <button
               onClick={handleFinish}
-              className="px-6 py-3 rounded-2xl font-semibold text-white/70 transition-all hover:text-white"
+              className="px-3 sm:px-6 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl font-semibold text-white/70 text-sm transition-all hover:text-white whitespace-nowrap"
               style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)" }}
             >
               Finish

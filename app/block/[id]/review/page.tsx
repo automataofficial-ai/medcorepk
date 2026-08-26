@@ -211,7 +211,7 @@ export default function BlockReviewPage() {
                 <span className="text-white/70 text-sm">{block.specialty}</span>
               </div>
               <h1 className="text-2xl font-black text-white mb-4">{block.title}</h1>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {[
                   { label: "Correct", value: `${session.correctCount}/${block.mcqs.length}`, color: "#A7F3D0" },
                   { label: "Incorrect", value: `${block.mcqs.length - session.correctCount}/${block.mcqs.length}`, color: "#FCA5A5" },

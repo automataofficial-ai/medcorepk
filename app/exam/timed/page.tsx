@@ -311,7 +311,7 @@ export default function TimedExamPage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-3 gap-4 mb-8">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
             <div className="text-center p-4 rounded-xl" style={{ background: "rgba(16,185,129,0.1)", border: "1px solid rgba(16,185,129,0.2)" }}>
               <p className="text-2xl font-bold text-emerald-400">{results.correct}</p>
               <p className="text-xs text-slate-400 mt-1">Correct</p>

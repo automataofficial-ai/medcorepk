@@ -213,10 +213,15 @@ export default function ImportMCQsPage() {
           }}>
           <div className="flex flex-col items-center justify-center gap-4">
             <Upload size={48} className="text-cyan-400" />
-            <div className="text-center">
+            <div className="text-center w-full max-w-full min-w-0">
               <p className="text-white font-bold text-lg mb-2">Select your CSV file</p>
-              <p className="text-white/60 text-sm">Format: block_name,sub_subject_name,question,case_study,option_a,option_b,option_c,option_d,option_e,correct_answer,explanation_a,explanation_b,explanation_c,explanation_d,explanation_e,difficulty,image_url,references,is_fcps_pearl,fcps_pearl_content</p>
-              <p className="text-white/50 text-xs mt-2">Optional: sub_subject_name, option_e, explanation_e, image_url, references, is_fcps_pearl, and fcps_pearl_content can be left empty</p>
+              <p className="text-white/60 text-sm mb-2">Required column order:</p>
+              <div className="max-w-full overflow-x-auto rounded-lg bg-black/30 px-3 py-2 mb-2">
+                <code className="text-white/70 text-xs whitespace-pre font-mono">
+                  block_name,sub_subject_name,question,case_study,option_a,option_b,option_c,option_d,option_e,correct_answer,explanation_a,explanation_b,explanation_c,explanation_d,explanation_e,difficulty,image_url,references,is_fcps_pearl,fcps_pearl_content
+                </code>
+              </div>
+              <p className="text-white/50 text-xs break-words">Optional: sub_subject_name, option_e, explanation_e, image_url, references, is_fcps_pearl, and fcps_pearl_content can be left empty</p>
             </div>
             <input type="file" accept=".csv" onChange={handleFileChange} className="hidden" id="csv-input" />
             <label htmlFor="csv-input" className="cursor-pointer">

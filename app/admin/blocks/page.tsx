@@ -143,7 +143,7 @@ export default function BlocksPage() {
           <div className="glass rounded-2xl p-8 mb-8" style={{ background: "rgba(30,27,75,0.4)", border: "1px solid rgba(255,255,255,0.1)" }}>
             <h2 className="text-2xl font-bold text-white mb-6">{editingId ? "Edit Block" : "Add New Block"}</h2>
             <form onSubmit={handleSave} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-white text-sm font-semibold mb-2">Title *</label>
                   <input type="text" value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })} className="w-full px-4 py-2 rounded-lg bg-slate-700 text-white" placeholder="e.g., Anatomy Fundamentals" />
@@ -157,7 +157,7 @@ export default function BlocksPage() {
                 <label className="block text-white text-sm font-semibold mb-2">Description</label>
                 <textarea value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} className="w-full px-4 py-2 rounded-lg bg-slate-700 text-white" rows={2} placeholder="Block description..." />
               </div>
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
                   <label className="block text-white text-sm font-semibold mb-2">Icon</label>
                   <input type="text" value={formData.icon} onChange={(e) => setFormData({ ...formData, icon: e.target.value })} className="w-full px-4 py-2 rounded-lg bg-slate-700 text-white text-center" placeholder="🫀" />

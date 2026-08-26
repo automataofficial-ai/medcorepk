@@ -238,7 +238,7 @@ export default function PaperSubjectsPage() {
                 </p>
 
                 {/* ── Stats ── */}
-                <div className="grid grid-cols-2 gap-3 mb-6 pt-4 border-t border-white/10">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6 pt-4 border-t border-white/10">
                   <div className="flex items-center gap-2">
                     <span className="text-xs text-white/60">📚 Topics:</span>
                     <span className="text-sm font-bold text-cyan-400">{subject.topics}</span>

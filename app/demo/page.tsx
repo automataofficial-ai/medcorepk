@@ -190,9 +190,9 @@ export default function DemoPage() {
   };
 
   return (
-    <div className="flex min-h-screen" style={{ background: "#050B18" }}>
+    <div className="flex flex-col lg:flex-row min-h-screen" style={{ background: "#050B18" }}>
       {/* LEFT SIDEBAR */}
-      <div className="w-80 border-r border-slate-800/50 p-8 flex flex-col" style={{ background: "rgba(15,23,42,0.4)" }}>
+      <div className="w-full lg:w-80 flex-shrink-0 border-b lg:border-b-0 lg:border-r border-slate-800/50 p-4 sm:p-6 lg:p-8 flex flex-col" style={{ background: "rgba(15,23,42,0.4)" }}>
         <div className="mb-8 flex flex-col items-center">
           <div className="relative w-28 h-28 mb-4">
             <svg className="w-full h-full transform -rotate-90" viewBox="0 0 120 120">
@@ -224,7 +224,7 @@ export default function DemoPage() {
 
         <div className="flex-1 mb-8">
           <p className="text-white/60 text-xs font-semibold mb-4 uppercase">Questions</p>
-          <div className="grid grid-cols-4 gap-2">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
             {mcqs.map((_, idx) => {
               const isAnswered = idx in answers;
               const isCurrent = idx === currentIdx;
@@ -355,7 +355,7 @@ export default function DemoPage() {
 
         {/* RIGHT SIDEBAR - Tutor Mode Info */}
         {submitted && (
-          <div className="w-72 space-y-4 pt-12">
+          <div className="w-full lg:w-72 flex-shrink-0 space-y-4 lg:pt-12">
             {/* FCPS Pearl Box */}
             <div
               className="rounded-xl p-5"

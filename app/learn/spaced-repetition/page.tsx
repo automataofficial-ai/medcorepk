@@ -163,7 +163,7 @@ export default function SpacedRepetitionPage() {
 
         {/* Stats */}
         <div className="max-w-6xl mx-auto px-6 py-8">
-          <div className="grid grid-cols-5 gap-4 mb-8">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 mb-8">
             <div
               className="p-6 rounded-2xl text-center"
               style={{

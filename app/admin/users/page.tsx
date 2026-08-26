@@ -159,7 +159,7 @@ export default function UsersPage() {
           <div className="glass rounded-2xl p-8 mb-8" style={{ background: "rgba(30,27,75,0.4)", border: "1px solid rgba(255,255,255,0.1)" }}>
             <h2 className="text-2xl font-bold text-white mb-6">{editingId ? "Edit User" : "Add New User"}</h2>
             <form onSubmit={handleSave} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-white text-sm font-semibold mb-2">Email *</label>
                   <input type="email" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} className="w-full px-4 py-2 rounded-lg bg-slate-700 text-white" placeholder="student@example.com" />
@@ -169,7 +169,7 @@ export default function UsersPage() {
                   <input type="text" value={formData.full_name} onChange={(e) => setFormData({ ...formData, full_name: e.target.value })} className="w-full px-4 py-2 rounded-lg bg-slate-700 text-white" placeholder="e.g., John Doe" />
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-white text-sm font-semibold mb-2">Role</label>
                   <select value={formData.role} onChange={(e) => setFormData({ ...formData, role: e.target.value })} className="w-full px-4 py-2 rounded-lg bg-slate-700 text-white">
