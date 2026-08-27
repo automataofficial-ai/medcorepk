@@ -20,6 +20,7 @@ export default function Header() {
   if (
     pathname.startsWith("/dashboard") ||
     pathname.startsWith("/block") ||
+    pathname === "/demo" ||
     isQuizPage
   ) {
     return null;

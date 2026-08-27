@@ -190,11 +190,11 @@ export default function DemoPage() {
   };
 
   return (
-    <div className="flex flex-col lg:flex-row min-h-screen" style={{ background: "#050B18" }}>
-      {/* LEFT SIDEBAR */}
-      <div className="w-full lg:w-80 flex-shrink-0 border-b lg:border-b-0 lg:border-r border-slate-800/50 p-4 sm:p-6 lg:p-8 flex flex-col" style={{ background: "rgba(15,23,42,0.4)" }}>
-        <div className="mb-8 flex flex-col items-center">
-          <div className="relative w-28 h-28 mb-4">
+    <div className="flex h-screen overflow-hidden" style={{ background: "#050B18" }}>
+      {/* LEFT SIDEBAR - desktop only; mobile gets the compact strip in the top bar */}
+      <div className="hidden lg:flex w-80 flex-shrink-0 border-r border-slate-800/50 px-6 py-6 flex-col min-h-0" style={{ background: "rgba(15,23,42,0.4)" }}>
+        <div className="mb-5 flex flex-col items-center flex-shrink-0">
+          <div className="relative w-24 h-24 mb-3">
             <svg className="w-full h-full transform -rotate-90" viewBox="0 0 120 120">
               <circle cx="60" cy="60" r="54" fill="none" stroke="rgba(99,102,241,0.2)" strokeWidth="8" />
               <circle
@@ -218,13 +218,14 @@ export default function DemoPage() {
           </p>
         </div>
 
-        <button className="px-6 py-2 rounded-lg font-bold text-white text-sm mb-8" style={{ background: "rgba(59,130,246,0.2)", border: "1px solid rgba(59,130,246,0.3)" }}>
+        <button className="px-6 py-2 rounded-lg font-bold text-white text-sm mb-5 flex-shrink-0" style={{ background: "rgba(59,130,246,0.2)", border: "1px solid rgba(59,130,246,0.3)" }}>
           Demo Mode
         </button>
 
-        <div className="flex-1 mb-8">
-          <p className="text-white/60 text-xs font-semibold mb-4 uppercase">Questions</p>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+        {/* Question grid scrolls inside the sidebar rather than growing the page */}
+        <div className="flex-1 min-h-0 overflow-y-auto -mr-2 pr-2 mb-4">
+          <p className="text-white/60 text-xs font-semibold mb-3 uppercase">Questions</p>
+          <div className="flex flex-wrap gap-2.5">
             {mcqs.map((_, idx) => {
               const isAnswered = idx in answers;
               const isCurrent = idx === currentIdx;
@@ -241,7 +242,7 @@ export default function DemoPage() {
                       setSubmitted(false);
                     }
                   }}
-                  className="w-12 h-12 rounded-full flex items-center justify-center font-bold text-sm transition-all disabled:cursor-not-allowed"
+                  className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-all disabled:cursor-not-allowed flex-shrink-0"
                   style={{
                     background: isCurrent ? "#3B82F6" : isAnswered ? (isCorrect ? "rgba(16,185,129,0.3)" : "rgba(239,68,68,0.3)") : "rgba(99,102,241,0.2)",
                     color: isCurrent || isAnswered ? "#fff" : "rgba(255,255,255,0.5)",
@@ -256,15 +257,60 @@ export default function DemoPage() {
           </div>
         </div>
 
-        <div className="flex items-center gap-2 text-cyan-400 text-sm">
-          <Clock size={16} />
-          <span>{Math.floor(timer / 60)}:{String(timer % 60).padStart(2, "0")}</span>
-        </div>
       </div>
 
-      {/* MAIN CONTENT */}
-      <div className="flex-1 overflow-y-auto px-8 py-8 flex gap-8" style={{ animation: "fadeIn 0.3s ease", paddingBottom: "120px" }}>
-        <div className="flex-1 max-w-3xl">
+      {/* MAIN COLUMN */}
+      <div className="flex-1 flex flex-col min-w-0 min-h-0">
+        {/* Top Bar */}
+        <div className="border-b border-slate-800/50 px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-3 flex-shrink-0" style={{ background: "rgba(15,23,42,0.3)" }}>
+          <span className="text-white font-semibold text-sm whitespace-nowrap">Demo Mode</span>
+          <div className="flex items-center gap-4">
+            <span className="lg:hidden text-white/60 text-xs font-semibold whitespace-nowrap">
+              {answeredCount}/{mcqs.length} · {progress}%
+            </span>
+            <div className="flex items-center gap-2 text-cyan-400 text-sm">
+              <Clock size={16} />
+              <span className="font-mono">{Math.floor(timer / 60)}:{String(timer % 60).padStart(2, "0")}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Mobile question strip - scrolls horizontally in place of the sidebar */}
+        <div className="lg:hidden border-b border-slate-800/50 px-4 py-2 flex gap-2 overflow-x-auto flex-shrink-0" style={{ background: "rgba(15,23,42,0.2)" }}>
+          {mcqs.map((_, idx) => {
+            const isAnswered = idx in answers;
+            const isCurrent = idx === currentIdx;
+            const isCorrect = answers[idx]?.correct;
+            return (
+              <button
+                key={idx}
+                disabled={!isCurrent && !isAnswered}
+                onClick={() => {
+                  if (isCurrent || isAnswered) {
+                    setCurrentIdx(idx);
+                    setSelected(null);
+                    setSubmitted(false);
+                  }
+                }}
+                className="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs flex-shrink-0 disabled:cursor-not-allowed"
+                style={{
+                  background: isCurrent ? "#3B82F6" : isAnswered ? (isCorrect ? "rgba(16,185,129,0.3)" : "rgba(239,68,68,0.3)") : "rgba(99,102,241,0.2)",
+                  color: isCurrent || isAnswered ? "#fff" : "rgba(255,255,255,0.5)",
+                  opacity: !isCurrent && !isAnswered ? 0.4 : 1,
+                }}
+              >
+                {isAnswered && !isCurrent ? (isCorrect ? "✓" : "✗") : idx + 1}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Content - only these panes scroll, never the page itself */}
+        <div
+          className="flex-1 min-h-0 overflow-y-auto lg:overflow-hidden px-4 sm:px-6 lg:px-8 py-4 lg:py-5 flex flex-col lg:flex-row gap-5 lg:gap-6"
+          style={{ animation: "fadeIn 0.3s ease" }}
+        >
+        <div className="flex-1 lg:max-w-3xl min-w-0 lg:overflow-y-auto lg:-mr-3 lg:pr-3">
           <p className="text-cyan-400 text-sm font-bold uppercase tracking-wider mb-4">Question {currentIdx + 1}</p>
           <h2 className="text-xl font-semibold text-white mb-2">{currentMcq.question}</h2>
           <p className="text-white/60 text-sm mb-8">Choose the single best answer.</p>
@@ -355,7 +401,7 @@ export default function DemoPage() {
 
         {/* RIGHT SIDEBAR - Tutor Mode Info */}
         {submitted && (
-          <div className="w-full lg:w-72 flex-shrink-0 space-y-4 lg:pt-12">
+          <div className="w-full lg:w-72 flex-shrink-0 space-y-4 lg:overflow-y-auto pb-4">
             {/* FCPS Pearl Box */}
             <div
               className="rounded-xl p-5"
@@ -414,31 +460,32 @@ export default function DemoPage() {
             </div>
           </div>
         )}
-      </div>
+        </div>
 
-      {/* Bottom Bar */}
-      <div className="fixed bottom-0 left-0 right-0 border-t border-slate-800/50 px-8 py-6" style={{ background: "rgba(15,23,42,0.3)" }}>
-        <div className="flex items-center justify-center gap-4">
-          {!submitted ? (
-            <button
-              onClick={handleCheckAnswer}
-              disabled={!selected}
-              className="px-12 py-3 rounded-2xl font-bold text-white text-lg transition-all disabled:opacity-50"
-              style={{
-                background: selected ? "linear-gradient(135deg, #06B6D4, #0891B2)" : "rgba(6,182,212,0.2)",
-              }}
-            >
-              Check Answer
-            </button>
-          ) : (
-            <button
-              onClick={handleNext}
-              className="px-12 py-3 rounded-2xl font-bold text-white text-lg"
-              style={{ background: "linear-gradient(135deg, #3B82F6, #8B5CF6)" }}
-            >
-              {currentIdx === mcqs.length - 1 ? "Finish Demo" : "Next Question"}
-            </button>
-          )}
+        {/* Bottom Bar - in flow, so it can never cover the question */}
+        <div className="border-t border-slate-800/50 px-4 sm:px-6 lg:px-8 py-3 sm:py-4 flex-shrink-0" style={{ background: "rgba(15,23,42,0.3)" }}>
+          <div className="flex items-center justify-center gap-4">
+            {!submitted ? (
+              <button
+                onClick={handleCheckAnswer}
+                disabled={!selected}
+                className="w-full sm:w-auto px-6 sm:px-12 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl font-bold text-white text-sm sm:text-lg transition-all disabled:opacity-50"
+                style={{
+                  background: selected ? "linear-gradient(135deg, #06B6D4, #0891B2)" : "rgba(6,182,212,0.2)",
+                }}
+              >
+                Check Answer
+              </button>
+            ) : (
+              <button
+                onClick={handleNext}
+                className="w-full sm:w-auto px-6 sm:px-12 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl font-bold text-white text-sm sm:text-lg"
+                style={{ background: "linear-gradient(135deg, #3B82F6, #8B5CF6)" }}
+              >
+                {currentIdx === mcqs.length - 1 ? "Finish Demo" : "Next Question"}
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
