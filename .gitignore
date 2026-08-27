@@ -31,3 +31,7 @@ Blood_Physiology_MCQs_*.csv
 formatted_files/
 MCQ_TEMPLATE_*.csv
 MCQ_TEMPLATE_*.md
+
+# typescript incremental build cache
+tsconfig.tsbuildinfo
+*.tsbuildinfo
