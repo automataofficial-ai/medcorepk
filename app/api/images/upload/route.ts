@@ -1,26 +1,25 @@
 import { getSupabase } from "@/lib/supabase";
 import { NextRequest, NextResponse } from "next/server";
+import { requireAdmin } from "@/lib/auth-server";
 
 export async function POST(req: NextRequest) {
+  const auth = await requireAdmin(req);
+  if (auth.status === "denied") return auth.response;
+
   try {
     const formData = await req.formData();
     const file = formData.get("file") as File;
     const title = formData.get("title") as string;
     const description = formData.get("description") as string;
     const category = formData.get("category") as string;
-    const userId = req.headers.get("x-user-id");
+    // Verified session, not a spoofable header - this also decides the storage
+    // path files land in.
+    const userId = auth.admin.id;
 
     if (!file) {
       return NextResponse.json(
         { error: "No file provided" },
         { status: 400 }
-      );
-    }
-
-    if (!userId) {
-      return NextResponse.json(
-        { error: "User not authenticated" },
-        { status: 401 }
       );
     }
 

@@ -1,40 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-
-async function checkAdminAccess(userId: string, serviceKey: string, supabaseUrl: string) {
-  try {
-    const supabase = createClient(supabaseUrl, serviceKey);
-    const { data, error } = await supabase
-      .from("users")
-      .select("role")
-      .eq("id", userId)
-      .single();
-
-    if (error || data?.role !== "admin") {
-      return false;
-    }
-    return true;
-  } catch (err) {
-    return false;
-  }
-}
+import { requireAdmin } from "@/lib/auth-server";
 
 export async function POST(req: NextRequest) {
+  // This route used to read a `userId` out of the request body and look up that
+  // user's role - so anyone who knew an administrator's UUID was treated as an
+  // administrator. Identity now comes from the verified session instead, and
+  // any userId in the body is ignored.
+  const auth = await requireAdmin(req);
+  if (auth.status === "denied") return auth.response;
+
   try {
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
     const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 
-    const { userId, action, mcq } = await req.json();
-
-    if (!userId) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    // Check if user is admin
-    const isAdmin = await checkAdminAccess(userId, serviceKey, supabaseUrl);
-    if (!isAdmin) {
-      return NextResponse.json({ error: "Admin access required" }, { status: 403 });
-    }
+    const { action, mcq } = await req.json();
 
     const supabase = createClient(supabaseUrl, serviceKey);
 

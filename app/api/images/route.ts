@@ -1,17 +1,17 @@
 import { getSupabase } from "@/lib/supabase";
 import { NextRequest, NextResponse } from "next/server";
+import { requireAdmin } from "@/lib/auth-server";
 
 export async function GET(req: NextRequest) {
-  try {
-    const userId = req.headers.get("x-user-id");
-    const category = req.nextUrl.searchParams.get("category");
+  const auth = await requireAdmin(req);
+  if (auth.status === "denied") return auth.response;
 
-    if (!userId) {
-      return NextResponse.json(
-        { error: "User not authenticated" },
-        { status: 401 }
-      );
-    }
+  try {
+    // Identity comes from the verified session, never from a client header.
+    // The old x-user-id header let any caller read any account's images by
+    // guessing a user id.
+    const userId = auth.admin.id;
+    const category = req.nextUrl.searchParams.get("category");
 
     const supabase = getSupabase();
 
@@ -49,11 +49,14 @@ export async function GET(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
+  const auth = await requireAdmin(req);
+  if (auth.status === "denied") return auth.response;
+
   try {
-    const userId = req.headers.get("x-user-id");
+    const userId = auth.admin.id;
     const imageId = req.nextUrl.searchParams.get("id");
 
-    if (!userId || !imageId) {
+    if (!imageId) {
       return NextResponse.json(
         { error: "Missing required parameters" },
         { status: 400 }

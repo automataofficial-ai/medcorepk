@@ -1,17 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useAdminGuard } from "@/lib/use-admin-guard";
 
 export default function SettingsPage() {
   const router = useRouter();
-  const [admin, setAdmin] = useState<any>(null);
-
-  useEffect(() => {
-    const adminToken = localStorage.getItem("admin_token");
-    if (!adminToken) router.push("/admin/login");
-    else setAdmin(JSON.parse(adminToken));
-  }, [router]);
+  const { admin } = useAdminGuard();
 
   if (!admin) return null;
 

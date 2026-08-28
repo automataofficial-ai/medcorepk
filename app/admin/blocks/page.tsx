@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/context/ToastContext";
+import { adminFetch } from "@/lib/admin-client";
+import { useAdminGuard } from "@/lib/use-admin-guard";
 
 interface Block {
   id: string;
@@ -18,7 +20,7 @@ export default function BlocksPage() {
   const router = useRouter();
   const { success, error: showError } = useToast();
 
-  const [admin, setAdmin] = useState<any>(null);
+  const { admin } = useAdminGuard();
   const [blocks, setBlocks] = useState<Block[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -31,15 +33,6 @@ export default function BlocksPage() {
     icon: "📚",
     difficulty: "Medium",
   });
-
-  useEffect(() => {
-    const adminToken = localStorage.getItem("admin_token");
-    if (!adminToken) {
-      router.push("/admin/login");
-      return;
-    }
-    setAdmin(JSON.parse(adminToken));
-  }, [router]);
 
   useEffect(() => {
     const loadBlocks = async () => {
@@ -65,7 +58,7 @@ export default function BlocksPage() {
 
     try {
       if (editingId) {
-        const res = await fetch(`/api/admin/blocks/${editingId}`, {
+        const res = await adminFetch(`/api/admin/blocks/${editingId}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(formData),
@@ -73,7 +66,7 @@ export default function BlocksPage() {
         if (!res.ok) throw new Error("Update failed");
         success("Updated", "Block updated!");
       } else {
-        const res = await fetch("/api/admin/blocks", {
+        const res = await adminFetch("/api/admin/blocks", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(formData),
@@ -109,7 +102,7 @@ export default function BlocksPage() {
   const handleDelete = async (id: string) => {
     if (!confirm("Delete this block and all its MCQs?")) return;
     try {
-      const res = await fetch(`/api/admin/blocks/${id}`, { method: "DELETE" });
+      const res = await adminFetch(`/api/admin/blocks/${id}`, { method: "DELETE" });
       if (!res.ok) throw new Error("Delete failed");
       success("Deleted", "Block deleted!");
       setBlocks(blocks.filter((b) => b.id !== id));

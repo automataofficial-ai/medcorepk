@@ -5,6 +5,7 @@ import {
   isMissingIconColumnError,
   withoutIcon,
 } from "@/lib/sub-subjects";
+import { requireAdmin } from "@/lib/auth-server";
 
 export async function GET(
   req: NextRequest,
@@ -69,6 +70,9 @@ export async function PUT(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const auth = await requireAdmin(req);
+  if (auth.status === "denied") return auth.response;
+
   try {
     const { id } = await params;
 
@@ -135,6 +139,9 @@ export async function DELETE(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const auth = await requireAdmin(req);
+  if (auth.status === "denied") return auth.response;
+
   try {
     const { id } = await params;
     const supabase = getServiceRoleClient();

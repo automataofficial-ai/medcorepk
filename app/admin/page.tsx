@@ -1,37 +1,17 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useToast } from "@/context/ToastContext";
+import { adminSignOut } from "@/lib/admin-client";
+import { useAdminGuard } from "@/lib/use-admin-guard";
 
 export default function AdminDashboard() {
   const router = useRouter();
-  const { error: showError } = useToast();
-  const [admin, setAdmin] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+  const { admin, checking: loading } = useAdminGuard();
 
-  useEffect(() => {
-    const adminToken = localStorage.getItem("admin_token");
-    if (!adminToken) {
-      router.push("/admin/login");
-      return;
-    }
-
-    try {
-      const adminData = JSON.parse(adminToken);
-      setAdmin(adminData);
-      setLoading(false);
-    } catch {
-      showError("Error", "Invalid admin session");
-      localStorage.removeItem("admin_token");
-      router.push("/admin/login");
-    }
-  }, [router, showError]);
-
-  const handleLogout = () => {
-    localStorage.removeItem("admin_token");
-    router.push("/admin/login");
+  const handleLogout = async () => {
+    await adminSignOut();
+    router.replace("/admin/login");
   };
 
   if (loading) {

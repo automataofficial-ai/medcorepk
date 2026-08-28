@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import { Upload, Trash2, Copy, Image as ImageIcon } from "lucide-react";
 import Link from "next/link";
 import { useToast } from "@/context/ToastContext";
+import { adminFetch } from "@/lib/admin-client";
+import { useAdminGuard } from "@/lib/use-admin-guard";
 
 interface ImageData {
   id: string;
@@ -30,6 +32,7 @@ const CATEGORIES = [
 
 export default function ImageManagementPage() {
   const { success, error, info } = useToast();
+  const { admin } = useAdminGuard();
   const [images, setImages] = useState<ImageData[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
@@ -42,24 +45,15 @@ export default function ImageManagementPage() {
   });
 
   useEffect(() => {
-    fetchImages();
-  }, [selectedCategory]);
+    if (admin) fetchImages();
+  }, [selectedCategory, admin]);
 
   const fetchImages = async () => {
     try {
       setLoading(true);
-      const user = localStorage.getItem("medcore_user");
-      const userId = user ? JSON.parse(user).id : null;
-
-      if (!userId) {
-        error("Not authenticated", "Please login first");
-        return;
-      }
 
       const query = selectedCategory !== "All" ? `?category=${selectedCategory}` : "";
-      const res = await fetch(`/api/images${query}`, {
-        headers: { "x-user-id": userId },
-      });
+      const res = await adminFetch(`/api/images${query}`);
 
       if (!res.ok) throw new Error("Failed to fetch images");
 
@@ -81,13 +75,6 @@ export default function ImageManagementPage() {
 
     try {
       setUploading(true);
-      const user = localStorage.getItem("medcore_user");
-      const userId = user ? JSON.parse(user).id : null;
-
-      if (!userId) {
-        error("Not authenticated", "Please login first");
-        return;
-      }
 
       const form = new FormData();
       form.append("file", e.currentTarget.file.files[0]);
@@ -95,9 +82,8 @@ export default function ImageManagementPage() {
       form.append("description", formData.description);
       form.append("category", formData.category);
 
-      const res = await fetch("/api/images/upload", {
+      const res = await adminFetch("/api/images/upload", {
         method: "POST",
-        headers: { "x-user-id": userId },
         body: form,
       });
 
@@ -118,12 +104,8 @@ export default function ImageManagementPage() {
     if (!confirm("Delete this image?")) return;
 
     try {
-      const user = localStorage.getItem("medcore_user");
-      const userId = user ? JSON.parse(user).id : null;
-
-      const res = await fetch(`/api/images?id=${imageId}`, {
+      const res = await adminFetch(`/api/images?id=${imageId}`, {
         method: "DELETE",
-        headers: { "x-user-id": userId },
       });
 
       if (!res.ok) throw new Error("Delete failed");

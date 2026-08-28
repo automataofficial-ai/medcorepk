@@ -5,6 +5,7 @@ import {
   isMissingIconColumnError,
   withoutIcon,
 } from "@/lib/sub-subjects";
+import { requireAdmin } from "@/lib/auth-server";
 
 export async function GET(req: NextRequest) {
   try {
@@ -23,6 +24,9 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  const auth = await requireAdmin(req);
+  if (auth.status === "denied") return auth.response;
+
   try {
     let body: any;
     try {

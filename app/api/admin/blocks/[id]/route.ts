@@ -1,10 +1,14 @@
 import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
+import { requireAdmin } from "@/lib/auth-server";
 
 export async function PUT(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const auth = await requireAdmin(request);
+  if (auth.status === "denied") return auth.response;
+
   try {
     const { id } = await params;
     const { title, specialty, description, icon, difficulty } =
@@ -53,6 +57,9 @@ export async function DELETE(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const auth = await requireAdmin(request);
+  if (auth.status === "denied") return auth.response;
+
   try {
     const { id } = await params;
 

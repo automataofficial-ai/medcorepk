@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Plus, Trash2, Edit2 } from "lucide-react";
 import { useToast } from "@/context/ToastContext";
+import { adminFetch } from "@/lib/admin-client";
+import { useAdminGuard } from "@/lib/use-admin-guard";
 
 interface Block {
   id: string;
@@ -69,6 +71,7 @@ function getSuggestedIcon(name: string): string {
 export default function SubSubjectsAdminPage() {
   const router = useRouter();
   const { success, error } = useToast();
+  const { admin } = useAdminGuard();
 
   const [blocks, setBlocks] = useState<Block[]>([]);
   const [subSubjects, setSubSubjects] = useState<SubSubject[]>([]);
@@ -159,7 +162,7 @@ export default function SubSubjectsAdminPage() {
     try {
       if (editingId) {
         // Update
-        const res = await fetch(`/api/sub-subjects/${editingId}`, {
+        const res = await adminFetch(`/api/sub-subjects/${editingId}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
@@ -171,7 +174,7 @@ export default function SubSubjectsAdminPage() {
         success("Success", "Sub-subject updated!");
       } else {
         // Create
-        const res = await fetch(`/api/blocks/${selectedBlock}/sub-subjects`, {
+        const res = await adminFetch(`/api/blocks/${selectedBlock}/sub-subjects`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -200,7 +203,7 @@ export default function SubSubjectsAdminPage() {
       return;
 
     try {
-      const res = await fetch(`/api/sub-subjects/${id}`, { method: "DELETE" });
+      const res = await adminFetch(`/api/sub-subjects/${id}`, { method: "DELETE" });
       if (!res.ok) {
         throw new Error(await readError(res, "Failed to delete sub-subject"));
       }

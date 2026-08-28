@@ -3,6 +3,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/context/ToastContext";
+import { adminFetch } from "@/lib/admin-client";
+import { useAdminGuard } from "@/lib/use-admin-guard";
 
 interface MCQ {
   id: string;
@@ -77,7 +79,7 @@ export default function MCQManagementPage() {
   const router = useRouter();
   const { success, error: showError } = useToast();
 
-  const [admin, setAdmin] = useState<any>(null);
+  const { admin } = useAdminGuard();
   const [blocks, setBlocks] = useState<Block[]>([]);
   const [subSubjects, setSubSubjects] = useState<SubSubject[]>([]);
   const [mcqs, setMCQs] = useState<MCQ[]>([]);
@@ -94,15 +96,6 @@ export default function MCQManagementPage() {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [bulkDeleting, setBulkDeleting] = useState(false);
   const selectAllRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    const adminToken = localStorage.getItem("admin_token");
-    if (!adminToken) {
-      router.push("/admin/login");
-      return;
-    }
-    setAdmin(JSON.parse(adminToken));
-  }, [router]);
 
   // ── 1. Load the subject list ──────────────────────────────
   useEffect(() => {
@@ -163,7 +156,7 @@ export default function MCQManagementPage() {
       const params = new URLSearchParams({ block_id: selectedBlock });
       if (selectedSubSubject !== ALL) params.set("sub_subject_id", selectedSubSubject);
 
-      const res = await fetch(`/api/admin/questions?${params.toString()}`);
+      const res = await adminFetch(`/api/admin/questions?${params.toString()}`);
       if (!res.ok) throw new Error(await readError(res, "Failed to load questions"));
       const data = await res.json();
       setMCQs(data.mcqs || []);
@@ -230,7 +223,7 @@ export default function MCQManagementPage() {
 
     setBulkDeleting(true);
     try {
-      const res = await fetch("/api/admin/questions", {
+      const res = await adminFetch("/api/admin/questions", {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ids }),
@@ -284,7 +277,7 @@ export default function MCQManagementPage() {
 
     try {
       if (editingId) {
-        const res = await fetch(`/api/admin/questions/${editingId}`, {
+        const res = await adminFetch(`/api/admin/questions/${editingId}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
@@ -292,7 +285,7 @@ export default function MCQManagementPage() {
         if (!res.ok) throw new Error(await readError(res, "Failed to update question"));
         success("Updated", "MCQ updated");
       } else {
-        const res = await fetch("/api/admin/questions", {
+        const res = await adminFetch("/api/admin/questions", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
@@ -342,7 +335,7 @@ export default function MCQManagementPage() {
   const handleDelete = async (mcq: MCQ) => {
     if (!confirm(`Delete this MCQ?\n\n${mcq.question.slice(0, 120)}`)) return;
     try {
-      const res = await fetch(`/api/admin/questions/${mcq.id}`, { method: "DELETE" });
+      const res = await adminFetch(`/api/admin/questions/${mcq.id}`, { method: "DELETE" });
       if (!res.ok) throw new Error(await readError(res, "Failed to delete question"));
       success("Deleted", "MCQ deleted");
       setMCQs((prev) => prev.filter((m) => m.id !== mcq.id));

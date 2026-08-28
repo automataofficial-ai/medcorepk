@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { getSupabase } from "@/lib/supabase";
+import { verifyAdminSession, adminSignOut } from "@/lib/admin-client";
 import { useToast } from "@/context/ToastContext";
 
 export default function AdminLoginPage() {
@@ -23,30 +25,39 @@ export default function AdminLoginPage() {
     setLoading(true);
 
     try {
-      // Simple admin login check
-      // In production, verify against admin database
-      const ADMIN_EMAIL = "admin@medcore.com";
-      const ADMIN_PASSWORD = "Admin123456";
+      // Step 1: authenticate against Supabase Auth. Passwords are checked by
+      // Supabase against a hash it holds; this app never sees or stores one.
+      const { data, error: signInError } = await getSupabase().auth.signInWithPassword({
+        email: email.trim(),
+        password,
+      });
 
-      if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
-        localStorage.setItem(
-          "admin_token",
-          JSON.stringify({
-            email,
-            role: "admin",
-            loginTime: Date.now(),
-          })
-        );
-
-        success("Login Successful", "Welcome to Admin Panel!");
-        setTimeout(() => {
-          router.push("/admin");
-        }, 1000);
-      } else {
-        showError("Invalid Credentials", "Email or password incorrect");
+      if (signInError || !data?.user) {
+        // One message for every failure mode, so the form cannot be used to
+        // discover which email addresses have accounts.
+        showError("Sign in failed", "Email or password is incorrect.");
+        return;
       }
+
+      // Step 2: ask the server whether this verified identity is an admin. The
+      // browser deliberately gets no say in this.
+      const admin = await verifyAdminSession();
+
+      if (!admin) {
+        // Authenticated, but not an administrator. Do not leave a usable
+        // student session sitting on the admin login screen.
+        await adminSignOut();
+        showError(
+          "Access denied",
+          "This account does not have administrator access."
+        );
+        return;
+      }
+
+      success("Signed in", `Welcome back, ${admin.fullName || admin.email}`);
+      router.push("/admin");
     } catch (err: any) {
-      showError("Error", err?.message || "Login failed");
+      showError("Error", err?.message || "Sign in failed");
     } finally {
       setLoading(false);
     }
@@ -54,22 +65,23 @@ export default function AdminLoginPage() {
 
   return (
     <div
-      className="min-h-screen flex items-center justify-center px-4"
+      className="min-h-screen flex items-center justify-center px-4 py-10"
       style={{ background: "#050B18" }}
     >
-      <div className="orb w-96 h-96 bg-blue-700 top-[-100px] left-[-100px]" style={{ animationDuration: "12s", position: "absolute" }} />
+      <div
+        className="orb w-96 h-96 bg-blue-700 top-[-100px] left-[-100px]"
+        style={{ animationDuration: "12s", position: "absolute" }}
+      />
 
       <div className="relative z-10 w-full max-w-md">
         <div className="text-center mb-8">
           <div className="text-5xl mb-4">🔐</div>
-          <h1 className="text-3xl font-bold text-white mb-2">
-            Admin Login
-          </h1>
+          <h1 className="text-3xl font-bold text-white mb-2">Admin Login</h1>
           <p className="text-slate-400">MedCore Admin Panel</p>
         </div>
 
         <div
-          className="glass rounded-3xl p-8"
+          className="glass rounded-3xl p-6 sm:p-8"
           style={{
             background: "rgba(30,27,75,0.4)",
             border: "1px solid rgba(255,255,255,0.1)",
@@ -77,14 +89,20 @@ export default function AdminLoginPage() {
         >
           <form onSubmit={handleLogin} className="space-y-5">
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">
+              <label
+                htmlFor="admin-email"
+                className="block text-sm font-medium text-slate-300 mb-2"
+              >
                 Email
               </label>
               <input
+                id="admin-email"
+                name="email"
                 type="email"
+                autoComplete="username"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="admin@medcore.com"
+                placeholder="you@example.com"
                 className="w-full px-4 py-3 rounded-xl text-white placeholder-slate-500 text-sm outline-none"
                 style={{
                   background: "rgba(255,255,255,0.05)",
@@ -94,11 +112,17 @@ export default function AdminLoginPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">
+              <label
+                htmlFor="admin-password"
+                className="block text-sm font-medium text-slate-300 mb-2"
+              >
                 Password
               </label>
               <input
+                id="admin-password"
+                name="password"
                 type="password"
+                autoComplete="current-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
@@ -113,31 +137,20 @@ export default function AdminLoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3.5 rounded-xl font-bold text-white text-base transition-all hover:scale-[1.02] disabled:opacity-60"
+              className="w-full py-3.5 rounded-xl font-bold text-white text-base transition-all hover:scale-[1.02] disabled:opacity-60 disabled:hover:scale-100"
               style={{
                 background: "linear-gradient(135deg, #00CED1, #00B5CC)",
                 boxShadow: "0 0 20px rgba(0,206,209,0.4)",
               }}
             >
-              {loading ? "Logging in..." : "Login to Admin Panel"}
+              {loading ? "Signing in..." : "Login to Admin Panel"}
             </button>
           </form>
 
-          <div
-            className="mt-6 p-4 rounded-lg text-sm"
-            style={{
-              background: "rgba(59,130,246,0.1)",
-              border: "1px solid rgba(59,130,246,0.2)",
-            }}
-          >
-            <p className="text-blue-300 font-semibold mb-2">📝 Test Credentials</p>
-            <p className="text-slate-400 text-xs">
-              Email: <span className="font-mono">admin@medcore.com</span>
-            </p>
-            <p className="text-slate-400 text-xs">
-              Password: <span className="font-mono">Admin123456</span>
-            </p>
-          </div>
+          <p className="mt-6 text-xs text-slate-500 text-center leading-relaxed">
+            Administrator accounts are managed in Supabase. If you need access,
+            ask an existing administrator to grant it.
+          </p>
         </div>
 
         <div className="mt-6 text-center">

@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/context/ToastContext";
+import { adminFetch } from "@/lib/admin-client";
+import { useAdminGuard } from "@/lib/use-admin-guard";
 
 interface UserProfile {
   id: string;
@@ -18,7 +20,7 @@ export default function UsersPage() {
   const router = useRouter();
   const { success, error: showError } = useToast();
 
-  const [admin, setAdmin] = useState<any>(null);
+  const { admin } = useAdminGuard();
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -34,18 +36,9 @@ export default function UsersPage() {
   });
 
   useEffect(() => {
-    const adminToken = localStorage.getItem("admin_token");
-    if (!adminToken) {
-      router.push("/admin/login");
-      return;
-    }
-    setAdmin(JSON.parse(adminToken));
-  }, [router]);
-
-  useEffect(() => {
     const loadUsers = async () => {
       try {
-        const res = await fetch("/api/admin/users");
+        const res = await adminFetch("/api/admin/users");
         const data = await res.json();
         setUsers(data.users || []);
       } catch (err) {
@@ -66,7 +59,7 @@ export default function UsersPage() {
 
     try {
       if (editingId) {
-        const res = await fetch(`/api/admin/users/${editingId}`, {
+        const res = await adminFetch(`/api/admin/users/${editingId}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(formData),
@@ -74,7 +67,7 @@ export default function UsersPage() {
         if (!res.ok) throw new Error("Update failed");
         success("Updated", "User updated!");
       } else {
-        const res = await fetch("/api/admin/users", {
+        const res = await adminFetch("/api/admin/users", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(formData),
@@ -83,7 +76,7 @@ export default function UsersPage() {
         success("Created", "User created!");
       }
 
-      const res = await fetch("/api/admin/users");
+      const res = await adminFetch("/api/admin/users");
       const data = await res.json();
       setUsers(data.users || []);
 
@@ -109,7 +102,7 @@ export default function UsersPage() {
   const handleDelete = async (id: string) => {
     if (!confirm("Delete this user account? This cannot be undone.")) return;
     try {
-      const res = await fetch(`/api/admin/users/${id}`, { method: "DELETE" });
+      const res = await adminFetch(`/api/admin/users/${id}`, { method: "DELETE" });
       if (!res.ok) throw new Error("Delete failed");
       success("Deleted", "User deleted!");
       setUsers(users.filter((u) => u.id !== id));

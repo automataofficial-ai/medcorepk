@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { requireAdmin } from "@/lib/auth-server";
 
 function getServiceRoleClient() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -23,6 +24,9 @@ function getServiceRoleClient() {
  * questions and picking one out client-side.
  */
 export async function GET(req: NextRequest) {
+  const auth = await requireAdmin(req);
+  if (auth.status === "denied") return auth.response;
+
   try {
     const { searchParams } = new URL(req.url);
     const blockId = searchParams.get("block_id");
@@ -71,6 +75,9 @@ export async function GET(req: NextRequest) {
  * Used by the select-all / multi-select controls in the question manager.
  */
 export async function DELETE(req: NextRequest) {
+  const auth = await requireAdmin(req);
+  if (auth.status === "denied") return auth.response;
+
   try {
     let body: any;
     try {
@@ -124,6 +131,9 @@ export async function DELETE(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  const auth = await requireAdmin(req);
+  if (auth.status === "denied") return auth.response;
+
   try {
     const data = await req.json();
 

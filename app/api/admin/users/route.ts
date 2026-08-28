@@ -1,7 +1,11 @@
 import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
+import { requireAdmin } from "@/lib/auth-server";
 
 export async function GET(request: Request) {
+  const auth = await requireAdmin(request);
+  if (auth.status === "denied") return auth.response;
+
   try {
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -28,6 +32,9 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
+  const auth = await requireAdmin(request);
+  if (auth.status === "denied") return auth.response;
+
   try {
     const { email, full_name, role, specialty } = await request.json();
 

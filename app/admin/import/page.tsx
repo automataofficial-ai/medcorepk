@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { Upload, CheckCircle, AlertCircle } from "lucide-react";
+import { adminFetch } from "@/lib/admin-client";
+import { useAdminGuard } from "@/lib/use-admin-guard";
 
 interface Block {
   id: string;
@@ -14,6 +16,7 @@ interface SubSubject {
 }
 
 export default function ImportMCQsPage() {
+  const { admin } = useAdminGuard();
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<any>(null);
@@ -80,7 +83,7 @@ export default function ImportMCQsPage() {
 
     try {
       const csvText = await file.text();
-      const response = await fetch("/api/import/preview", {
+      const response = await adminFetch("/api/import/preview", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ csvText }),
@@ -168,7 +171,7 @@ export default function ImportMCQsPage() {
         return;
       }
 
-      const response = await fetch("/api/import/mcqs", {
+      const response = await adminFetch("/api/import/mcqs", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
